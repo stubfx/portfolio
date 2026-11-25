@@ -1,0 +1,90 @@
+/* The reading column, the git log and its gutter. */
+.page { position: relative; z-index: 1; }
+main { display: block; position: relative; }
+main:focus { outline: none; }
+
+#graph {
+  position: absolute; top: 0; height: 100%;
+  left: max(0px, calc((100% - var(--col) - var(--gw)) / 2));
+  width: calc(var(--gw) + 8px);
+  overflow: visible; pointer-events: none; z-index: 6;
+  opacity: var(--graph-dim);
+}
+
+.frame {
+  position: relative;
+  max-width: calc(var(--col) + var(--gw));
+  margin-inline: auto;
+  padding: 0 20px 0 var(--gw);
+}
+.frame.wide { max-width: calc(1180px + var(--gw)); }
+
+/* Intro: a terminal prompt, then the one big line. */
+.intro { padding: 22vh 0 10vh; }
+.prompt { margin: 0 0 28px; }
+.intro h1 {
+  font-size: clamp(44px, 8.4vw, 100px);
+  line-height: .96; letter-spacing: -.035em;
+  margin-bottom: 28px;
+}
+h1 em, .ttl em, .cv-title em, .card-title em, .end-line em {
+  font-family: var(--f-accent); font-style: italic; font-weight: 400;
+  color: var(--crema); letter-spacing: -.01em;
+}
+.lede { font-size: clamp(19px, 2vw, 22px); line-height: 1.5; max-width: 40ch; }
+.hint { margin-top: 44px; }
+kbd {
+  font: 400 .92em/1 var(--f-mono); color: var(--text);
+  border: 1px solid var(--tick); border-bottom-width: 2px;
+  padding: 2px 6px; text-transform: none; letter-spacing: 0;
+}
+
+/* Log segments sit between covers. */
+.logseg { position: relative; padding: 12vh 0 18vh; }
+.logseg.first { padding-top: 0; }
+.log { list-style: none; margin: 0; padding: 0; }
+.row { position: relative; padding-left: clamp(20px, 4vw, 44px); }
+
+/* Each entry opens with a hairline that starts on the rail and ends in a crop mark. */
+.entry, .slim { position: relative; }
+.entry::before, .slim::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  left: calc(-1 * clamp(20px, 4vw, 44px));
+  border-top: 1px solid var(--line);
+}
+.entry::after {
+  content: ""; position: absolute; top: -4px; right: -4px; width: 9px; height: 9px;
+  background:
+    linear-gradient(var(--tick), var(--tick)) center / 1px 100% no-repeat,
+    linear-gradient(var(--tick), var(--tick)) center / 100% 1px no-repeat;
+}
+.entry { padding: 64px 0 76px; }
+.eb { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; margin: 0 0 18px; }
+.eb .h { margin-left: auto; }
+.sep { color: var(--tick); margin: 0 .5em; }
+.tag { border: 1px solid var(--line); padding: 1px 7px; color: var(--sub); }
+.ttl { font-size: clamp(30px, 4.6vw, 52px); letter-spacing: -.022em; line-height: 1.04; margin-bottom: 18px; }
+.ds { font-size: 19px; max-width: 56ch; }
+.fn { font-size: 14px; color: var(--sub); margin: 18px 0 0; }
+
+.slim {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+  margin: 0; padding: 20px 0;
+  font: 400 14px/1.5 var(--f-mono); color: var(--sub);
+}
+.slim .msg { color: var(--text); flex: 1 1 24ch; }
+
+/* The special Accenture commit: a bracketed block, echoing the diamond node. */
+.special .entry { padding-left: 22px; }
+.special .entry > :not(.eb)::before { content: none; }
+.special .entry { background: linear-gradient(var(--b-accenture), var(--b-accenture)) 0 64px / 1px calc(100% - 140px) no-repeat; }
+
+.end { padding: 28vh 0 22vh; position: relative; }
+.end-line { font-size: clamp(24px, 3.4vw, 36px); line-height: 1.25; letter-spacing: -.015em; max-width: 26ch; }
+
+@media (max-width: 600px) {
+  .intro { padding-top: 16vh; }
+  .entry { padding: 48px 0 56px; }
+  .eb .h { margin-left: 0; }
+  .ds { font-size: 17px; }
+}
