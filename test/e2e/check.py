@@ -178,6 +178,26 @@ def resize(c):
 
 
 @check
+def texture(c):
+    pg = c.page('/')
+    bg = pg.eval_on_selector('#grain', 'e => getComputedStyle(e).backgroundImage')
+    expect(bg.startswith('url("data:image/png'), f'grain has no tile: {bg[:40]}')
+    t1 = pg.eval_on_selector('#grain', 'e => e.style.transform')
+    pg.wait_for_timeout(400)
+    t2 = pg.eval_on_selector('#grain', 'e => e.style.transform')
+    expect(t1 != t2, 'grain is not moving')
+    lit = pg.evaluate("""() => { const c = document.getElementById('stars'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n }""")
+    expect(lit > 100, f'starfield is empty ({lit} lit pixels)')
+    no_errors(pg)
+    pg.close()
+    pg = c.page('/', reduced=True)
+    t1 = pg.eval_on_selector('#grain', 'e => e.style.transform')
+    pg.wait_for_timeout(400)
+    expect(t1 == pg.eval_on_selector('#grain', 'e => e.style.transform') == '', 'grain moves under reduced motion')
+    pg.close()
+
+
+@check
 def screenshots(c):
     SHOTS.mkdir(exist_ok=True)
     for w, h in ((1280, 800), (390, 844)):
