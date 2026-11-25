@@ -59,7 +59,7 @@ Progress `p` runs 0 → 1 over a segment's pinned run, as today. Each element ge
 
 | Track | Window (p) | What happens |
 | --- | --- | --- |
-| Previous log | 0 → 0.22 | Rows drift up and back and fade, top rows first (staggered a few % of p apart), so the last rows are still leaving while the aperture opens. |
+| Previous log | 0 → 0.26 | Rows fade and drift up slightly (3vh, no depth, no zoom), top rows first (staggered a few % of p apart), so the last rows are still leaving while the aperture opens. |
 | Ground | 0.04 → 0.30 | The page ground deepens toward black around the opening aperture. |
 | Aperture | 0.04 → 0.30 | A circle centred on the focal point grows from nothing to past the farthest screen corner. Slow start, fast middle, soft landing. Its edge is a 1 px hairline in the project accent that fades as it leaves the screen. |
 | Graph | with the aperture | Graph opacity follows how much of the screen the aperture covers: 1 → 0 as it opens, 0 through the dwell. |
@@ -68,14 +68,16 @@ Progress `p` runs 0 → 1 over a segment's pinned run, as today. Each element ge
 | Accent word | whole segment | Slow constant sideways drift. |
 | Copy | 0.18 → 0.36 | Meta line, title, lede, land link fade in one after another (about 0.03 apart), in place: opacity only, no zoom, no slide. Then they hold perfectly still. |
 | Copy leaves | 0.74 → 0.86 | Same pieces fade out in place, meta first. |
-| Sky dissolves | 0.78 → 0.96 | The cover's background fades to the ground; the stars stay continuous because they are the same stars. |
+| Sky dissolves | 0.80 → 1 | The cover's background fades to the ground; the stars stay continuous because they are the same stars. |
 | Planet leaves | 0.78 → 1 | Slides past the camera: grows and moves out toward its own side, fading at the very end. |
 | Ground lifts | 0.82 → 1 | Black back to Mocha base. |
-| Next log | 0.84 → 1 | Rows rise in one by one (bottom-up stagger) while the planet is still leaving. |
+| Next log | 0.84 → 1 | Rows fade in one by one, top row first (reading order), settling from a 3vh drift, while the planet is still leaving. No depth, no zoom. |
 
 The copy is still and fully legible from about 0.36 to 0.74. The hash anchor (`#slug`, 0.55) stays inside that window.
 
 **Chained covers** (two projects with no log between, today BA → configurator): the next cover's aperture starts opening while the previous cover's planet is still leaving. The rule is the same as everywhere: no scroll position shows only the ground.
+
+Plan-time check: with the first draft (previous log ending at 0.22, sky dissolving 0.78 → 0.96) the invariant below failed briefly around p ≈ 0.165 and p ≈ 0.88, so those two windows moved as shown. Any later tuning moves windows, never the invariant's threshold.
 
 **Invariant (testable):** for every `p`, at least one of outgoing log, cover copy or incoming log is at opacity ≥ 0.5, or the aperture is at least half open. No black or empty frame between neighbours.
 
