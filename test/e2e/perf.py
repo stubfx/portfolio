@@ -6,6 +6,7 @@ home sweeps the flight (first segment to the end of the configurator); control s
 top to bottom, the floor for this browser and host. Set PW_WS to use a remote Playwright.
 """
 import argparse
+import bisect
 import json
 import statistics
 import sys
@@ -34,21 +35,45 @@ SWEEP = '''([route, step]) => new Promise(done => {
 
 
 def metrics(events):
+    """forced/maxScript/scriptTotal count the site's scripts (url under /assets/) only; layouts
+    forced from the harness's own scroll driver are reported apart as forced_harness."""
     frames = sum(1 for e in events if e.get('name') == 'BeginFrame')
     dropped = sum(1 for e in events if e.get('name') == 'DroppedFrame')
     calls = [e for e in events if e.get('name') == 'FunctionCall' and e.get('ph') == 'X']
     by_thread = {}
-    for e in calls:
-        by_thread.setdefault((e['pid'], e['tid']), []).append((e['ts'], e['ts'] + e.get('dur', 0)))
-    forced = 0
+    for e in sorted(calls, key=lambda e: e['ts']):
+        by_thread.setdefault((e['pid'], e['tid']), []).append(e)
+    starts = {k: [c['ts'] for c in cs] for k, cs in by_thread.items()}
+    # running max of call end times lets the backwards scan stop once nothing earlier can contain a ts
+    reach = {}
+    for k, cs in by_thread.items():
+        m, reach[k] = 0, []
+        for c in cs:
+            m = max(m, c['ts'] + c.get('dur', 0))
+            reach[k].append(m)
+    forced = forced_harness = 0
     for e in events:
         if e.get('name') in ('Layout', 'UpdateLayoutTree') and e.get('ph') == 'X':
-            if any(s <= e['ts'] <= f for s, f in by_thread.get((e['pid'], e['tid']), ())):
-                forced += 1
-    durs = [e.get('dur', 0) / 1000 for e in calls]
+            k = (e['pid'], e['tid'])
+            cs = by_thread.get(k, [])
+            i = bisect.bisect_right(starts.get(k, []), e['ts']) - 1
+            while i >= 0 and reach[k][i] >= e['ts']:
+                if cs[i]['ts'] + cs[i].get('dur', 0) >= e['ts']:
+                    if is_site(cs[i]):
+                        forced += 1
+                    else:
+                        forced_harness += 1
+                    break
+                i -= 1
+    durs = [e.get('dur', 0) / 1000 for e in calls if is_site(e)]
     return {'frames': frames, 'dropped': dropped,
             'droppedPct': 100 * dropped / frames if frames else 0.0,
-            'forced': forced, 'maxScript': max(durs, default=0.0), 'scriptTotal': sum(durs)}
+            'forced': forced, 'forced_harness': forced_harness,
+            'maxScript': max(durs, default=0.0), 'scriptTotal': sum(durs)}
+
+
+def is_site(call):
+    return '/assets/' in (call.get('args', {}).get('data', {}).get('url') or '')
 
 
 def run_once(browser, base, route, rate):
@@ -88,7 +113,7 @@ def main():
             m = median([run_once(browser, base, args.route, rate) for _ in range(args.runs)])
             results[rate] = m
             print(f"{args.route} {rate}x: frames={m['frames']:.0f} dropped={m['dropped']:.0f} ({m['droppedPct']:.1f}%) "
-                  f"forced={m['forced']:.0f} maxScript={m['maxScript']:.1f}ms scriptTotal={m['scriptTotal']:.0f}ms")
+                  f"forced={m['forced']:.0f} forced_harness={m['forced_harness']:.0f} maxScript={m['maxScript']:.1f}ms scriptTotal={m['scriptTotal']:.0f}ms")
         browser.close()
     srv.shutdown()
     if args.json:
