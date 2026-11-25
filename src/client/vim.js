@@ -76,7 +76,8 @@ export function startVim(doc = document, graph = null) {
       e.preventDefault();
       const { message, action } = runCommand(input.value);
       closeCmd();
-      if (action === 'help') { win.location.href = '/help/'; return; }
+      // Relative to this module, so it works under a GitHub project path too.
+      if (action === 'help') { win.location.href = new URL('../help/', import.meta.url).href; return; }
       say(message, message.startsWith('E'));
     });
     input.addEventListener('keydown', (e) => {

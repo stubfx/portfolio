@@ -29,7 +29,15 @@ async function walk(dir) {
   return out;
 }
 
-export async function build({ outDir = join(ROOT, 'dist') } = {}) {
+// GitHub project pages live under /<repo>/; a custom domain lives at the root.
+// Templates write site-relative URLs ("/assets/...") and this prefixes them.
+export function withBase(html, base) {
+  const b = (base || '').replace(/\/+$/, '');
+  if (!b) return html;
+  return html.replace(/\b(href|src)="\/(?!\/)/g, `$1="${b}/`);
+}
+
+export async function build({ outDir = join(ROOT, 'dist'), base = '' } = {}) {
   const out = resolve(outDir);
   if (out === ROOT || out === '/' || ROOT.startsWith(out + '/')) throw new Error(`Refusing to clean ${out}`);
   await rm(out, { recursive: true, force: true });
@@ -43,7 +51,7 @@ export async function build({ outDir = join(ROOT, 'dist') } = {}) {
   const write = async (rel, content) => {
     const file = join(out, rel);
     await mkdir(dirname(file), { recursive: true });
-    await writeFile(file, content);
+    await writeFile(file, rel.endsWith('.html') ? withBase(content, base) : content);
     written.push(file);
   };
   const page = (rel, o) => write(rel, layout({ selfHostedFonts, ...o }));
@@ -86,7 +94,8 @@ export async function build({ outDir = join(ROOT, 'dist') } = {}) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  build().then((files) => console.log(`built ${files.length} files into dist/`)).catch((e) => {
+  const base = process.env.BASE_PATH || '';
+  build({ base }).then((files) => console.log(`built ${files.length} files into dist/${base ? ` (base ${base})` : ''}`)).catch((e) => {
     console.error(e.message);
     process.exit(1);
   });

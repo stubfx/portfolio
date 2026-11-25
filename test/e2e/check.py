@@ -344,6 +344,42 @@ def contact_everywhere(c):
 
 
 @check
+def base_path(c):
+    import subprocess, tempfile
+    root = tempfile.mkdtemp()
+    subprocess.run(['node', '-e', f"import('./scripts/build.mjs').then(m => m.build({{ outDir: '{root}/portfolio', base: '/portfolio' }}))"],
+                   cwd=ROOT, check=True)
+
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+    srv = socketserver.TCPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=root))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f'http://127.0.0.1:{srv.server_address[1]}'
+    try:
+        pg = c.browser.new_page(viewport={'width': 1280, 'height': 800})
+        missing = []
+        pg.on('response', lambda r: r.status >= 400 and 'fonts.g' not in r.url and missing.append(r.url))
+        pg.route('**/fonts.googleapis.com/**', lambda r: r.abort())
+        pg.goto(base + '/portfolio/')
+        pg.wait_for_timeout(600)
+        expect(not missing, f'404s under /portfolio/: {missing}')
+        expect(pg.evaluate('() => !!window.__site && !!window.__site.graph'), 'main.js did not run under /portfolio/')
+        pg.keyboard.press('Escape')
+        pg.keyboard.press(':')
+        pg.keyboard.type('help')
+        pg.keyboard.press('Enter')
+        pg.wait_for_url('**/portfolio/help/')
+        pg.goto(base + '/portfolio/projects/configurator-framework/')
+        pg.wait_for_timeout(300)
+        expect(not missing, f'404s on a project page: {missing}')
+        pg.close()
+    finally:
+        srv.shutdown()
+
+
+@check
 def screenshots(c):
     SHOTS.mkdir(exist_ok=True)
     for w, h in ((1280, 800), (390, 844)):

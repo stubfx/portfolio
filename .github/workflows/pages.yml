@@ -24,7 +24,12 @@ jobs:
           node-version: 22
       # Zero dependencies: no npm install step.
       - run: npm test
+      # base_path is "/portfolio" on stubfx.github.io and "" once a custom domain is set.
+      - id: pages
+        uses: actions/configure-pages@v5
       - run: npm run build
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
       - run: node scripts/budget.mjs dist
       - uses: actions/upload-pages-artifact@v4
         with:

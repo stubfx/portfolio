@@ -78,6 +78,8 @@ Until `public/fonts/fonts.css` exists, the site loads fonts from Google Fonts. I
 
 Pushing to `main` runs `.github/workflows/pages.yml`: tests, build, budgets, then GitHub Pages.
 
+On `stubfx.github.io` the site lives under `/portfolio/`; the workflow passes that prefix to the build (`BASE_PATH`, from `actions/configure-pages`), and it drops to the root by itself once the custom domain is set. To try a prefixed build locally: `BASE_PATH=/portfolio npm run build`.
+
 One-time setup:
 
 1. Repository **Settings → Pages → Source: GitHub Actions**.
