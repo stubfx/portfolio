@@ -1,0 +1,64 @@
+/* Cockpit: ground, starfield, film grain, tmux status bar, command line. */
+/* The screen goes dark under a cover by fading this in, not by repainting the body. */
+#ground { position: fixed; inset: 0; z-index: 0; background: #000; opacity: 0; pointer-events: none; }
+#stars {
+  position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
+  /* Stars fade out behind the reading column. */
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(50% - 470px), transparent calc(50% - 360px), transparent calc(50% + 380px), #000 calc(50% + 490px));
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(50% - 470px), transparent calc(50% - 360px), transparent calc(50% + 380px), #000 calc(50% + 490px));
+}
+@media (max-width: 900px) {
+  #stars {
+    -webkit-mask-image: linear-gradient(90deg, rgb(0 0 0 / .55), rgb(0 0 0 / .18) 30%, rgb(0 0 0 / .18) 70%, rgb(0 0 0 / .55));
+    mask-image: linear-gradient(90deg, rgb(0 0 0 / .55), rgb(0 0 0 / .18) 30%, rgb(0 0 0 / .18) 70%, rgb(0 0 0 / .55));
+  }
+}
+
+/* Grain: an oversized noise layer, moved with transforms only. */
+#grain {
+  position: fixed; left: -50%; top: -50%; width: 200%; height: 200%;
+  z-index: 50; pointer-events: none; opacity: .05; background-repeat: repeat;
+}
+
+/* Square tmux bar. The current tab is inverted. */
+#bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  height: var(--bar-h); display: flex; align-items: stretch;
+  background: var(--crust); border-top: 1px solid var(--line);
+  font: 400 13px/1 var(--f-mono); color: var(--sub);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: content-box;
+}
+#bar > * { display: flex; align-items: center; flex: none; padding: 0 12px; }
+#bar a { text-decoration: none; }
+#bar .ses { background: var(--mauve); color: var(--crust); font-weight: 700; letter-spacing: .02em; }
+#bar .tabs { list-style: none; margin: 0; padding: 0; align-items: stretch; }
+.tabs li { display: flex; }
+.tabs a { display: flex; align-items: center; gap: 7px; padding: 0 12px; color: var(--sub); }
+.tabs a:hover { color: var(--text); }
+.tabs .num { font-weight: 700; }
+.tabs .on a, .tabs a[aria-current="page"] { background: var(--text); color: var(--crust); }
+#bar .fill { flex: 1 1 auto; padding: 0; }
+#bar .hud { font-size: 12px; }
+#bar .mail { color: var(--mauve); }
+#mode.normal { color: var(--crust); background: var(--crema); font-weight: 700; }
+
+#cmd { position: fixed; left: 0; right: 0; bottom: var(--bar-h); z-index: 61; pointer-events: none; font: 400 14px/1.4 var(--f-mono); }
+#cmdf { display: flex; gap: 2px; align-items: center; padding: 7px 12px; background: var(--crust); border-top: 1px solid var(--line); pointer-events: auto; }
+#cmdf[hidden] { display: none; }
+#cmdp { color: var(--mauve); }
+#cmdi { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--text); font: inherit; padding: 0; }
+#cmdi:focus { outline: none; }
+#msg { margin: 0; padding: 7px 12px; background: var(--crust); color: var(--text); border-top: 1px solid var(--line); }
+#msg:empty { padding: 0; border: 0; }
+#msg.err { color: var(--b-twitch); }
+
+/* 44 px touch targets where fingers are likely; the thin tmux bar stays for fine pointers. */
+@media (max-width: 600px), (pointer: coarse) {
+  :root { --bar-h: 44px; }
+}
+@media (max-width: 600px) {
+  #bar .ses, #mode, #pos { display: none; }
+  #bar > * { padding: 0 9px; }
+  .tabs a { padding: 0 9px; gap: 5px; }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "lucamolluso-portfolio",
+  "private": true,
+  "type": "module",
+  "description": "lucamolluso.com: a git log you fly through. Zero dependencies, Node built-ins only.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "e2e": "python3 test/e2e/check.py"
+  }
+}

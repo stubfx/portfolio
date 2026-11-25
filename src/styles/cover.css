@@ -1,0 +1,102 @@
+/* Project covers: a sticky stage per segment. JS drives the flight;
+   without JS each cover is simply a full-screen section. */
+.seg { position: relative; --seg-h: var(--seg-desk, 300vh); height: var(--seg-h); }
+@media (max-width: 600px) { .seg { --seg-h: calc(var(--seg-desk, 300vh) * 2 / 3); } }
+
+/* With JS, covers overlap the last screen of the log before them and the
+   first screen of the log after them, so both are visible during the flight. */
+.js .seg, .js .seg + .logseg { margin-top: -100vh; }
+.js .logseg { min-height: 140vh; }
+
+/* Hash links land mid-dwell, not at the first pixel of the approach. */
+.dwell { position: absolute; left: 0; width: 1px; height: 1px; top: calc((var(--seg-h) - 100vh) * .55); }
+
+.stage { position: sticky; top: 0; height: 100vh; overflow: hidden; z-index: 4; pointer-events: none; }
+.cover {
+  position: absolute; inset: 0; overflow: hidden;
+  background: var(--p-bg); color: var(--p-fg);
+  transform-origin: 50% 50%;
+  pointer-events: auto;
+}
+.js .seg .cover { opacity: 0; pointer-events: none; }
+.js .seg .cover.live { pointer-events: auto; }
+
+.layer {
+  position: absolute; inset: -6%;
+  transform: translate3d(0, calc(var(--dwell, 0) * var(--depth, 0) * -14vh), 0);
+}
+.l-front { inset: 0; }
+.plate, .l-img img, .l-back video { width: 100%; height: 100%; object-fit: cover; }
+
+/* One huge italic word: the project's accent, as texture. */
+.l-word { display: flex; align-items: flex-end; padding: 0 0 6% 5%; pointer-events: none; }
+.l-word span {
+  font: italic 300 clamp(140px, 30vw, 560px)/.78 var(--f-accent);
+  color: var(--p-accent); opacity: .17; letter-spacing: -.045em; white-space: nowrap;
+}
+
+.l-front {
+  display: grid; align-content: end;
+  padding: clamp(24px, 6vw, 96px);
+  padding-bottom: calc(var(--bar-h) + clamp(32px, 9vh, 104px));
+}
+.k { position: absolute; width: 18px; height: 18px; border: 0 solid color-mix(in oklab, var(--p-fg) 50%, transparent); }
+.k1 { top: 22px; left: 22px; border-top-width: 1px; border-left-width: 1px; }
+.k2 { top: 22px; right: 22px; border-top-width: 1px; border-right-width: 1px; }
+.k3 { bottom: calc(var(--bar-h) + 22px); left: 22px; border-bottom-width: 1px; border-left-width: 1px; }
+.k4 { bottom: calc(var(--bar-h) + 22px); right: 22px; border-bottom-width: 1px; border-right-width: 1px; }
+.mini .k3, .mini .k4 { bottom: 14px; }
+.mini .k1, .mini .k2 { top: 14px; }
+.mini .k1, .mini .k3 { left: 14px; }
+.mini .k2, .mini .k4 { right: 14px; }
+
+.cv-copy { position: relative; max-width: 780px; }
+/* A feathered pool of the cover's own background behind the copy: the art can be anything,
+   the text always sits on --p-bg, so the build's palette check holds on screen. */
+.cv-copy::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  top: -110px; right: -160px; bottom: -48px; left: -100vw;
+  background: var(--p-bg);
+  /* Solid behind the copy, feathered over 150 px to the right and 100 px above. */
+  -webkit-mask: linear-gradient(to left, transparent, #000 150px), linear-gradient(to bottom, transparent, #000 100px);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(to left, transparent, #000 150px), linear-gradient(to bottom, transparent, #000 100px);
+  mask-composite: intersect;
+}
+.l-front { isolation: isolate; }
+.cv-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 20px; color: var(--p-fg); }
+.cover .ref { color: var(--p-accent); }
+.cover .tag { border-color: color-mix(in oklab, var(--p-fg) 30%, transparent); color: inherit; }
+.cv-title {
+  font-size: clamp(42px, 7.4vw, 112px);
+  line-height: .94; letter-spacing: -.035em; margin-bottom: 22px;
+}
+.cover em { color: var(--p-accent); }
+.dg { font: 400 .4em var(--f-mono); color: var(--p-accent); vertical-align: super; margin-left: .2em; }
+.cv-lede { font-size: clamp(18px, 1.7vw, 21px); max-width: 46ch; margin: 0; }
+
+.land {
+  display: inline-flex; align-items: center; gap: 12px;
+  margin-top: 30px; padding: 13px 18px;
+  border: 1px solid currentColor; color: var(--p-accent);
+  font: 700 13px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
+}
+.land::after { content: "\2192"; font-size: 15px; }
+.land:hover { background: var(--p-accent); color: var(--p-bg); }
+
+/* Project page hero and work cards reuse the cover. */
+.hero { position: relative; height: 88vh; min-height: 520px; }
+.hero .l-front { padding-bottom: clamp(32px, 9vh, 104px); }
+.hero .k3, .hero .k4 { bottom: 22px; }
+
+.card { display: block; color: var(--text); text-decoration: none; }
+.cover.mini { position: relative; aspect-ratio: 4 / 5; }
+.mini .l-word span { font-size: clamp(110px, 16vw, 230px); }
+.card-meta { padding-top: 16px; }
+.card-meta .cv-meta { color: var(--sub); margin-bottom: 8px; }
+.card-title { font-size: clamp(24px, 2.4vw, 30px); letter-spacing: -.015em; margin: 0; }
+.card:hover .card-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em; }
+@media (prefers-reduced-motion: no-preference) {
+  .cover.mini .layer { transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+  .card:hover .cover.mini .l-back, .card:hover .cover.mini .l-img { transform: scale(1.04); }
+}
