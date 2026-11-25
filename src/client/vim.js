@@ -50,7 +50,7 @@ export function startVim(doc = document, graph = null) {
     prevProject: () => graph && graph.project(-1),
     top: () => (graph ? graph.go(0) : win.scrollTo({ top: 0, behavior: 'smooth' })),
     bottom: () => (graph ? graph.go(graph.rows.length - 1) : win.scrollTo({ top: doc.documentElement.scrollHeight, behavior: 'smooth' })),
-    land: () => graph && graph.land(),
+    land: () => !!(graph && graph.land()),
     openCmd,
     exitNormal: () => {},
   };
@@ -58,6 +58,8 @@ export function startVim(doc = document, graph = null) {
   doc.addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
     if (e.target.closest && e.target.closest(EDITABLE)) return;
+    // Enter on a focused link or button keeps its normal meaning, even in normal mode.
+    if (e.key === 'Enter' && e.target.closest && e.target.closest('a[href], button, summary, [role="button"], [role="link"]')) return;
     const was = state.normal;
     const { state: next, action } = vimKey(state, e.key, e.timeStamp || win.performance.now());
     state = next;
@@ -65,8 +67,8 @@ export function startVim(doc = document, graph = null) {
       showMode();
       say(state.normal ? 'Normal mode: j and k move through the log, : opens commands, i or Esc to leave.' : '');
     }
-    if (e.key === 'Escape' || action || (state.normal && e.key === 'g')) e.preventDefault();
-    if (action) run[action.type]();
+    if (e.key === 'Escape' || (state.normal && e.key === 'g')) e.preventDefault();
+    if (action && run[action.type]() !== false) e.preventDefault();
   });
 
   if (form) {

@@ -16,9 +16,10 @@ export function loadProjects(dir) {
         if (data[key] === undefined || data[key] === '') throw new Error(`Project file "${file}" is missing "${key}"`);
       }
       const palette = { ...DEFAULT_PALETTE, ...(data.palette || {}) };
-      for (const k of ['fg', 'accent']) {
+      // fg is body text (AAA); accent is used for links, refs and the accent word (AA).
+      for (const [k, min] of [['fg', 7], ['accent', 4.5]]) {
         const ratio = contrastRatio(palette[k], palette.bg);
-        if (ratio < 4.5) throw new Error(`Project "${data.slug}": ${k} on bg contrast ${ratio} is below 4.5`);
+        if (ratio < min) throw new Error(`Project "${data.slug}": ${k} on bg contrast ${ratio} is below ${min}`);
       }
       return {
         accent: '',

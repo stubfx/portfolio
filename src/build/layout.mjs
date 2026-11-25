@@ -17,7 +17,15 @@ export function fontLinks(selfHosted) {
     ? '<link rel="stylesheet" href="/fonts/fonts.css">'
     : '<link rel="preconnect" href="https://fonts.googleapis.com">'
       + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-      + `<link rel="stylesheet" href="${GOOGLE_FONTS.replace(/&/g, '&amp;')}">`;
+      // Non-blocking: text renders in the fallback first, and main.js never waits on Google.
+      + `<link rel="stylesheet" href="${GOOGLE_FONTS.replace(/&/g, '&amp;')}" media="print" onload="this.media='all'">`
+      + `<noscript><link rel="stylesheet" href="${GOOGLE_FONTS.replace(/&/g, '&amp;')}"></noscript>`;
+}
+
+function footer() {
+  const links = site.links.map((l) => `<a href="${l.href}">${l.label}</a>`).join(' · ');
+  return `<footer class="site-foot"><div class="frame"><p class="rail"><a href="mailto:${site.email}">${site.email}</a></p>`
+    + `<p class="hud">${links} · ${site.location}</p></div></footer>`;
 }
 
 const style = (vars) => Object.entries(vars).map(([k, v]) => `${k}:${v}`).join(';');
@@ -55,6 +63,7 @@ ${fontLinks(selfHostedFonts)}
 </head>
 <body data-page="${page}"${vars ? ` style="${style(vars)}"` : ''}>
 <a class="skip" href="#main">Skip to content</a>
+<div id="ground" aria-hidden="true"></div>
 <canvas id="stars" aria-hidden="true"></canvas>
 <div id="grain" aria-hidden="true"></div>
 <div class="page">
@@ -62,6 +71,7 @@ ${fontLinks(selfHostedFonts)}
 <main id="main" tabindex="-1">
 ${body}
 </main>
+${page === 'log' ? '' : footer()}
 </div>
 <nav id="bar" aria-label="Pages and status">
 <a class="ses" href="/">lucamolluso</a>

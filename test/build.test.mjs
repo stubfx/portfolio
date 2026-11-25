@@ -69,3 +69,16 @@ test('project pages show their commit in the status bar', async () => {
   const html = await page('projects/configurator-framework/index.html');
   assert.match(html, /<span id="pos" class="hud">7be2104 · accenture<\/span>/);
 });
+
+test('web fonts never block rendering or scripts', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^"]+" media="print" onload="this\.media='all'">/);
+  assert.match(html, /<noscript><link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com/);
+});
+
+test('every page but home ends with a contact footer', async () => {
+  for (const f of ['work/index.html', 'about/index.html', 'help/index.html', 'projects/ba-art-direction/index.html', '404.html']) {
+    assert.match(await page(f), /<footer class="site-foot">[\s\S]*mailto:info@lucamolluso\.com/, f);
+  }
+  assert.doesNotMatch(await page('index.html'), /class="site-foot"/);
+});

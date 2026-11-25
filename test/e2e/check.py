@@ -114,7 +114,7 @@ def approach_darkens(c):
     top = pg.evaluate("() => { const s = document.querySelector('.seg'); return s.getBoundingClientRect().top + scrollY }")
     pg.evaluate(f'() => scrollTo(0, {top} + 0.1 * (document.querySelector(".seg").offsetHeight - innerHeight))')
     pg.wait_for_timeout(200)
-    st = pg.evaluate("() => [getComputedStyle(document.body).getPropertyValue('--ground'), getComputedStyle(document.querySelector('.seg .cover')).opacity, getComputedStyle(document.querySelector('.logseg')).opacity]")
+    st = pg.evaluate("() => [getComputedStyle(document.getElementById('ground')).opacity, getComputedStyle(document.querySelector('.seg .cover')).opacity, getComputedStyle(document.querySelector('.logseg')).opacity]")
     expect(0 < float(st[0]) < 1, f'ground mid-approach {st[0]}')
     expect(0 < float(st[1]) < 1, f'cover mid-approach {st[1]}')
     expect(0 < float(st[2]) < 1, f'log mid-approach {st[2]}')
@@ -230,6 +230,117 @@ def vim_keys(c):
     pg.keyboard.press('Enter')
     pg.wait_for_url('**/help/')
     pg.close()
+
+
+def seg_scroll(pg, slug, p):
+    pg.evaluate(f'''() => {{ const s = document.getElementById('seg-{slug}'); let t = 0;
+      for (let e = s; e; e = e.offsetParent) t += e.offsetTop;
+      scrollTo(0, t + {p} * (s.offsetHeight - s.querySelector('.stage').offsetHeight)) }}''')
+    pg.wait_for_timeout(250)
+
+
+@check
+def covers_reachable(c):
+    pg = c.page('/')
+    lands = set()
+    for _ in range(40):
+        pg.keyboard.press('Tab')
+        href = pg.evaluate("() => document.activeElement.matches('.land') ? document.activeElement.getAttribute('href') : null")
+        if href:
+            lands.add(href)
+    total = pg.eval_on_selector_all('.land', 'els => els.length')
+    expect(len(lands) == total, f'Tab reached {len(lands)} of {total} land links')
+    snap = pg.locator('main').aria_snapshot()
+    for title in pg.eval_on_selector_all('.seg .cv-title', 'els => els.map(e => e.textContent)'):
+        word = title.split()[0]
+        expect(word in snap, f'cover "{title}" missing from the accessibility tree')
+    expect(pg.evaluate("() => window.find('Servers for real')"), 'find-in-page cannot see off-screen covers')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def land_click(c):
+    for p in (0.25, 0.15):
+        pg = c.page('/')
+        seg_scroll(pg, 'configurator-framework', p)
+        pg.click('#seg-configurator-framework .land')
+        pg.wait_for_timeout(600)
+        expect(pg.url.endswith('/projects/configurator-framework/'), f'click at p={p} stayed on {pg.url}')
+        pg.close()
+
+
+@check
+def enter_on_link(c):
+    pg = c.page('/about/')
+    pg.focus('#bar a[href="/work/"]')
+    pg.keyboard.press('Escape')
+    pg.keyboard.press('Enter')
+    pg.wait_for_timeout(600)
+    expect(pg.url.endswith('/work/'), f'Enter in normal mode on a link stayed on {pg.url}')
+    pg.close()
+
+
+def contrast(a, b):
+    def lum(c):
+        ch = [v / 255 for v in c[:3]]
+        ch = [v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in ch]
+        return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
+    x, y = sorted((lum(a), lum(b)), reverse=True)
+    return (x + 0.05) / (y + 0.05)
+
+
+@check
+def cover_contrast(c):
+    from io import BytesIO
+    from PIL import Image
+    for w, h in ((844, 390), (1280, 800), (390, 844)):
+        for slug in c.page('/').eval_on_selector_all('.seg', 'els => els.map(e => e.dataset.slug)'):
+            pg = c.page('/', w, h)
+            seg_scroll(pg, slug, 0.55)
+            boxes = pg.evaluate(f'''() => [...document.querySelectorAll('#seg-{slug} .cv-title, #seg-{slug} .cv-title em, #seg-{slug} .cv-lede')].map(e => {{
+              const r = e.getBoundingClientRect(); const s = getComputedStyle(e);
+              return [e.className || e.tagName, r.left, r.top, r.right, r.bottom, s.color, parseFloat(s.fontSize)] }})''')
+            pg.add_style_tag(content='#grain{display:none} .cv-copy, .cv-copy *{color:transparent!important;border-color:transparent!important}')
+            pg.wait_for_timeout(100)
+            img = Image.open(BytesIO(pg.screenshot())).convert('RGB')
+            for name, l, t, r, b, color, size in boxes:
+                rgb = [int(v) for v in color[color.index('(') + 1:color.index(')')].split(',')[:3]]
+                vals = sorted(contrast(rgb, img.getpixel((x, y)))
+                              for x in range(max(0, int(l)), min(w, int(r)), 3)
+                              for y in range(max(0, int(t)), min(h, int(b)), 3))
+                if not vals:
+                    continue
+                p1 = vals[len(vals) // 100]
+                need = 3 if size >= 24 else 4.5
+                expect(p1 >= need, f'{w}x{h} {slug} {name}: 1st percentile contrast {p1:.2f} < {need}')
+            pg.close()
+
+
+@check
+def light_frames(c):
+    pg = c.page('/')
+    for p in (0.1, 0.55, 0.9):
+        seg_scroll(pg, 'configurator-framework', p)
+    style = pg.evaluate("() => document.body.getAttribute('style') || ''")
+    expect(style == '', f'flight writes to body every frame: {style!r}')
+    g = pg.eval_on_selector('#ground', 'e => getComputedStyle(e).opacity')
+    seg_scroll(pg, 'configurator-framework', 0.55)
+    g2 = pg.eval_on_selector('#ground', 'e => getComputedStyle(e).opacity')
+    expect(float(g2) == 1 and g != g2, f'ground overlay not driven: {g} -> {g2}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def contact_everywhere(c):
+    for path in ('/projects/configurator-framework/', '/work/', '/about/', '/help/', '/'):
+        pg = c.page(path, 390, 844)
+        mail = pg.eval_on_selector_all('a[href^="mailto:"]', 'els => els.filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden" }).length')
+        expect(mail > 0, f'{path}: no visible mail link at 390px')
+        small = pg.eval_on_selector_all('#bar a', 'els => els.map(e => e.getBoundingClientRect().height).filter(h => h > 0 && h < 44)')
+        expect(not small, f'{path}: status bar targets under 44px: {small}')
+        pg.close()
 
 
 @check

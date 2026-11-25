@@ -32,7 +32,9 @@ table.spec { border-collapse: collapse; width: 100%; font-size: 15px; }
 
 /* Project pages take on the project's palette; the HUD stays Mocha. */
 body[data-page="project"] { color: var(--p-fg); }
-[data-page="project"] main a { color: var(--p-accent); }
+[data-page="project"] main a, .site-foot a { color: var(--p-accent, var(--mauve)); }
+[data-page="project"] :focus-visible { outline-color: var(--p-accent); }
+[data-page="project"] .prose figcaption { color: var(--p-fg); }
 .project .prose { padding-top: 8vh; }
 .project .cells { background: color-mix(in oklab, var(--p-fg) 22%, transparent); border-color: color-mix(in oklab, var(--p-fg) 22%, transparent); margin: 0 0 3em; }
 .project .cells > div { background: var(--p-bg); }
@@ -52,3 +54,9 @@ body[data-page="project"] { color: var(--p-fg); }
   .pager { grid-template-columns: 1fr; }
   .pager a[rel="next"], .pager .back { text-align: left; }
 }
+
+/* Contact on every page but home (home has its own EOF footer). */
+.site-foot { padding: 0 0 10vh; }
+.site-foot .rail { padding-top: 28px; margin: 0 0 8px; font-size: clamp(20px, 2.4vw, 26px); letter-spacing: -.01em; }
+.site-foot .hud { color: inherit; }
+.site-foot .hud a { color: inherit; }

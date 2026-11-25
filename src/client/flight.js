@@ -1,5 +1,5 @@
 // The home page flight: one rAF per scroll, writing only transform and opacity.
-import { flightFrame, groundColor, segmentProgress } from './phases.mjs';
+import { flightFrame, segmentProgress } from './phases.mjs';
 
 const isLog = (el) => el && el.classList.contains('logseg');
 const isSeg = (el) => el && el.classList.contains('seg');
@@ -27,7 +27,8 @@ export function startFlight(doc = document) {
   if (!segs.length) return () => {};
   const logs = [...doc.querySelectorAll('.logseg')];
   const motion = win.matchMedia('(prefers-reduced-motion: reduce)');
-  const body = doc.body;
+  const groundEl = doc.getElementById('ground');
+  const graphEl = doc.getElementById('graph');
   let raf = 0;
 
   const progress = (s) => {
@@ -37,15 +38,20 @@ export function startFlight(doc = document) {
 
   function frame() {
     raf = 0;
+    // Reads first, then writes: no forced layout inside the frame.
     const reduced = motion.matches;
     const vh = win.innerHeight;
+    const y = win.scrollY;
+    const ps = segs.map((s) => progress(s).p);
+    const logTops = new Map(logs.map((l) => [l, layoutTop(l) - y]));
+
     const logState = new Map(logs.map((l) => [l, IDENTITY]));
     const pick = (log, v) => { if (log && v.opacity < logState.get(log).opacity) logState.set(log, v); };
     let ground = 0;
     let dim = 1;
 
-    for (const s of segs) {
-      const { p } = progress(s);
+    segs.forEach((s, i) => {
+      const p = ps[i];
       const f = flightFrame(p, { reduced });
       const active = p > -0.02 && p < 1.02;
       pick(s.prev, f.prev);
@@ -58,8 +64,8 @@ export function startFlight(doc = document) {
 
       const c = s.cover;
       const op = active ? f.cover.opacity : 0;
+      // Opacity only: hidden covers stay in the accessibility tree, the Tab order and find-in-page.
       c.style.opacity = op;
-      c.style.visibility = op === 0 ? 'hidden' : '';
       c.style.transform = reduced ? '' : `perspective(1200px) translate3d(0,0,${f.cover.z}px) scale(${f.cover.scale})`;
       c.style.setProperty('--dwell', f.dwell);
       c.classList.toggle('live', op > 0.5);
@@ -67,22 +73,22 @@ export function startFlight(doc = document) {
         if (op > 0 && !reduced && s.video.paused) s.video.play().catch(() => {});
         else if ((op === 0 || reduced) && !s.video.paused) s.video.pause();
       }
-    }
+    });
 
     for (const [log, v] of logState) {
       log.style.opacity = v.opacity === 1 ? '' : v.opacity;
       if (reduced || (v.y === 0 && v.z === 0)) {
         log.style.transform = '';
       } else {
-        const originY = vh / 2 - (layoutTop(log) - win.scrollY);
+        const originY = vh / 2 - logTops.get(log);
         log.style.transformOrigin = `50% ${originY}px`;
         log.style.transform = `perspective(1200px) translate3d(0,${v.y}vh,${v.z}px)`;
       }
     }
 
-    body.style.setProperty('--bg', groundColor(ground));
-    body.style.setProperty('--graph-dim', dim);
-    body.style.setProperty('--ground', ground);
+    // A black overlay and the graph's own opacity: no inherited custom properties per frame.
+    if (groundEl) groundEl.style.opacity = ground;
+    if (graphEl) graphEl.style.opacity = dim;
   }
 
   const schedule = () => { if (!raf) raf = win.requestAnimationFrame(frame); };
@@ -90,6 +96,8 @@ export function startFlight(doc = document) {
   // Keyboard users must never focus something they can't see.
   function reveal(e) {
     const t = e.target;
+    // Keyboard focus only: a mouse click focuses the link too, and moving it would eat the click.
+    if (!t.matches || !t.matches(':focus-visible')) return;
     const seg = t.closest && t.closest('.seg');
     const log = t.closest && t.closest('.logseg');
     const y0 = win.scrollY;

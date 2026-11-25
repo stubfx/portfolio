@@ -1,4 +1,6 @@
-/* Cockpit: starfield, film grain, tmux status bar, command line. */
+/* Cockpit: ground, starfield, film grain, tmux status bar, command line. */
+/* The screen goes dark under a cover by fading this in, not by repainting the body. */
+#ground { position: fixed; inset: 0; z-index: 0; background: #000; opacity: 0; pointer-events: none; }
 #stars {
   position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
   /* Stars fade out behind the reading column. */
@@ -51,8 +53,12 @@
 #msg:empty { padding: 0; border: 0; }
 #msg.err { color: var(--b-twitch); }
 
+/* 44 px touch targets where fingers are likely; the thin tmux bar stays for fine pointers. */
+@media (max-width: 600px), (pointer: coarse) {
+  :root { --bar-h: 44px; }
+}
 @media (max-width: 600px) {
-  #bar .ses, #mode, #pos, #bar .mail { display: none; }
+  #bar .ses, #mode, #pos { display: none; }
   #bar > * { padding: 0 9px; }
   .tabs a { padding: 0 9px; gap: 5px; }
 }

@@ -50,8 +50,21 @@
 .mini .k1, .mini .k3 { left: 14px; }
 .mini .k2, .mini .k4 { right: 14px; }
 
-.cv-copy { max-width: 780px; }
-.cv-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 20px; color: color-mix(in oklab, var(--p-fg) 80%, var(--p-bg)); }
+.cv-copy { position: relative; max-width: 780px; }
+/* A feathered pool of the cover's own background behind the copy: the art can be anything,
+   the text always sits on --p-bg, so the build's palette check holds on screen. */
+.cv-copy::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  top: -110px; right: -160px; bottom: -48px; left: -100vw;
+  background: var(--p-bg);
+  /* Solid behind the copy, feathered over 150 px to the right and 100 px above. */
+  -webkit-mask: linear-gradient(to left, transparent, #000 150px), linear-gradient(to bottom, transparent, #000 100px);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(to left, transparent, #000 150px), linear-gradient(to bottom, transparent, #000 100px);
+  mask-composite: intersect;
+}
+.l-front { isolation: isolate; }
+.cv-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 20px; color: var(--p-fg); }
 .cover .ref { color: var(--p-accent); }
 .cover .tag { border-color: color-mix(in oklab, var(--p-fg) 30%, transparent); color: inherit; }
 .cv-title {

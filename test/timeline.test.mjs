@@ -51,3 +51,8 @@ test('project files must have required fields and a readable palette', () => {
 test('inline markdown renders the accent word', () => {
   assert.equal(renderInline('This *site* & more'), 'This <em>site</em> &amp; more');
 });
+
+test('project body text must reach AAA (7:1) on its own background', () => {
+  // #8a8a8a on #000000 is about 6.2:1: fine for AA, not for body text.
+  assert.throws(() => loadProjects(projectFile('title: P\nslug: p\nhash: 1\nbranch: main\nyear: 2020\npalette:\n  bg: "#000000"\n  fg: "#8a8a8a"\n  accent: "#cba6f7"')), /fg on bg contrast .* below 7/);
+});
