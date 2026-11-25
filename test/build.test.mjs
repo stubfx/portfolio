@@ -55,3 +55,12 @@ test('project page uses its palette and the cover morph name', async () => {
   assert.match(html, /--p-bg:#120c08/);
   assert.match(html, /view-transition-name:cover-ba-art-direction/);
 });
+
+test('home ships branch topology for the graph', async () => {
+  const html = await page('index.html');
+  const json = /<script type="application\/json" id="branches">([^<]+)<\/script>/.exec(html);
+  assert.ok(json, 'branches JSON missing');
+  const branches = JSON.parse(json[1]);
+  assert.equal(branches.find((b) => b.name === 'school').merge, '4d01c9a');
+  assert.match(html, /data-kind="big" data-special/);
+});

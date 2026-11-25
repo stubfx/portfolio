@@ -9,7 +9,7 @@ function when(r) {
 }
 
 function data(r) {
-  return `data-hash="${esc(r.hash)}" data-branch="${esc(r.branch)}" data-kind="${r.kind}"`;
+  return `data-hash="${esc(r.hash)}" data-branch="${esc(r.branch)}" data-kind="${r.kind}"${r.special ? ' data-special' : ''}`;
 }
 
 export function renderRow(r, label) {
@@ -61,6 +61,8 @@ export function homePage({ rows, branches }) {
     }
   }
   flush();
+  const topology = branches.map(({ name, label: l, fork, merge }) => ({ name, label: l, fork, merge }));
+  parts.push(`<script type="application/json" id="branches">${JSON.stringify(topology).replace(/</g, '\\u003c')}</script>`);
   parts.push(`<footer class="end"><div class="frame"><p class="hud">EOF</p>`
     + `<p class="end-line">That's the log so far. <a href="mailto:${site.email}">${site.email}</a></p>`
     + `<p class="hud">${site.links.map((l) => `<a href="${l.href}">${l.label}</a>`).join(' · ')}</p></div></footer>`);

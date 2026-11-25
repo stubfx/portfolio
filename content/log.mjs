@@ -13,7 +13,7 @@ export const branches = [
   { name: 'ibm', label: 'ibm', merge: '2e6a8d1' },
   { name: 'twitch', label: 'twitch' },
   { name: 'accenture', label: 'accenture', fork: '2e6a8d1' },
-  { name: 'school', label: 'art-school', fork: '9f3b0c2', merge: '4d01c9a' },
+  { name: 'school', label: 'art-school', merge: '4d01c9a' },
 ];
 
 export const commits = [

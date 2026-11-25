@@ -122,6 +122,61 @@ def approach_darkens(c):
     pg.close()
 
 
+def cursor_vs_node(pg):
+    return pg.evaluate("""() => {
+      const r = document.querySelector('#graph > rect').getBoundingClientRect();
+      const d = document.querySelector('#graph > circle').getBoundingClientRect();
+      return [r.left + r.width / 2, r.top + r.height / 2, d.left + d.width / 2, d.top + d.height / 2, r.height];
+    }""")
+
+
+@check
+def graph_cursor(c):
+    pg = c.page('/')
+    pg.wait_for_timeout(600)
+    v = cursor_vs_node(pg)
+    expect(abs(v[0] - v[2]) <= 1 and abs(v[1] - v[3]) <= 1, f'cursor not on node at load: {v}')
+    paths = pg.eval_on_selector_all('#graph > g:first-child > g', "gs => gs.filter(g => +g.getAttribute('opacity') > 0.01).length")
+    expect(paths <= 2, f'{paths} branches visible, max is 2')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def go_stays(c):
+    for w, h in ((1280, 800), (390, 844)):
+        pg = c.page('/', w, h)
+        want = pg.evaluate('() => { const g = __site.graph; const i = g.rows.findIndex(r => r.hash === "2e6a8d1"); g.go(i); return i }')
+        pg.wait_for_timeout(2500)
+        got = pg.evaluate('() => __site.graph.index')
+        expect(got == want, f'{w}: go({want}) ended on row {got}')
+        v = cursor_vs_node(pg)
+        expect(abs(v[0] - v[2]) <= 1 and abs(v[1] - v[3]) <= 1 and 0 < v[3] < h, f'{w}: cursor not settled on a visible node {v}')
+        pg.mouse.wheel(0, 400)
+        pg.wait_for_timeout(500)
+        moved = pg.evaluate('() => __site.graph.index')
+        expect(moved != want, f'{w}: wheel did not release the pinned row')
+        no_errors(pg)
+        pg.close()
+
+
+@check
+def resize(c):
+    pg = c.page('/')
+    pg.evaluate("() => scrollTo(0, document.querySelector('[data-hash=\\'1a7c3e9\\']').getBoundingClientRect().top + scrollY - innerHeight * 0.3)")
+    pg.wait_for_timeout(900)
+    a = cursor_vs_node(pg)
+    expect(abs(a[0] - a[2]) <= 1 and abs(a[1] - a[3]) <= 1, f'1280: cursor off node {a}')
+    pg.set_viewport_size({'width': 390, 'height': 844})
+    pg.wait_for_timeout(1200)
+    b = cursor_vs_node(pg)
+    expect(abs(b[0] - b[2]) <= 1 and abs(b[1] - b[3]) <= 1, f'390: cursor off node {b}')
+    on = pg.evaluate("() => document.querySelector('#graph > circle').getBoundingClientRect().top")
+    expect(-50 < on < 900, f'node off screen after resize: {on}')
+    no_errors(pg)
+    pg.close()
+
+
 @check
 def screenshots(c):
     SHOTS.mkdir(exist_ok=True)

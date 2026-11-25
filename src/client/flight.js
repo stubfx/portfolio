@@ -5,6 +5,13 @@ const isLog = (el) => el && el.classList.contains('logseg');
 const isSeg = (el) => el && el.classList.contains('seg');
 const IDENTITY = { y: 0, z: 0, opacity: 1 };
 
+// Layout position, ignoring transforms (the flight transforms the logs it measures).
+function layoutTop(el) {
+  let y = 0;
+  for (let e = el; e; e = e.offsetParent) y += e.offsetTop;
+  return y;
+}
+
 export function startFlight(doc = document) {
   const win = doc.defaultView;
   const segs = [...doc.querySelectorAll('.seg')].map((seg) => ({
@@ -67,7 +74,7 @@ export function startFlight(doc = document) {
       if (reduced || (v.y === 0 && v.z === 0)) {
         log.style.transform = '';
       } else {
-        const originY = vh / 2 - log.getBoundingClientRect().top;
+        const originY = vh / 2 - (layoutTop(log) - win.scrollY);
         log.style.transformOrigin = `50% ${originY}px`;
         log.style.transform = `perspective(1200px) translate3d(0,${v.y}vh,${v.z}px)`;
       }
@@ -97,7 +104,7 @@ export function startFlight(doc = document) {
       let hi = Infinity;
       if (before) { const r = before.seg.getBoundingClientRect(); lo = y0 + r.bottom - before.stage.offsetHeight; }
       if (after) hi = y0 + after.seg.getBoundingClientRect().top;
-      const want = y0 + t.getBoundingClientRect().top - win.innerHeight * 0.35;
+      const want = layoutTop(t) - win.innerHeight * 0.35;
       win.scrollTo({ top: Math.max(lo, Math.min(want, Math.max(lo, hi))), behavior: 'instant' });
     }
     frame();
