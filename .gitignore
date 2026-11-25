@@ -1,0 +1,6 @@
+.superpowers/
+.worktrees/
+dist/
+node_modules/
+test/e2e/shots/
+__pycache__/
