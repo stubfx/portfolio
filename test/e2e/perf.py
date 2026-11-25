@@ -18,6 +18,7 @@ from check import DIST, connect, expect, serve
 CATEGORIES = ['devtools.timeline', 'disabled-by-default-devtools.timeline.frame']
 BUDGET = {1: 2.0, 4: 10.0}  # max dropped %, by CPU rate
 MAX_SCRIPT_MS = 4.0
+SITE_PATH = '/assets/'  # script urls under this path are the site's own
 
 SWEEP = '''([route, step]) => new Promise(done => {
   const seg = document.querySelector('.seg');
@@ -66,34 +67,42 @@ def metrics(events):
                     break
                 i -= 1
     durs = [e.get('dur', 0) / 1000 for e in calls if is_site(e)]
-    return {'frames': frames, 'dropped': dropped,
+    return {'siteCalls': len(durs), 'frames': frames, 'dropped': dropped,
             'droppedPct': 100 * dropped / frames if frames else 0.0,
             'forced': forced, 'forced_harness': forced_harness,
             'maxScript': max(durs, default=0.0), 'scriptTotal': sum(durs)}
 
 
 def is_site(call):
-    return '/assets/' in (call.get('args', {}).get('data', {}).get('url') or '')
+    return SITE_PATH in (call.get('args', {}).get('data', {}).get('url') or '')
 
 
 def run_once(browser, base, route, rate):
     pg = browser.new_page(viewport={'width': 1280, 'height': 800})
-    pg.route('**/fonts.googleapis.com/**', lambda r: r.abort())
-    pg.route('**/fonts.gstatic.com/**', lambda r: r.abort())
-    pg.goto(base + ('/' if route == 'home' else '/about/'))
-    cdp = pg.context.new_cdp_session(pg)
-    cdp.send('Emulation.setCPUThrottlingRate', {'rate': rate})
-    pg.wait_for_load_state('load')
-    pg.wait_for_timeout(500)
-    browser.start_tracing(page=pg, categories=CATEGORIES)
-    pg.evaluate(SWEEP, [route, 12])
-    events = json.loads(browser.stop_tracing())['traceEvents']
-    pg.close()
-    return metrics(events)
+    try:
+        pg.route('**/fonts.googleapis.com/**', lambda r: r.abort())
+        pg.route('**/fonts.gstatic.com/**', lambda r: r.abort())
+        pg.goto(base + ('/' if route == 'home' else '/about/'))
+        cdp = pg.context.new_cdp_session(pg)
+        cdp.send('Emulation.setCPUThrottlingRate', {'rate': rate})
+        pg.wait_for_load_state('load')
+        pg.wait_for_timeout(500)
+        browser.start_tracing(page=pg, categories=CATEGORIES)
+        pg.evaluate(SWEEP, [route, 12])
+        trace = json.loads(browser.stop_tracing())
+    finally:
+        pg.close()
+    expect('traceEvents' in trace, 'trace has no traceEvents')
+    m = metrics(trace['traceEvents'])
+    # an empty trace would pass every budget; refuse it
+    expect(m['frames'] > 0, 'trace has no BeginFrame events')
+    expect(route != 'home' or m['siteCalls'] > 0, f'no FunctionCall from {SITE_PATH} scripts in the trace')
+    return m
 
 
 def median(runs):
-    return {k: statistics.median(r[k] for r in runs) for k in runs[0]}
+    """The run with the median dropped percent, whole, so printed numbers come from one run."""
+    return sorted(runs, key=lambda r: r['droppedPct'])[len(runs) // 2]
 
 
 def main():
@@ -107,15 +116,19 @@ def main():
     expect(DIST.exists(), 'dist/ missing: run npm run build first')
     srv, base = serve()
     results = {}
-    with sync_playwright() as p:
-        browser = connect(p)
-        for rate in args.cpu:
-            m = median([run_once(browser, base, args.route, rate) for _ in range(args.runs)])
-            results[rate] = m
-            print(f"{args.route} {rate}x: frames={m['frames']:.0f} dropped={m['dropped']:.0f} ({m['droppedPct']:.1f}%) "
-                  f"forced={m['forced']:.0f} forced_harness={m['forced_harness']:.0f} maxScript={m['maxScript']:.1f}ms scriptTotal={m['scriptTotal']:.0f}ms")
-        browser.close()
-    srv.shutdown()
+    try:
+        with sync_playwright() as p:
+            browser = connect(p)
+            try:
+                for rate in args.cpu:
+                    m = median([run_once(browser, base, args.route, rate) for _ in range(args.runs)])
+                    results[rate] = m
+                    print(f"{args.route} {rate}x: frames={m['frames']:.0f} dropped={m['dropped']:.0f} ({m['droppedPct']:.1f}%) "
+                          f"forced={m['forced']:.0f} forced_harness={m['forced_harness']:.0f} maxScript={m['maxScript']:.1f}ms scriptTotal={m['scriptTotal']:.0f}ms")
+            finally:
+                browser.close()
+    finally:
+        srv.shutdown()
     if args.json:
         with open(args.json, 'w') as f:
             json.dump({str(k): v for k, v in results.items()}, f, indent=2)

@@ -102,19 +102,23 @@ def main():
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     srv, base = serve()
-    with sync_playwright() as p:
-        browser = connect(p)
-        for w, h in VIEWPORTS:
-            pg = new_page(browser, base, w, h)
-            s = edge(pg)
-            for name, span in TRANSITIONS.items():
-                a, b = span(s, h)
-                strip(pg, name, w, h, a, b, out)
-            pg.context.close()
-        if args.video:
-            video(browser, base, out)
-        browser.close()
-    srv.shutdown()
+    try:
+        with sync_playwright() as p:
+            browser = connect(p)
+            try:
+                for w, h in VIEWPORTS:
+                    pg = new_page(browser, base, w, h)
+                    s = edge(pg)
+                    for name, span in TRANSITIONS.items():
+                        a, b = span(s, h)
+                        strip(pg, name, w, h, a, b, out)
+                    pg.context.close()
+                if args.video:
+                    video(browser, base, out)
+            finally:
+                browser.close()
+    finally:
+        srv.shutdown()
 
 
 if __name__ == '__main__':
