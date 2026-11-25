@@ -395,12 +395,19 @@ def screenshots(c):
             pg.close()
 
 
+def connect(p):
+    """Remote Playwright server when $PW_WS is set (it reaches our servers via <loopback>), else local Chrome."""
+    if os.environ.get('PW_WS'):
+        return p.chromium.connect(os.environ['PW_WS'], expose_network='<loopback>')
+    return p.chromium.launch(executable_path=CHROME, args=['--disable-gpu'])
+
+
 def main(names):
     expect(DIST.exists(), 'dist/ missing: run npm run build first')
     srv, base = serve()
     failed = 0
     with sync_playwright() as p:
-        browser = p.chromium.launch(executable_path=CHROME, args=['--disable-gpu'])
+        browser = connect(p)
         c = Ctx(browser, base)
         for name, fn in CHECKS.items():
             if names and name not in names:

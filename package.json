@@ -7,6 +7,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test \"test/**/*.test.mjs\"",
-    "e2e": "python3 test/e2e/check.py"
+    "e2e": "python3 test/e2e/check.py",
+    "perf": "python3 test/e2e/perf.py",
+    "strip": "python3 test/e2e/strip.py"
   }
 }

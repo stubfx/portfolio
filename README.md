@@ -14,6 +14,20 @@ npm run e2e         # headless Chrome checks; needs Python Playwright + Chrome
 node scripts/budget.mjs dist   # weight budgets: home JS ≤ 25 KB gz, fonts ≤ 120 KB
 ```
 
+Browser tooling (Python Playwright, Pillow):
+
+```sh
+python3 -m venv .venv && .venv/bin/pip install playwright==1.64.1 pillow
+export PW_WS=ws://HOST:3333/     # optional: drive a remote Playwright server instead of local Chrome
+                                 # (connects with expose_network='<loopback>' so it reaches the test servers)
+.venv/bin/python test/e2e/check.py                      # all checks; append names to run some
+.venv/bin/python test/e2e/perf.py --cpu 1 4 --runs 3    # scroll-sweep trace: dropped frames, forced layouts, script time
+                                                        # --route control (floor), --assert (budgets), --json PATH
+.venv/bin/python test/e2e/strip.py --video              # frame strips + home-1280.webm in test/e2e/shots/strips/
+```
+
+Run perf.py and strip.py without `-I`: they import from check.py beside them.
+
 Node 22 or newer.
 
 ## Where things live
