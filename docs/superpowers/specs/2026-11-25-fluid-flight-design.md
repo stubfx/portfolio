@@ -66,8 +66,8 @@ Progress `p` runs 0 → 1 over a segment's pinned run, as today. Each element ge
 | Sky and stars | whole segment | Visible inside the aperture from its first pixel; drift at constant speed with scroll, never stopping. |
 | Planet | 0.06 → 0.40, then on | Comes from depth inside the aperture (smaller and farther → full size), then keeps drifting at constant speed until departure. |
 | Accent word | whole segment | Slow constant sideways drift. |
-| Copy | 0.18 → 0.36 | Meta line, title, lede, land link rise in one after another (about 0.03 apart). Then they hold perfectly still. |
-| Copy leaves | 0.74 → 0.86 | Same pieces lift off, meta first. |
+| Copy | 0.18 → 0.36 | Meta line, title, lede, land link fade in one after another (about 0.03 apart), in place: opacity only, no zoom, no slide. Then they hold perfectly still. |
+| Copy leaves | 0.74 → 0.86 | Same pieces fade out in place, meta first. |
 | Sky dissolves | 0.78 → 0.96 | The cover's background fades to the ground; the stars stay continuous because they are the same stars. |
 | Planet leaves | 0.78 → 1 | Slides past the camera: grows and moves out toward its own side, fading at the very end. |
 | Ground lifts | 0.82 → 1 | Black back to Mocha base. |
@@ -116,6 +116,14 @@ No real art exists yet; the generative covers are what ship now. When art arrive
 - Its opacity follows the aperture (see Timeline) instead of the old 1 → 0.2 dim. The cursor and nodes go with it.
 - The current-commit logic is unchanged: the status bar still shows the project as current while its cover holds the screen.
 
+### The copy is its own layer
+
+Luca, on approving: the splash text "is not entirely tied to the page, it feels like it goes all together", and "the in animation could be just a fadein/out without the zoom, cleaner and easier to read".
+
+- The copy (meta line, title, lede, land link, and its backing pool) lives in its own layer above the aperture, not inside it: the aperture, the counter-scale, the planet's depth moves and every cover transform leave it untouched.
+- Its only animation is opacity, per piece, staggered. It never scales, never translates, never moves in depth, in any phase, at any viewport. The text sits where it will be read from its first visible frame.
+- Its backing pool fades with the first piece in and the last piece out, so the text never appears on unbacked art.
+
 ### Cover copy backing
 
 The feathered pool of `--p-bg` behind the copy (it keeps text contrast on any art) currently shows a hard vertical edge across the planet (visible on the configurator project page). With the planet now drifting behind it, that edge would be more visible. The pool gets a wider, softer, more organic feather (e.g., radial). The build's palette check and the e2e contrast check must still pass at all three test viewports.
@@ -159,7 +167,7 @@ Same choreography and windows; segments stay at two thirds height. Depth moves s
 - Aperture opens from the planet, not the commit dot (option 3 stays available as a later layer).
 - The aperture edge is a 1 px accent hairline, echoing the orbit lines and crop marks.
 - New optional frontmatter `cover.origin` for real art; default centre.
-- Copy holds still from roughly 0.36 to 0.74 of the segment; everything else keeps moving.
+- Copy holds still from roughly 0.36 to 0.74 of the segment; everything else keeps moving. (Luca's direction: the copy only ever fades, never zooms or moves.)
 - Segment height default stays 300vh.
 - The copy backing gets a softer feather as part of this work, since the drifting planet would expose its edge.
 - The planet becomes its own layer and is placed on screen in portrait (upper part, clear of the copy) on home, hero and cards alike. This is the one change outside the home page.
