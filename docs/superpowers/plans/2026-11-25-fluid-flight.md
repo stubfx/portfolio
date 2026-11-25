@@ -1,5 +1,7 @@
 # Fluid Flight Implementation Plan
 
+> **SUPERSEDED 2026-11-25.** Only Task 1 (browser tooling) was built (commits 07d7253..860079e). Tasks 2–9 were dropped when Luca chose the log-with-attachments home; see `docs/superpowers/specs/2026-11-25-log-cards-design.md` and its plan.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the home page's slide-like cover transitions with overlapping, continuously moving choreography (aperture from the planet, copy that only fades, shared stars, graph behind covers) and make it measurably jank-free.

@@ -1,6 +1,6 @@
 # Fluid flight: covers that open, overlap and keep moving
 
-Status: draft for Luca's approval · 2026-11-25
+Status: SUPERSEDED 2026-11-25 by `2026-11-25-log-cards-design.md` (Luca chose simple project attachments in the log over the flight). Only the plan's Task 1 (browser tooling) was built and kept.
 Extends: `2026-11-25-portfolio-design.md` (the binding spec). Everything there still holds unless this document says otherwise.
 
 ## Intent
