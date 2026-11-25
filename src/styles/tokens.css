@@ -1,0 +1,31 @@
+:root {
+  --base: #1e1e2e;
+  --mantle: #181825;
+  --crust: #11111b;
+  --text: #cdd6f4;
+  --sub: #a6adc8;
+  --line: #313244;
+  --tick: #6c7086;
+  --mauve: #cba6f7;
+  --crema: #d4a77a;
+  --b-main: #cdd6f4;
+  --b-ibm: #89b4fa;
+  --b-accenture: #cba6f7;
+  --b-school: #fab387;
+  --b-twitch: #f38ba8;
+  --b-mods: #94e2d5;
+
+  --gw: 76px;
+  --col: 780px;
+  --bar-h: 34px;
+  --ground: 0;
+  --graph-dim: 1;
+  --f-text: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --f-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-accent: "Fraunces", Georgia, serif;
+  color-scheme: dark;
+}
+
+@media (max-width: 600px) {
+  :root { --gw: 40px; }
+}
