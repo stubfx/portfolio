@@ -82,3 +82,16 @@ test('every page but home ends with a contact footer', async () => {
   }
   assert.doesNotMatch(await page('index.html'), /class="site-foot"/);
 });
+
+test('a base path prefixes every site-relative URL (GitHub project pages)', async () => {
+  const out = mkdtempSync(join(tmpdir(), 'site-base-'));
+  await build({ outDir: out, base: '/portfolio' });
+  for (const f of ['index.html', 'work/index.html', 'projects/ba-art-direction/index.html', '404.html']) {
+    const html = await readFile(join(out, f), 'utf8');
+    assert.match(html, /src="\/portfolio\/assets\/main\.js"/, f);
+    assert.match(html, /href="\/portfolio\/assets\/site\.css"/, f);
+    const stray = html.match(/(?:href|src)="\/(?!portfolio\/|\/)[^"]*"/g);
+    assert.equal(stray, null, `${f}: ${stray}`);
+  }
+  assert.match(await readFile(join(out, 'index.html'), 'utf8'), /href="\/portfolio\/projects\/configurator-framework\/"/);
+});
