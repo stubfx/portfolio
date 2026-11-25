@@ -64,3 +64,8 @@ test('home ships branch topology for the graph', async () => {
   assert.equal(branches.find((b) => b.name === 'school').merge, '4d01c9a');
   assert.match(html, /data-kind="big" data-special/);
 });
+
+test('project pages show their commit in the status bar', async () => {
+  const html = await page('projects/configurator-framework/index.html');
+  assert.match(html, /<span id="pos" class="hud">7be2104 · accenture<\/span>/);
+});

@@ -66,6 +66,7 @@ export async function build({ outDir = join(ROOT, 'dist') } = {}) {
       title: `${p.title} · ${site.name}`, page: 'project', section: 'work', path: `/projects/${p.slug}/`,
       description: `${p.title}. ${site.name}, ${site.role.toLowerCase()}.`,
       vars: { ...paletteVars(p), '--bg': p.palette.bg },
+      pos: `${p.hash} · ${label[p.branch] || p.branch}`,
       body: projectPage(p, { prev: projects[i - 1], next: projects[i + 1], branchLabel: label[p.branch] }),
     });
   }

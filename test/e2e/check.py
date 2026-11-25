@@ -198,6 +198,41 @@ def texture(c):
 
 
 @check
+def vim_keys(c):
+    pg = c.page('/')
+    y0 = pg.evaluate('() => scrollY')
+    pg.keyboard.press('j')
+    pg.wait_for_timeout(300)
+    expect(pg.evaluate('() => scrollY') == y0, 'j moved the page outside normal mode')
+    pg.keyboard.press('Escape')
+    expect(pg.text_content('#mode') == '-- NORMAL --', f"mode shows {pg.text_content('#mode')!r}")
+    pg.keyboard.press('Shift+J')
+    pg.wait_for_timeout(2500)
+    row = pg.evaluate('() => { const g = __site.graph; return g.rows[g.index].kind }')
+    expect(row == 'project', f'J landed on a {row} row')
+    expect(pg.inner_text('#pos').startswith('HEAD~'), f"pos shows {pg.inner_text('#pos')!r}")
+    pg.keyboard.press(':')
+    expect(pg.is_visible('#cmdi'), 'command line did not open')
+    pg.keyboard.type('q')
+    pg.keyboard.press('Enter')
+    pg.wait_for_timeout(100)
+    expect("can't quit" in pg.inner_text('#msg'), f"msg shows {pg.inner_text('#msg')!r}")
+    pg.keyboard.press('i')
+    expect(pg.text_content('#mode') != '-- NORMAL --', 'i did not leave normal mode')
+    clk = pg.inner_text('#clk')
+    expect(clk != '--:--' and ':' in clk, f'clock shows {clk!r}')
+    no_errors(pg)
+    pg.close()
+    pg = c.page('/about/')
+    pg.keyboard.press('Escape')
+    pg.keyboard.press(':')
+    pg.keyboard.type('help')
+    pg.keyboard.press('Enter')
+    pg.wait_for_url('**/help/')
+    pg.close()
+
+
+@check
 def screenshots(c):
     SHOTS.mkdir(exist_ok=True)
     for w, h in ((1280, 800), (390, 844)):

@@ -27,7 +27,7 @@ const style = (vars) => Object.entries(vars).map(([k, v]) => `${k}:${v}`).join('
  * @param {{ title: string, page: string, body: string, description?: string,
  *   section?: string, vars?: Record<string,string>, selfHostedFonts?: boolean, path?: string }} o
  */
-export function layout({ title, page, body, description = site.description, section = page, vars, selfHostedFonts = false, path = '/' }) {
+export function layout({ title, page, body, description = site.description, section = page, vars, selfHostedFonts = false, path = '/', pos = 'HEAD · main' }) {
   const tabs = TABS.map((t, i) => {
     const current = t.key === page ? ' aria-current="page"' : '';
     const on = t.key === section ? ' class="on"' : '';
@@ -68,7 +68,7 @@ ${body}
 <ul class="tabs">${tabs}</ul>
 <span class="fill"></span>
 <span id="mode" class="hud">esc · normal</span>
-<span id="pos" class="hud">HEAD · main</span>
+<span id="pos" class="hud">${esc(pos)}</span>
 <a class="mail hud" href="mailto:${site.email}">mail</a>
 <span id="clk" class="hud" title="Time in Rome">--:--</span>
 </nav>
