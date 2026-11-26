@@ -25,6 +25,19 @@ Read this first when resuming work. Last updated 2026-11-26.
 - Twitch: the site says "since 2019"; the LinkedIn/CV doc says "5 years". Pick one.
 - The art school branch is labelled `art-school`; projects are sample content.
 
+## Performance
+
+Measured with `test/e2e/perf.py` (median of 3, 1280×800, a steady scroll from the top of the log to the EOF footer) on the host's headless Chromium 156.0.8078.4. That browser renders with SwiftShader, a software GPU, so dropped frames overstate the cost of full-screen layers and fades compared with a real desktop GPU. The budgets were resized with Luca on 2026-11-26: the audience is companies on good desktops; gates are only the numbers that don't depend on the GPU.
+
+| | Flight (before) | Log with attachments (now) |
+| --- | --- | --- |
+| Layouts forced inside animation frames (gate: 0) | about 1,320 forced in total | 0 |
+| Longest site script task at 1× (gate: 4 ms) | | 0.8 ms |
+| Site script time over the sweep, 1× | | 289 ms |
+| Dropped frames 1× / 4× (information) | 22.1% / 36.9% | 17.8% / 24.7% |
+
+Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds switched off drops 0.2% at 1×, and with worlds that never fade 0.8%. What remains is the worlds' crossfades on a software compositor; a world at rest is opaque and costs nothing. `npm run perf -- --assert` (or `perf.py --assert`) checks the gates; `check.py no-forced-layout graph-no-churn` guards them on every run.
+
 ## Decisions taken during the build (and the cost if wrong)
 
 - Astro could not be installed (no network), so the build is a zero-dependency Node script. Cost: none; content files keep a shape Astro could read later.

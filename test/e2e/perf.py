@@ -14,7 +14,7 @@ import sys
 from playwright.sync_api import sync_playwright
 
 from check import DIST, connect, expect, serve
-from tracing import CATEGORIES, SWEEP, metrics
+from tracing import CATEGORIES, SITE_PATH, SWEEP, metrics
 
 # Resized 2026-11-26 (spec, Performance budgets): this host renders with SwiftShader, so dropped frames
 # are information here; the gates are the numbers that don't depend on the GPU, at 1x CPU.
