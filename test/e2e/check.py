@@ -311,6 +311,7 @@ def planet_on_screen(c):
     slugs = project_slugs()
     bad = []
     for w, h in VIEWPORTS:
+        # Every cover counts as seen; only generative ones have a planet to measure (real art has none).
         seen = {'hero': 0, 'card': 0, 'attachment': 0}
 
         def measure(pg, kind, cover, label, scroll=False):
@@ -318,9 +319,9 @@ def planet_on_screen(c):
                 cover.scroll_into_view_if_needed()
                 pg.wait_for_timeout(150)
             m = cover.evaluate(PLANET_ON_COVER)
+            seen[kind] += 1
             if m is None:
                 return
-            seen[kind] += 1
             if isinstance(m, str):
                 bad.append(f'{w}x{h} {kind} {label}: {m}')
             elif m['share'] < 0.6:
@@ -343,7 +344,7 @@ def planet_on_screen(c):
             measure(pg, 'attachment', att.query_selector('.cover'), att.get_attribute('href'), scroll=True)
         no_errors(pg)
         pg.close()
-        expect(all(n == len(slugs) for n in seen.values()), f'{w}x{h}: measured {seen}, want {len(slugs)} of each')
+        expect(all(n == len(slugs) for n in seen.values()), f'{w}x{h}: saw {seen} covers, want {len(slugs)} of each')
     expect(not bad, '; '.join(bad))
 
 
