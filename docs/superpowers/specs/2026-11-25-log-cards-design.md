@@ -50,7 +50,7 @@ Measured reason to also expect a smoother site: the current flight drops about 2
 - Static site on GitHub Pages at the root of lucamolluso.com; base-path support stays.
 - Zero-dependency build. Home JS under 25 KB gzipped (today 13.1 KB, and this removes the flight).
 - Version control through `gitt`; local commits only until Luca says pushing works.
-- Browser checks run on the host's Playwright 1.64.1 (`PW_WS=ws://172.29.160.1:3333/`), with Python Playwright and Pillow in a venv outside the repo (README, Task 1).
+- Browser checks run on the host's Playwright 1.64.1 (`PW_WS=ws://<host>:3333/`, where the host is the VM's default gateway: its IP changes, so it is derived, never hardcoded), with Python Playwright and Pillow in a venv outside the repo (README, Task 1).
 - WCAG 2.2 AA everywhere, AAA body text. The build's palette check and the e2e contrast checks stay green.
 
 ## Approaches considered
@@ -207,4 +207,4 @@ If the host's Playwright server is ever started with its real GPU, dropped frame
   - The contrast checks for header copy and the attachment chip pass.
   - The colophon reports no third-party requests once the fonts are self-hosted.
 - **Performance:** the budgets above, before (Task 1 baseline) and after.
-- **Eyes:** the strips at both viewports, then Luca on http://172.29.169.57:8080/.
+- **Eyes:** the strips at both viewports, then Luca on the miniserve preview (port 8080 on the VM's current IP).

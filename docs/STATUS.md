@@ -5,14 +5,16 @@ Read this first when resuming work. Last updated 2026-11-26.
 ## Where things are
 
 - **Live:** https://lucamolluso.com (GitHub Pages with a custom domain and HTTPS, deployed by `.github/workflows/pages.yml` on every push to `main`). https://stubfx.github.io/portfolio/ redirects there.
-- **Design:** `docs/superpowers/specs/2026-11-25-portfolio-design.md` (the binding spec).
-- **Plan:** `docs/superpowers/plans/2026-11-25-portfolio-site.md` (9 tasks, all done).
+- **Branch `feat/fluid-flight`:** the home page rebuilt as one git log with each project's cover attached, plus motion, worlds and self-hosted fonts. Not merged yet: the live site still shows the flight. It merges to `main` after the final review, and that push deploys it.
+- **Design:** `docs/superpowers/specs/2026-11-25-portfolio-design.md` (the base spec), extended by `docs/superpowers/specs/2026-11-25-log-cards-design.md` (the log with attachments) and `docs/superpowers/specs/2026-11-26-worlds-design.md` (entering a world). `2026-11-25-fluid-flight-design.md` is superseded.
+- **Plans:** `docs/superpowers/plans/2026-11-25-portfolio-site.md` (the first build, done) and `docs/superpowers/plans/2026-11-25-log-cards.md` (8 tasks, done on the branch).
 - **How to run, add a project, deploy:** `README.md`.
-- **History:** PR #1 (the site), PR #2 (base path fix for github.io).
+- **History:** PR #1 (the site), PR #2 (base path fix for github.io), PR #3 (status), then the branch above.
 
 ## Before launch
 
-- [ ] Self-host fonts in `public/fonts/` (README has the steps). Google Fonts sends visitor IPs to Google, a GDPR exposure in the EU (LG München, 2022).
+- [x] Self-hosted fonts in `public/fonts/` (2026-11-26, 115.6 KB of the 120 KB budget, made by `scripts/fonts.py`). No third-party requests, so no Google Fonts GDPR exposure.
+- [ ] Merge `feat/fluid-flight` into `main` after the final review; the push deploys the new home page.
 - [x] Custom domain `lucamolluso.com` with HTTPS (2026-11-26). The build drops the `/portfolio` base path by itself: `actions/configure-pages` reports an empty one now.
 - [ ] DNS redundancy: the apex has one of GitHub's four A records (185.199.108.153). Add 185.199.109.153, 185.199.110.153 and 185.199.111.153, and optionally the AAAA records 2606:50c0:8000::153 to 8003::153. `www` is already a CNAME to `stubfx.github.io`.
 - [ ] Verify the domain in GitHub account settings (Pages → Verified domains), if not done yet, to stop takeovers.
@@ -22,7 +24,7 @@ Read this first when resuming work. Last updated 2026-11-26.
 ## Open questions for Luca
 
 - Tab set: `1 log`, `2 work`, `3 about`, `4 :help`. Confirm or change.
-- Twitch: the site says "since 2019"; the LinkedIn/CV doc says "5 years". Pick one.
+- Answered: Twitch is 2019–24, "five years streaming" (2026-11-25). The headline stays "Luca Molluso, technical artist." (2026-11-26).
 - The art school branch is labelled `art-school`; projects are sample content.
 
 ## Performance
@@ -46,33 +48,42 @@ Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds sw
 - Optional fields: project `span`, `cells`; branch `label`; commit `special`, `help`. Cost: none.
 - The build fails on a project palette below 7:1 (fg) or 4.5:1 (accent), or a project hash that does not match its commit. Cost: a build error instead of a broken page.
 - `content/site.mjs` holds contact facts (email `info@lucamolluso.com` from the CV); `content/about.md` is adapted from the LinkedIn About; a 404 page uses a vim error joke. Cost: none.
-- With JavaScript, each cover overlaps the last screen of the log before it and the first screen after it, so both are visible during the flight; `#slug` links land mid-cover. Cost: short log sections stay readable only briefly.
-- Covers start hidden until the script runs; after 4 s without it the page falls back to plain stacked sections. Cost: if the script fails after starting, covers stay hidden.
-- A cover clears in the first 60% of its exit, so the next log does not show through it. Cost: none.
-- Faded logs stay in the Tab order; focusing one scrolls it into view (keyboard focus only). Cost: none.
 - The graph exposes an interface for the vim keys; branch topology ships as JSON in the page; school's fork point was removed. Cost: none.
-- A project node sits at the centre of its cover section; the cover on screen is always the current commit. Cost: none.
 - After a jump (j/k/J/K) the cursor stays on that commit until the user scrolls by hand (replaces a 700 ms lock). Cost: none.
-- The flight measures layout positions (offsetTop), not on-screen boxes, so its own transforms do not feed back. No dedicated test. Cost: low.
-- Grain moves with a transform; the screen darkens with a fixed black overlay, not body custom properties. Cost: none.
+- Grain moves with a transform. Cost: none.
 - Esc announces normal mode for screen readers. Off the home page j/k scroll and J/K/Enter do nothing. Enter on a focused link always follows it. Cost: none.
-- Cover copy sits on a feathered panel of the cover's own background, so any art keeps text readable. Art cost: the giant accent word is mostly hidden behind the copy; revisit when real covers exist.
+- Hero copy sits on a soft, blurred pool of the cover's own background (no straight edge anywhere), so any art keeps text readable. Art cost: on phones the pool mostly hides the giant accent word, and the blur has a paint cost on project pages; revisit when real covers exist.
 - Status bar is 44 px on phones and touch screens, 34 px on desktop. Cost: a fine-pointer touchscreen gets 34 px targets.
 - Workflow uses checkout@v5, setup-node@v5, configure-pages@v5, upload-pages-artifact@v4, deploy-pages@v4. Cost: if setup-node@v5 misbehaves, pin @v4.
 - Browser checks do not run in CI (CI stays install-free). Cost: run `npm run e2e` locally before merging.
 - Base path comes from `actions/configure-pages`: `/portfolio` on github.io, empty with the custom domain. Cost: none.
-- Untested without devices: iOS toolbar vs the 100vh stage, real screen readers, view-transition visuals.
+- Untested without devices: real screen readers, iOS Safari and Firefox (the host has only Chromium; view transitions are verified there).
+- The flight was replaced by one plain git log (2026-11-25, Luca: "very very simpler… easier to read, easy to access for many devices"). Each project is a commit row with its cover attached as a link with a `git show <hash>` chip (spike variant C); the project page keeps the full hero, and the cover morphs into it. Cost: no full-screen covers on home.
+- The attachment link's accessible name is "git show <hash>: open <title>", starting with the chip's visible text (WCAG 2.5.3). Cost: a longer spoken name.
+- Motion is CSS-first. Only rows below the fold at startup fade in, once (`reveal.js`), and only under `html.js`; focus, jumps, hash links, reload, Back, print and reduced motion show rows at once. Covers drift on a `view()` timeline; the planet rises and its orbit draws in. Hash links land 24 px below the top. Cost: none.
+- The planet is its own layer, placed with container-query units so it stays on screen at any aspect ratio; portrait covers use a second seed. Cost: none.
+- Entering a world (2026-11-26, Luca picked "faint" in a spike): while a project or work entry is the current row, the page takes on its colours; both IBM rows share one world. A world at rest is opaque (the strength is mixed into its colours) and a switch fades the new one in over the old, because translucent full-screen layers cost frames on a software GPU. Spec cells are see-through everywhere. Cost: rapid switches briefly blend two layers.
+- The view-transition opt-in is inline in every page's head: in `site.css` it lost a race with the module graph, and no page transition ever ran. Cost: none.
+- Performance budgets were resized with Luca for an audience on good desktops (see Performance). Cost: phones are not a performance target; they must still work and stay accessible.
 
 ## Known minor issues (deferred)
 
-- The 4 s fallback can still misfire on a very slow connection.
+- On home, the NDA dagger takes the title's colour (the palette sits on the attachment, not the row). Micro-animation pass.
+- The fonts have 4.4 KB of headroom; copy with a new symbol needs `scripts/fonts.py` rerun or the symbol renders in the fallback face.
+- The host's remote browser sometimes stops answering mid-run; `check.py` and `perf.py` now fail the stalled check or run by name instead of hanging.
+
+- If `main.js` takes longer than 4 s to arrive, the head script drops `html.js` and rows show without fade-ins (by design: nothing stays hidden).
 - Off the home page, j/k scroll smoothly even with reduced motion.
 - Video covers would preload and have no pause button; image layers are not lazy-loaded (no media yet).
 - The NDA dagger reads "frameworkunder NDA" to screen readers.
-- Slugs, segment height and all-digit hashes are not validated.
-- Rotating a phone mid-cover shifts the reading position.
+- Slugs and all-digit hashes are not validated.
 - Spec extras not built: faster stars between sections, lighter grain and shallower perspective on phones, graph on project pages, project palettes in the colophon, session cell "luca", stars jump when the mobile address bar hides.
 - The idle "esc · normal" label is uppercase and looks like the active state.
 - Markdown: a paragraph starting with `<` passes through raw; emphasis can fire inside link URLs.
 - CI runs only on pushes to `main`; scripts load in three rounds with no preloading.
 - The "/" separator is about 3.4:1; a few elements ignore the iPhone safe area; four home sections are all labelled "Log".
+
+## Next
+
+- The micro-animation pass with Luca: tune the fade-ins, drift, hover, the worlds' strength and timing, and the planet draw-in by eye.
+- Real project copy and covers; then the merge to `main`.
