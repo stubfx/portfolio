@@ -5,7 +5,7 @@ Read this first when resuming work. Last updated 2026-11-26.
 ## Where things are
 
 - **Live:** https://lucamolluso.com (GitHub Pages with a custom domain and HTTPS, deployed by `.github/workflows/pages.yml` on every push to `main`). https://stubfx.github.io/portfolio/ redirects there.
-- **Branch `feat/fluid-flight`:** the home page rebuilt as one git log with each project's cover attached, plus motion, worlds and self-hosted fonts. Not merged yet: the live site still shows the flight. It merges to `main` after the final review, and that push deploys it.
+- **Branch `feat/fluid-flight`:** the home page rebuilt as one git log with each project's cover attached, plus motion, worlds and self-hosted fonts. Merged into `main` and live since 2026-11-26 (`main` was force-pushed once, with Luca's OK, to rewrite its commit identity to `luca` with no email).
 - **Design:** `docs/superpowers/specs/2026-11-25-portfolio-design.md` (the base spec), extended by `docs/superpowers/specs/2026-11-25-log-cards-design.md` (the log with attachments) and `docs/superpowers/specs/2026-11-26-worlds-design.md` (entering a world). `2026-11-25-fluid-flight-design.md` is superseded.
 - **Plans:** `docs/superpowers/plans/2026-11-25-portfolio-site.md` (the first build, done) and `docs/superpowers/plans/2026-11-25-log-cards.md` (8 tasks, done on the branch).
 - **How to run, add a project, deploy:** `README.md`.
@@ -13,8 +13,8 @@ Read this first when resuming work. Last updated 2026-11-26.
 
 ## Before launch
 
-- [x] Self-hosted fonts in `public/fonts/` (2026-11-26, 115.6 KB of the 120 KB budget, made by `scripts/fonts.py`). No third-party requests, so no Google Fonts GDPR exposure.
-- [ ] Merge `feat/fluid-flight` into `main` after the final review; the push deploys the new home page.
+- [x] Self-hosted fonts in `public/fonts/` (2026-11-26, 117.9 KB of the 120 KB budget, made by `scripts/fonts.py` from a pinned google/fonts commit, curly quotes and the ellipsis included). No third-party requests, so no Google Fonts GDPR exposure.
+- [x] `feat/fluid-flight` merged into `main` and deployed (2026-11-26).
 - [x] Custom domain `lucamolluso.com` with HTTPS (2026-11-26). The build drops the `/portfolio` base path by itself: `actions/configure-pages` reports an empty one now.
 - [ ] DNS redundancy: the apex has one of GitHub's four A records (185.199.108.153). Add 185.199.109.153, 185.199.110.153 and 185.199.111.153, and optionally the AAAA records 2606:50c0:8000::153 to 8003::153. `www` is already a CNAME to `stubfx.github.io`.
 - [ ] Verify the domain in GitHub account settings (Pages → Verified domains), if not done yet, to stop takeovers.
@@ -33,7 +33,8 @@ Measured with `test/e2e/perf.py` (median of 3, 1280×800, a steady scroll from t
 
 | | Flight (before) | Log with attachments (now) |
 | --- | --- | --- |
-| Layouts forced inside animation frames (gate: 0) | about 1,320 forced in total | 0 |
+| Layouts forced by site scripts, in total (information) | about 1,320 | about 830 |
+| … of those, inside animation frames, after writes (gate: 0) | not measured | 0 |
 | Longest site script task at 1× (gate: 4 ms) | | 0.8 ms |
 | Site script time over the sweep, 1× | | 289 ms |
 | Dropped frames 1× / 4× (information) | 22.1% / 36.9% | 17.8% / 24.7% |
@@ -69,9 +70,8 @@ Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds sw
 ## Known minor issues (deferred)
 
 - On home, the NDA dagger takes the title's colour (the palette sits on the attachment, not the row). Micro-animation pass.
-- The fonts have 4.4 KB of headroom; copy with a new symbol needs `scripts/fonts.py` rerun or the symbol renders in the fallback face.
+- The fonts have 2.1 KB of headroom; copy with a new symbol needs `scripts/fonts.py` rerun (a build test fails until then).
 - The host's remote browser sometimes stops answering mid-run; `check.py` and `perf.py` now fail the stalled check or run by name instead of hanging.
-
 - If `main.js` takes longer than 4 s to arrive, the head script drops `html.js` and rows show without fade-ins (by design: nothing stays hidden).
 - Off the home page, j/k scroll smoothly even with reduced motion.
 - Video covers would preload and have no pause button; image layers are not lazy-loaded (no media yet).
@@ -81,9 +81,13 @@ Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds sw
 - The idle "esc · normal" label is uppercase and looks like the active state.
 - Markdown: a paragraph starting with `<` passes through raw; emphasis can fire inside link URLs.
 - CI runs only on pushes to `main`; scripts load in three rounds with no preloading.
-- The "/" separator is about 3.4:1; a few elements ignore the iPhone safe area; four home sections are all labelled "Log".
+- The "/" separator is about 3.4:1; a few elements ignore the iPhone safe area.
+- `.venv/` is not in `.gitignore`, though the README creates it in the repo root.
+- `world-contrast` runs only at 1280×800 and samples only the lede and cells; the no-planet unit test covers `image` covers, not `layers` or `video`.
+- The `check.py` docstring still says web fonts are blocked (self-hosted fonts load now).
 
 ## Next
 
+- The background: a dithered, low-bit galaxy as quiet texture in the retro-futuristic terminal style, with each project page in its own palette, built with deliberate old-school tricks (small indexed framebuffer, dither tables, palette cycling, a low update rate). Design first.
 - The micro-animation pass with Luca: tune the fade-ins, drift, hover, the worlds' strength and timing, and the planet draw-in by eye.
 - Real project copy and covers; then the merge to `main`.

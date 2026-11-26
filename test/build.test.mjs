@@ -160,5 +160,24 @@ test('copy: Twitch years, no flight anywhere', async () => {
     assert.doesNotMatch((await page(f)).replace(/<[^>]+>/g, ' '), /\bfl(y|ies|ight)\b/i, f);
   const readme = await readFile('README.md', 'utf8');
   assert.doesNotMatch(readme, /segmentHeight|full-screen|fly through|flight/i);
+  assert.doesNotMatch(JSON.parse(await readFile('package.json', 'utf8')).description || '', /\bfl(y|ies|ight)\b/i, 'package.json description');
   for (const f of ['index.html', 'help/index.html', 'about/index.html']) assert.doesNotMatch(await page(f), /—/, f);
+});
+
+test('the fonts cover every character on the pages, and the typography real copy will bring', async () => {
+  const css = await readFile(join(tmp, 'fonts/fonts.css'), 'utf8');
+  const covered = new Set();
+  for (const range of css.match(/unicode-range:\s*([^;]+);/)[1].split(',')) {
+    const [lo, hi] = range.trim().slice(2).split('-').map((h) => parseInt(h, 16));
+    for (let c = lo; c <= (hi ?? lo); c++) covered.add(c);
+  }
+  // Curly quotes, apostrophe and ellipsis: the spec names ’, and real copy will use them all.
+  for (const ch of ['‘', '’', '“', '”', '…']) assert.ok(covered.has(ch.codePointAt(0)), `fonts miss ${ch}`);
+  const missing = new Set();
+  for (const f of files.filter((p) => p.endsWith('.html'))) {
+    const text = (await readFile(f, 'utf8')).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<[^>]+>/g, ' ')
+      .replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, ' ');
+    for (const ch of text) if (ch.codePointAt(0) > 0x20 && !covered.has(ch.codePointAt(0))) missing.add(ch);
+  }
+  assert.deepEqual([...missing], [], 'characters on the pages that render in the fallback face');
 });

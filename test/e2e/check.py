@@ -776,6 +776,27 @@ def world_one_blend(c):
 
 
 @check
+def world_reversal(c):
+    """Back to a world before the next one arrived (A at rest, B, then A again): the half-faded B is covered
+    by A and dropped at once, so a later fade to the plain background shows only A, never B's colour."""
+    pg = c.page('/')
+    pg.evaluate(JS_GO, '4d01c9a')  # A: BA, at rest
+    pg.wait_for_timeout(2000)
+    pg.evaluate(JS_GO, '7be2104')  # B: the configurator, starts fading in
+    pg.wait_for_timeout(300)
+    pg.evaluate(JS_GO, '4d01c9a')  # back to A before B arrives
+    pg.wait_for_timeout(200)
+    state = {h: (o, on) for h, o, on in pg.evaluate(JS_WORLD_STATE)}
+    expect(state['7be2104'] == ('0', False), f'B still on under A after the reversal: {state["7be2104"]}')
+    pg.evaluate(JS_GO, '2e6a8d1')  # a merge: back to the plain background
+    pg.wait_for_timeout(400)
+    showing = [h for h, o, _ in pg.evaluate(JS_WORLD_STATE) if o != '0']
+    expect(showing == ['4d01c9a'], f'fading to the plain background shows {showing}, want only BA')
+    no_errors(pg)
+    pg.close()
+
+
+@check
 def world_under_stars(c):
     pg = c.page('/')
     r = pg.evaluate("""() => { const w = document.getElementById('world'), s = document.getElementById('stars');
@@ -862,8 +883,9 @@ def cells_see_through(c):
           [...d.children].map(c => { const s = getComputedStyle(c);
             return [s.backgroundColor, [s.outlineWidth, s.outlineStyle, s.outlineColor], [s.borderTopWidth, s.borderTopStyle, s.borderTopColor]] })])""")
         expect(r, f'{path}: no cells')
-        # Each page keeps its hairline colour (the log's --line, a project page's palette): 1px, solid, visible.
-        line = lambda w, s, col: w == '1px' and s == 'solid' and css_alpha(col) > 0  # noqa: E731
+        # Each page keeps its hairline colour (the log's --line, a project page's palette): 1px, solid, and
+        # opaque: neighbouring cells paint their shared gap twice, so a translucent line comes out uneven.
+        line = lambda w, s, col: w == '1px' and s == 'solid' and css_alpha(col) == 1  # noqa: E731
         for bg, cells in r:
             expect(css_alpha(bg) == 0, f'{path}: .cells has a backing fill {bg}')
             for cbg, outline, border in cells:

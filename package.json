@@ -2,7 +2,7 @@
   "name": "lucamolluso-portfolio",
   "private": true,
   "type": "module",
-  "description": "lucamolluso.com: a git log you fly through. Zero dependencies, Node built-ins only.",
+  "description": "lucamolluso.com: a career as a git log. Zero dependencies, Node built-ins only.",
   "engines": { "node": ">=22" },
   "scripts": {
     "build": "node scripts/build.mjs",

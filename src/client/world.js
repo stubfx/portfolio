@@ -13,13 +13,19 @@ export function startWorld(doc) {
   if (!stack) return null;
   let hash = null;
   let top = null;
+  let arrived = null; // the world that last finished fading in: fully opaque for as long as it stays on
+
+  const dropUnder = (keep) => {
+    for (const i of stack.children) {
+      if (i !== keep && i.classList.contains('on')) { i.classList.add('cut'); i.classList.remove('on'); }
+    }
+  };
 
   // The top world has fully faded in: everything under it is covered.
   stack.addEventListener('transitionend', (e) => {
     if (e.propertyName !== 'opacity' || e.target !== top || !top.classList.contains('on')) return;
-    for (const i of stack.children) {
-      if (i !== top && i.classList.contains('on')) { i.classList.add('cut'); i.classList.remove('on'); }
-    }
+    arrived = top;
+    dropUnder(top);
   });
 
   doc.addEventListener('graph:current', (e) => {
@@ -30,9 +36,13 @@ export function startWorld(doc) {
     if (next) {
       next.classList.remove('cut');
       next.classList.add('on', 'top');
+      // Back to a world that never left (A, B, A before B arrived): it is opaque and on top again, so the
+      // half-faded worlds under it are already covered. Drop them now, or a later fade would show them.
+      if (next === arrived) dropUnder(next);
     } else {
       // Back to the plain background: every world still showing fades out together.
       for (const i of stack.children) i.classList.remove('on');
+      arrived = null;
     }
     top = next;
   });

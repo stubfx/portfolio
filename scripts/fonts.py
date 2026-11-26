@@ -24,8 +24,12 @@ from fontTools.varLib import instancer
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'public' / 'fonts'
 DIST = ROOT / 'dist'
-RAW = 'https://github.com/google/fonts/raw/main/ofl/{}/{}'
+# Pinned so a rerun reproduces these exact files; bump it on purpose to pick up upstream font updates.
+GOOGLE_FONTS_COMMIT = 'a0b5fecfb2274abee69ebf3be32d4510b8ddf56c'
+RAW = 'https://github.com/google/fonts/raw/' + GOOGLE_FONTS_COMMIT + '/ofl/{}/{}'
 BUDGET = 120 * 1024
+# Kept even before the copy uses them: curly quotes, the apostrophe and the ellipsis (the spec names ’).
+TYPOGRAPHY = {0x2018, 0x2019, 0x201C, 0x201D, 0x2026}
 LATIN = ('U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, '
          'U+0329, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD')
 
@@ -72,7 +76,7 @@ def used_characters():
     still renders), plus every other character the built site shows (punctuation and symbols such as † → – ’ ·)."""
     if not DIST.exists():
         sys.exit('dist/ missing: run npm run build first (the narrow cut reads the built pages)')
-    chars = set(range(0x20, 0x7F)) | set(range(0xA0, 0x100))
+    chars = set(range(0x20, 0x7F)) | set(range(0xA0, 0x100)) | TYPOGRAPHY
     for f in list(DIST.rglob('*.html')) + list(DIST.rglob('*.css')):
         text = html.unescape(re.sub(r'<script\b.*?</script>', ' ', f.read_text(), flags=re.S))
         chars.update(ord(ch) for ch in text if ord(ch) >= 0x20)
