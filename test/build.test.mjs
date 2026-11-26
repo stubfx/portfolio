@@ -40,7 +40,7 @@ test('home is one log with project attachments', async () => {
   assert.match(row, /<time datetime="2024">2021–24<\/time>/);
   assert.match(row, /<h2 class="ttl" id="t-7be2104">Configurator <em>framework<\/em><sup class="dg" aria-label="under NDA">†<\/sup><\/h2>/);
   assert.match(row, /<dl class="cells">.*Babylon\.js/s);
-  assert.match(row, /<a class="pc-att" href="\/projects\/configurator-framework\/" style="[^"]*--p-accent:#d4a77a[^"]*" aria-label="Open Configurator framework">/);
+  assert.match(row, /<a class="pc-att" href="\/projects\/configurator-framework\/" style="[^"]*--p-accent:#d4a77a[^"]*" aria-label="git show 7be2104: open Configurator framework">/);
   assert.match(row, /view-transition-name:cover-configurator-framework/);
   assert.match(row, /<span class="pc-chip" aria-hidden="true">git show 7be2104<\/span>/);
   assert.match(html, /<span class="tag hud">planned<\/span>/);

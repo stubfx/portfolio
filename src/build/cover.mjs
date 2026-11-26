@@ -78,7 +78,8 @@ export function renderCover(p, { mode = 'hero', branchLabel } = {}) {
   }
 
   if (mode === 'attachment') {
-    return `<a class="pc-att" href="${href}" style="${vars}" aria-label="Open ${esc(p.title)}">`
+    // The name starts with the chip's visible text, so voice control can say what it sees (WCAG 2.5.3).
+    return `<a class="pc-att" href="${href}" style="${vars}" aria-label="git show ${esc(p.hash)}: open ${esc(p.title)}">`
       + `<div class="cover mini att" style="${vt}">${backLayers(p, id)}${word}${corners}</div>`
       + `<span class="pc-chip" aria-hidden="true">git show ${esc(p.hash)}</span></a>`;
   }

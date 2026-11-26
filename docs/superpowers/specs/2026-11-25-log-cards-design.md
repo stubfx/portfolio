@@ -18,7 +18,7 @@ Measured reason to also expect a smoother site: the current flight drops about 2
 - **A project is a commit plus an attachment.**
   - The entry looks like the other big commits: header (year or span / branch, tags, hash), title with the Fraunces accent word (crema, as elsewhere in the log), the dagger if NDA, the lede (the project's first paragraph), and spec cells (the project's `cells`).
   - Below sits the **attachment**: a link to the project page showing the project's cover art, in its palette, with crop marks. It is 21:9 on wide screens and 16:10 on phones.
-  - A chip on the attachment reads `git show <hash>` with an arrow. The link's accessible name is "Open <title>".
+  - A chip on the attachment reads `git show <hash>` with an arrow. The link's accessible name is "git show <hash>: open <title>", which starts with the chip's visible text (WCAG 2.5.3).
 - **Every entry fades in once.** Each log entry fades in and rises slightly the first time it scrolls into view. Entries already on screen when the page loads never animate.
 - **Attachments add a little more.**
   - On entering, the planet fades and scales up gently and its orbit line draws itself.
