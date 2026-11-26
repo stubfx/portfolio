@@ -59,7 +59,7 @@ const intro = `<header class="intro">
 <p class="hud prompt">~/lucamolluso <span class="ref">(main)</span> $ git log --graph --all</p>
 <h1>Luca Molluso, technical <em>artist</em>.</h1>
 <p class="lede">AI and real-time 3D. A modder turned engineer who went to art school and never stopped stacking skills.</p>
-<p class="hud hint">Scroll to fly through the log, or press <kbd>Esc</kbd> then <kbd>j</kbd>.</p>
+<p class="hud hint">Scroll down the log, or press <kbd>Esc</kbd> then <kbd>j</kbd>.</p>
 </header>`;
 
 export function homePage({ rows, branches }) {

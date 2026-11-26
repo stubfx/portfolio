@@ -8,7 +8,7 @@ const KEYS = [
   ['j / k', 'next or previous commit'],
   ['J / K', 'next or previous project'],
   ['g g / G', 'top or bottom of the log'],
-  ['Enter', 'land on the project in view'],
+  ['Enter', 'open the project in view'],
   [':help', 'this page'],
   [':q', 'try it'],
   ['i', 'back to insert mode, keys behave normally'],
@@ -30,14 +30,14 @@ export function helpPage({ selfHostedFonts }) {
 </header>
 
 <h2 id="contrast">Contrast</h2>
-<p>WCAG 2.2 AA everywhere, AAA for body text. Every colour is checked against the Mocha base and against pure black, because the screen goes dark when a project flies in. Each project's own palette is checked too, or the site refuses to build.</p>
+<p>WCAG 2.2 AA everywhere, AAA for body text. Every colour is checked against the Mocha base and against pure black. Each project's own palette is checked too, or the site refuses to build.</p>
 <div class="table-wrap"><table class="spec">
 <caption class="sr-only">Contrast ratios of every colour on the site</caption>
 <thead><tr><th scope="col">Colour</th><th scope="col">Hex</th><th scope="col">Rule</th><th scope="col">On base</th><th scope="col">On black</th><th scope="col">Result</th></tr></thead>
 <tbody>${rows}</tbody></table></div>
 
 <h2 id="motion">Motion</h2>
-<p>Scrolling is native: nothing hijacks the wheel or the touch. If your system asks for reduced motion, the flight becomes crossfades with no depth, drift or zoom, the stars stop drifting, the film grain freezes, the cursor jumps instead of smearing, and page transitions fade.</p>
+<p>Scrolling is native: nothing hijacks the wheel or the touch. Entries fade in once as they arrive and stay put after that. Covers drift slowly as you scroll, each project and job tints the background with its own colours while you read it, and opening a project morphs its cover into the page. If your system asks for reduced motion, the fade-ins, the drift and the hover lift are off, the stars stop drifting, the film grain freezes, the cursor jumps instead of smearing, the colour changes are quicker, and page transitions fade.</p>
 
 <h2 id="keys">Keys</h2>
 <p>Vim keys work only in normal mode, so a single letter never fires by accident (WCAG 2.1.4).</p>

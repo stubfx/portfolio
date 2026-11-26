@@ -7,7 +7,7 @@ test('scalars, lists, nested map, booleans, numbers', () => {
 title: Configurator framework
 accent: framework
 nda: true
-segmentHeight: 300
+order: 2
 tags: [3d, luxury]
 palette:
   bg: "#0b0d12"
@@ -16,7 +16,7 @@ palette:
 Body here.`);
   assert.deepEqual(data, {
     title: 'Configurator framework', accent: 'framework', nda: true,
-    segmentHeight: 300, tags: ['3d', 'luxury'], palette: { bg: '#0b0d12', fg: '#e8e6e1' },
+    order: 2, tags: ['3d', 'luxury'], palette: { bg: '#0b0d12', fg: '#e8e6e1' },
   });
   assert.equal(body.trim(), 'Body here.');
 });

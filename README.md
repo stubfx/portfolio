@@ -1,6 +1,6 @@
 # lucamolluso.com
 
-A git log you fly through. Dark Catppuccin Mocha, a starfield, a little film grain, and one full-screen cover per project.
+A career as a git log. Dark Catppuccin Mocha, a starfield, a little film grain, and every project as a commit with its cover attached.
 
 Hand-written HTML, CSS and JavaScript. The build is a Node script with **zero dependencies**: no `npm install`, ever.
 
@@ -39,8 +39,8 @@ Node 22 or newer.
 | `content/about.md` | The About page. |
 | `content/site.mjs` | Name, email, links. |
 | `src/build/` | Templates and the content pipeline. |
-| `src/client/` | Browser code: flight, git graph, cursor, starfield, grain, vim keys. `*-core.mjs` files are pure and unit-tested. |
-| `src/styles/` | CSS, concatenated in order: tokens, base, log, cover, hud, pages. |
+| `src/client/` | Browser code: git graph, cursor, once-only fade-ins (`reveal.js`), project and work colours (`world.js`), starfield, grain, vim keys. `*-core.mjs` files are pure and unit-tested. |
+| `src/styles/` | CSS, concatenated in order: tokens, base, log, cover, hud, pages, motion (fade-ins, drift, hover: `motion.css`), world. |
 | `public/` | Copied as-is into `dist/` (favicon, CNAME, fonts, media). |
 
 ## Add a project
@@ -59,7 +59,6 @@ Node 22 or newer.
    tags: [3d, real-time]
    nda: true                  # optional: adds the dagger and the NDA line
    order: 2                   # position on the work page
-   segmentHeight: 300         # optional, in vh; phones get two thirds
    palette:
      bg: "#0b0d12"
      fg: "#e8e6e1"
@@ -70,12 +69,12 @@ Node 22 or newer.
      Role: lead developer
      Tools: Babylon.js, Vue 3, Blender
    ---
-   The first paragraph becomes the cover's lede.
+   The first paragraph becomes the lede, in the log and on the project page.
 
    ## Sections as you like
    ```
 
-2. Add a commit to `content/log.mjs` with `kind: 'project'`, `project: '<slug>'` and the same `hash`.
+2. Add a commit to `content/log.mjs` with `kind: 'project'`, `project: '<slug>'` and the same `hash`. The project appears in the log as that commit, with its cover attached; the cover opens its page.
 3. Put media under `public/media/<slug>/`.
 
 Without `cover`, the project gets a generative planet seeded by its hash. The build fails if a palette's `fg` or `accent` is below 4.5:1 on its `bg`, if a hash doesn't match, or if a branch or project name is unknown.
@@ -105,4 +104,4 @@ One-time setup:
 
 ## Keys
 
-`Esc` toggles normal mode. Then `j`/`k` commit, `J`/`K` project, `gg`/`G` top and bottom, `Enter` lands on a cover, `:help`, and `:q` (try it).
+`Esc` toggles normal mode. Then `j`/`k` commit, `J`/`K` project, `gg`/`G` top and bottom, `Enter` opens a project, `:help`, and `:q` (try it).

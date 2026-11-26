@@ -2,7 +2,7 @@
 //
 // branch: which lane the commit sits on (see `branches`).
 // kind:   head | big | slim | merge | fork | root | project
-//         `project` commits open a full-screen cover; `project` names the file
+//         `project` commits carry their cover as an attachment; `project` names the file
 //         in content/projects/ (its hash must match).
 // title:  inline Markdown; *one word* becomes the Fraunces accent.
 // span:   optional display year ("2017–21"); `year` stays machine-readable.
@@ -20,7 +20,7 @@ export const commits = [
   {
     hash: 'HEAD', year: 2026, branch: 'main', kind: 'head',
     title: 'This *site*.',
-    text: 'A git log you can fly through, set in type built for low vision.',
+    text: 'My career as a git log, set in type built for low vision.',
     cells: [['Standard', 'WCAG 2.2, AAA text'], ['Motion', 'follows your setting'], ['Tracking', 'none'], ['Keys', 'Esc, then vim']],
     help: true,
   },
@@ -41,10 +41,10 @@ export const commits = [
   { hash: '9f3b0c2', year: 2022, branch: 'school', kind: 'fork', text: 'fork: art school. Days at work, nights at school.' },
   { hash: '2e6a8d1', year: 2021, branch: 'main', kind: 'merge', text: "merge 'ibm', fork 'accenture'. Same lane, new colour." },
   {
-    hash: 'c7d41ab', year: 2019, branch: 'twitch', kind: 'big',
+    hash: 'c7d41ab', year: 2019, span: '2019–24', branch: 'twitch', kind: 'big',
     title: 'Going *live*.',
-    text: 'Streaming on Twitch since 2019, including Minecraft games my chat played live through the stream.',
-    cells: [['Since', '2019'], ['Stack', 'OBS, Linux'], ['Built', 'chat-driven Minecraft games']],
+    text: 'Five years streaming on Twitch, from 2019 to 2024, including Minecraft games my chat played live through the stream.',
+    cells: [['Years', '2019 to 2024'], ['Stack', 'OBS, Linux'], ['Built', 'chat-driven Minecraft games']],
   },
   {
     hash: 'e8d77f0', year: 2017, span: '2017–21', branch: 'ibm', kind: 'big',

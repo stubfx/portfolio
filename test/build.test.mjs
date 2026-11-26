@@ -142,3 +142,16 @@ test('home carries the world layer before the stars; other pages do not', async 
   const css = await page('assets/site.css');
   assert.ok(css.indexOf('#world > i.on') > css.indexOf('.rv.in'), 'world.css comes after motion.css');
 });
+
+test('copy: Twitch years, no flight anywhere', async () => {
+  const home = await page('index.html');
+  const tw = home.slice(home.indexOf('id="c-c7d41ab"'));
+  assert.match(tw, /<time datetime="2019">2019–24<\/time>/);
+  assert.match(tw, /Five years streaming on Twitch, from 2019 to 2024/);
+  assert.match(await page('about/index.html'), /Five years streaming on Twitch, from 2019 to 2024\./);
+  for (const f of ['index.html', 'help/index.html', 'about/index.html', 'work/index.html'])
+    assert.doesNotMatch((await page(f)).replace(/<[^>]+>/g, ' '), /\bfl(y|ies|ight)\b/i, f);
+  const readme = await readFile('README.md', 'utf8');
+  assert.doesNotMatch(readme, /segmentHeight|full-screen|fly through|flight/i);
+  for (const f of ['index.html', 'help/index.html', 'about/index.html']) assert.doesNotMatch(await page(f), /—/, f);
+});

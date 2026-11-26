@@ -10,7 +10,7 @@ I started as a modder. Years of game mods got me hired at IBM in 2017, no joke. 
 
 ## The rest of me
 
-Ten years of transverse flute at the Santa Cecilia Conservatory, where I learned that taste is something you practise every day. Streaming on Twitch since 2019. Games are a long-standing crush: I play half for fun, half to work out how they were built. Linux, OBS, Blender: FOSS whenever it does the job.
+Ten years of transverse flute at the Santa Cecilia Conservatory, where I learned that taste is something you practise every day. Five years streaming on Twitch, from 2019 to 2024. Games are a long-standing crush: I play half for fun, half to work out how they were built. Linux, OBS, Blender: FOSS whenever it does the job.
 
 ## Write me
 
