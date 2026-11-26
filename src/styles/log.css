@@ -46,6 +46,8 @@ kbd {
 
 /* Each entry opens with a hairline that starts on the rail and ends in a crop mark. */
 .entry, .slim { position: relative; }
+/* Hash links land with the hairline and its crop mark (4px above it) on screen. */
+.log .entry, .log .slim { scroll-margin-top: 24px; }
 .entry::before, .slim::before {
   content: ""; position: absolute; top: 0; right: 0;
   left: calc(-1 * clamp(20px, 4vw, 44px));

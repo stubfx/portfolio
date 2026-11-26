@@ -101,6 +101,9 @@
   color: inherit; text-decoration: none;
 }
 .pc-att .cover.mini { position: absolute; inset: 0; aspect-ratio: auto; }
+/* clip, not hidden: a hidden box is a scroll container, and the drift's view() timeline would track it
+   (it never scrolls) instead of the page. hidden stays as the fallback where clip is unknown. */
+.pc-att, .pc-att .cover.mini { overflow: hidden; overflow: clip; }
 .pc-att .k { width: 14px; height: 14px; }
 .pc-att .k3 { display: none; } /* the chip owns the bottom-left corner */
 .pc-chip {

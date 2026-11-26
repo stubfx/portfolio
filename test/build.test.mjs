@@ -124,3 +124,11 @@ test('every page opts in to view transitions inline, before any stylesheet or sc
   }
   assert.doesNotMatch(await page('assets/site.css'), /@view-transition/, 'one opt-in, in the head');
 });
+
+test('motion ships as its own stylesheet section and script', async () => {
+  const css = await page('assets/site.css');
+  assert.ok(css.indexOf('.rv.in') > css.indexOf('.pc-chip'), 'motion.css comes after cover/log styles');
+  assert.match(css, /animation-timeline:\s*view\(\)/);
+  assert.match(css, /@media print/);
+  assert.match(await page('assets/main.js'), /startReveal/);
+});

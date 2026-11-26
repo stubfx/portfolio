@@ -189,6 +189,8 @@ export function startGraph(doc = document) {
     const n = Math.max(0, Math.min(rows.length - 1, i));
     setCurrent(n);
     pinned = n;
+    // Before scrolling: a jump must land on a row that is already visible (reveal.js listens).
+    doc.dispatchEvent(new win.CustomEvent('graph:go', { detail: { el: rows[n].el } }));
     const pageTop = page.getBoundingClientRect().top + win.scrollY;
     win.scrollTo({ top: pageTop + Y[n] - win.innerHeight * 0.25, behavior: motion.matches ? 'instant' : 'smooth' });
   }

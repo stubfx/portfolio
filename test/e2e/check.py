@@ -44,16 +44,21 @@ class Ctx:
     def __init__(self, browser, base):
         self.browser, self.base = browser, base
 
-    def page(self, path='/', w=1280, h=800, reduced=False):
-        pg = self.browser.new_page(viewport={'width': w, 'height': h},
+    def page(self, path='/', w=1280, h=800, reduced=False, init=None, js=True, abort=None, wait=350):
+        """A fresh page. init: a script run at the start of every document; abort: a URL glob that fails to load."""
+        pg = self.browser.new_page(viewport={'width': w, 'height': h}, java_script_enabled=js,
                                    reduced_motion='reduce' if reduced else 'no-preference')
         pg.errors = []
         pg.on('pageerror', lambda e: pg.errors.append(str(e)))
         pg.on('console', lambda m: m.type == 'error' and 'net::' not in m.text and pg.errors.append(m.text))
         pg.route('**/fonts.googleapis.com/**', lambda r: r.abort())
         pg.route('**/fonts.gstatic.com/**', lambda r: r.abort())
+        if abort:
+            pg.route(abort, lambda r: r.abort())
+        if init:
+            pg.add_init_script(init)
         pg.goto(self.base + path)
-        pg.wait_for_timeout(350)
+        pg.wait_for_timeout(wait)
         return pg
 
 
@@ -76,15 +81,246 @@ if os.environ.get('CHECK_SELFTEST'):
         pg.evaluate('() => new Promise(() => {})')
 
 
+# Motion helpers. "Visible" means computed opacity exactly 1 on the element and every ancestor:
+# a row mid-fade counts as not visible.
+JS_VISIBLE = """el => { for (let e = el; e && e.nodeType === 1; e = e.parentElement)
+  if (getComputedStyle(e).opacity !== '1') return false; return true }"""
+JS_ROWS_IN_VIEW = """() => [...document.querySelectorAll('.log > .row')].filter(r => {
+  const b = r.getBoundingClientRect(); return b.bottom > 0 && b.top < innerHeight })"""
+JS_SWEEP = """async step => { while (scrollY + innerHeight < document.documentElement.scrollHeight - 1) {
+  scrollBy(0, step); await new Promise(r => setTimeout(r, 150)) } }"""
+
+
+def hidden_in_view(pg):
+    """Hashes of rows intersecting the viewport that are not fully visible."""
+    return pg.evaluate(f"""() => {{ const vis = {JS_VISIBLE};
+      return ({JS_ROWS_IN_VIEW})().filter(r => !vis(r)).map(r => r.querySelector('[data-hash]').dataset.hash) }}""")
+
+
+def row_of(pg, sel):
+    return pg.evaluate(f"""() => {{ const r = document.querySelector({sel!r}).closest('.row');
+      return {{ cls: r.className, opacity: getComputedStyle(r).opacity, visible: ({JS_VISIBLE})(r) }} }}""")
+
+
 @check
 def hash_lands(c):
+    """A hash link lands its entry at the top, hairline and crop mark included, and shows it at once."""
+    probe = f"""addEventListener('load', () => setTimeout(() => {{
+      window.__hashVisible = ({JS_VISIBLE})(document.getElementById(location.hash.slice(1))) }}, 150))"""
     for w, h in ((1280, 800), (390, 844)):
-        pg = c.page('/#configurator-framework', w, h)
+        pg = c.page('/#configurator-framework', w, h, init=probe, wait=600)
         top = pg.evaluate("() => [document.getElementById('configurator-framework').getBoundingClientRect().top, innerHeight]")
-        # -1, not 0: the browser snaps the scroll to whole pixels, so the top can land a fraction above.
-        expect(-1 < top[0] <= 0.5 * top[1], f'{w}: #configurator-framework top at {top[0]} of {top[1]}')
+        # The entry's top is its hairline; its crop mark reaches 4px above that. scroll-margin keeps both on screen.
+        expect(4 <= top[0] <= 0.5 * top[1], f'{w}: #configurator-framework top at {top[0]} of {top[1]}')
+        expect(pg.evaluate('() => window.__hashVisible') is True, f'{w}: hash target not visible 150 ms after load')
         no_errors(pg)
         pg.close()
+
+
+@check
+def fold_never_hidden(c):
+    """Nothing in view at startup is ever hidden: rows above the fold are visible on the first frame and never get rv."""
+    probe = f"""document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(() => {{
+      const vis = {JS_VISIBLE};
+      window.__fold = ({JS_ROWS_IN_VIEW})().map(r => [r.querySelector('[data-hash]').dataset.hash, vis(r)]) }}))"""
+    for w, h in ((1280, 800), (390, 844)):
+        pg = c.page('/', w, h, init=probe, wait=1000)
+        fold = pg.evaluate('() => window.__fold')
+        expect(fold, f'{w}: no rows in view at startup')
+        expect(all(v for _, v in fold), f'{w}: hidden on the first frame: {[k for k, v in fold if not v]}')
+        later = pg.evaluate("hs => hs.filter(h => document.querySelector(`[data-hash='${h}']`).closest('.row').classList.contains('rv'))",
+                            [k for k, _ in fold])
+        expect(not later, f'{w}: fold rows got rv: {later}')
+        no_errors(pg)
+        pg.close()
+
+
+@check
+def reveal_on_scroll(c):
+    pg = c.page('/')
+    r = row_of(pg, '#c-1a7c3e9')
+    expect('rv' in r['cls'].split() and r['opacity'] == '0', f'below the fold at load: {r}')
+    pg.evaluate("() => document.getElementById('c-1a7c3e9').scrollIntoView({ block: 'center' })")
+    pg.wait_for_timeout(1200)
+    r = row_of(pg, '#c-1a7c3e9')
+    expect('in' in r['cls'].split() and r['opacity'] == '1', f'after scrolling to it: {r}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def no_hidden_after_sweep(c):
+    pg = c.page('/')
+    pg.evaluate(JS_SWEEP, 300)
+    pg.wait_for_timeout(1200)
+    left = pg.evaluate("() => document.querySelectorAll('.log > .row.rv:not(.in)').length")
+    expect(left == 0, f'{left} rows still hidden after a full sweep')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def jump_clean(c):
+    pg = c.page('/')
+    for key in ('End', 'Home'):
+        pg.keyboard.press(key)
+        pg.wait_for_timeout(1200)
+        bad = hidden_in_view(pg)
+        expect(not bad, f'after {key}: not visible in view: {bad}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def focus_reveals(c):
+    pg = c.page('/')
+    pending = set(pg.evaluate("""() => [...document.querySelectorAll('.log > .row')]
+      .map((r, i) => r.classList.contains('rv') && !r.classList.contains('in') ? i : -1).filter(i => i >= 0)"""))
+    expect(pending, 'no hidden rows to tab into')
+    for _ in range(80):
+        pg.keyboard.press('Tab')
+        i = pg.evaluate("() => { const r = document.activeElement.closest('.log > .row'); return r ? [...document.querySelectorAll('.log > .row')].indexOf(r) : -1 }")
+        if i in pending:
+            pg.wait_for_timeout(100)
+            ok = pg.evaluate(f"() => ({JS_VISIBLE})(document.querySelectorAll('.log > .row')[{i}])")
+            expect(ok, f'row {i} not visible 100 ms after Tab focused it')
+            break
+    else:
+        raise AssertionError('Tab never reached a hidden row')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def vim_jump_reveals(c):
+    pg = c.page('/')
+    pg.keyboard.press('Escape')
+    pg.keyboard.press('G')
+    pg.wait_for_timeout(150)
+    cls = pg.evaluate("() => { const g = __site.graph; return g.rows[g.index].el.closest('.row').className }")
+    expect('in' in cls.split(), f'G target row is {cls!r} 150 ms later')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def reload_restores(c):
+    pg = c.page('/')
+    pg.evaluate('() => scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * 0.6)')
+    pg.wait_for_timeout(1200)
+    pg.reload()
+    pg.wait_for_timeout(200)
+    expect(pg.evaluate('() => scrollY') > 0, 'reload did not restore the scroll position')
+    bad = hidden_in_view(pg)
+    expect(not bad, f'200 ms after reload, not visible in view: {bad}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def back_restores(c):
+    pg = c.page('/')
+    pg.evaluate("() => document.querySelector('#ba-art-direction .pc-att').scrollIntoView({ block: 'center' })")
+    pg.wait_for_timeout(1200)
+    pg.click('#ba-art-direction .pc-att')
+    pg.wait_for_url('**/projects/ba-art-direction/')
+    pg.go_back()
+    pg.wait_for_timeout(200)
+    bad = hidden_in_view(pg)
+    expect(not bad, f'200 ms after Back, not visible in view: {bad}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def tall_row_reveals(c):
+    pg = c.page('/', 360, 740)
+    pg.evaluate("() => { const r = document.getElementById('configurator-framework').closest('.row');"
+                " scrollBy(0, r.getBoundingClientRect().top - innerHeight * 0.8) }")
+    pg.wait_for_timeout(1200)
+    r = row_of(pg, '#configurator-framework')
+    expect('in' in r['cls'].split(), f'tall row with its top at 80% not revealed: {r}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def print_shows_all(c):
+    pg = c.page('/')
+    pg.emulate_media(media='print')
+    pg.wait_for_timeout(100)
+    bad = pg.evaluate(f"() => [...document.querySelectorAll('.log > .row')].filter(r => !({JS_VISIBLE})(r)).length")
+    expect(bad == 0, f'{bad} rows not visible in print')
+    pg.close()
+
+
+@check
+def reduced(c):
+    pg = c.page('/', reduced=True)
+    rv = lambda: pg.evaluate("() => document.querySelectorAll('.log > .row.rv').length")  # noqa: E731
+    expect(rv() == 0, 'reduced motion: rows got rv at load')
+    pg.evaluate(JS_SWEEP, 400)
+    pg.wait_for_timeout(300)
+    expect(rv() == 0, 'reduced motion: rows got rv after a sweep')
+    anim = pg.eval_on_selector('.pc-att .l-back', 'e => getComputedStyle(e).animationName')
+    expect(anim == 'none', f'reduced motion: attachment drift runs ({anim})')
+    moved = pg.evaluate("() => [...document.querySelectorAll('.log > .row')].filter(r => r.style.transform || getComputedStyle(r).transform !== 'none').length")
+    expect(moved == 0, f'reduced motion: {moved} rows carry a transform')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def nojs(c):
+    pg = c.page('/', js=False)
+    ops = pg.evaluate("() => [...document.querySelectorAll('.log > .row')].map(r => getComputedStyle(r).opacity)")
+    expect(ops and all(o == '1' for o in ops), f'without JS, row opacities: {ops}')
+    pg.close()
+
+
+@check
+def script_fails(c):
+    pg = c.page('/', abort='**/assets/main.js', wait=100)
+    bad = hidden_in_view(pg)
+    expect(not bad, f'main.js failed: not visible in view: {bad}')
+    expect(pg.evaluate("() => document.querySelectorAll('.log > .row.rv').length") == 0, 'main.js failed: rows got rv')
+    pg.wait_for_timeout(4500)
+    expect(pg.evaluate("() => document.documentElement.classList.contains('js')") is False, 'js class kept after main.js failed')
+    pg.close()
+
+
+@check
+def attachment_effects(c):
+    pg = c.page('/')
+    sel = '#servers-and-mods .pc-att'
+    before = pg.eval_on_selector(f'{sel} .sphere', 'e => getComputedStyle(e).opacity')
+    expect(before == '0', f'sphere before reveal: opacity {before}')
+    pg.evaluate(f"() => document.querySelector({sel!r}).scrollIntoView({{ block: 'center' }})")
+    # The orbit draws in over 2.6 s after a .35 s delay: 3.4 s leaves room for the observer to fire.
+    pg.wait_for_timeout(3400)
+    after = pg.eval_on_selector(f'{sel} .sphere', 'e => getComputedStyle(e).opacity')
+    dash = pg.eval_on_selector(f'{sel} .orbit', 'e => getComputedStyle(e).strokeDashoffset')
+    expect(after == '1', f'sphere after reveal: opacity {after}')
+    expect(dash in ('0', '0px'), f'orbit after reveal: stroke-dashoffset {dash}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def drift_runs(c):
+    pg = c.page('/')
+    sel = '#configurator-framework .pc-att'
+    pg.evaluate(f"() => document.querySelector({sel!r}).scrollIntoView({{ block: 'center' }})")
+    pg.wait_for_timeout(300)
+    name = pg.eval_on_selector(f'{sel} .l-back', 'e => getComputedStyle(e).animationName')
+    expect(name != 'none', 'attachment art has no drift animation')
+    t1 = pg.eval_on_selector(f'{sel} .l-back', 'e => getComputedStyle(e).transform')
+    pg.evaluate('() => scrollBy(0, 200)')
+    pg.wait_for_timeout(300)
+    t2 = pg.eval_on_selector(f'{sel} .l-back', 'e => getComputedStyle(e).transform')
+    expect(t1 != t2, f'drift did not move with scroll: {t1}')
+    no_errors(pg)
+    pg.close()
 
 
 def cursor_vs_node(pg):
@@ -339,8 +575,9 @@ PLANET_ON_COVER = '''async cover => {
   if (!(a.width * a.height)) return 'empty sphere';
   const w = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
   const h = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
-  const plate = cover.querySelector('.plate').getBoundingClientRect();
-  const rad = parseFloat(getComputedStyle(s).getPropertyValue('--rad')) * Math.max(plate.width / 160, plate.height / 90);
+  // The plate at rest: its layer's layout size, which ignores the drift's transform (it scales the art).
+  const plate = cover.querySelector('.plate').parentElement;
+  const rad = parseFloat(getComputedStyle(s).getPropertyValue('--rad')) * Math.max(plate.offsetWidth / 160, plate.offsetHeight / 90);
   const [lo, hi] = b.width < b.height ? [0.26 * b.width, 0.38 * b.width] : [rad - 1, rad + 1];
   return { share: w * h / (a.width * a.height), r: a.width / 2, lo, hi };
 }'''

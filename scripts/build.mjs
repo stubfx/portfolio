@@ -17,7 +17,7 @@ import { aboutPage } from '../src/build/pages/about.mjs';
 import { helpPage } from '../src/build/pages/help.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const CSS_ORDER = ['tokens', 'base', 'log', 'cover', 'hud', 'pages'];
+const CSS_ORDER = ['tokens', 'base', 'log', 'cover', 'hud', 'pages', 'motion'];
 
 async function walk(dir) {
   const out = [];
