@@ -49,7 +49,9 @@ export function startReveal(doc) {
     for (const r of seen) reveal(r, true);
   }
   const revealHash = () => {
-    const id = decodeURIComponent(win.location.hash.slice(1));
+    const raw = win.location.hash.slice(1);
+    let id = raw;
+    try { id = decodeURIComponent(raw); } catch { /* a malformed fragment is just an unknown target */ }
     if (id) reveal(doc.getElementById(id), true);
   };
 

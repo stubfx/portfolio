@@ -16,7 +16,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
-DIST = ROOT / 'dist'
+DIST = Path(os.environ.get('SITE_DIST') or ROOT / 'dist')  # SITE_DIST: check another build (e.g. one with real art)
 SHOTS = Path(__file__).resolve().parent / 'shots'
 CHROME = os.environ.get('CHROME', '/usr/bin/google-chrome')
 CHECKS = {}
@@ -113,6 +113,18 @@ def hash_lands(c):
         # The entry's top is its hairline; its crop mark reaches 4px above that. scroll-margin keeps both on screen.
         expect(4 <= top[0] <= 0.5 * top[1], f'{w}: #configurator-framework top at {top[0]} of {top[1]}')
         expect(pg.evaluate('() => window.__hashVisible') is True, f'{w}: hash target not visible 150 ms after load')
+        no_errors(pg)
+        pg.close()
+
+
+@check
+def malformed_hash(c):
+    """A broken fragment (/#%, /#%E0%A4%A) is just an unknown target: the site still starts and nothing stays hidden."""
+    for frag in ('%', '%E0%A4%A', 'no-such-entry'):
+        pg = c.page(f'/#{frag}', wait=600)
+        expect(pg.evaluate('() => !!(window.__site && window.__site.graph)'), f'#{frag}: the site script did not start')
+        bad = hidden_in_view(pg)
+        expect(not bad, f'#{frag}: not visible in view: {bad}')
         no_errors(pg)
         pg.close()
 
@@ -244,13 +256,44 @@ def tall_row_reveals(c):
     pg.close()
 
 
+JS_PLANETS = """() => [...document.querySelectorAll('.pc-att')].filter(a => a.querySelector('.sphere')).map(a => {
+  const s = getComputedStyle(a.querySelector('.sphere')), o = getComputedStyle(a.querySelector('.orbit'));
+  return [a.getAttribute('href'), s.opacity, s.transform, o.strokeDashoffset] })"""
+
+
+def planets_at_rest(pg):
+    """Attachments whose planet is not fully at rest (sphere opaque and unscaled, orbit drawn)."""
+    return [p for p in pg.evaluate(JS_PLANETS) if not (p[1] == '1' and p[2] in ('none', 'matrix(1, 0, 0, 1, 0, 0)') and p[3] in ('0', '0px'))]
+
+
 @check
 def print_shows_all(c):
+    """Printing shows every entry, and every planet and orbit at rest: the beforeprint path a real print
+    takes, and print media on its own."""
+    for fire in (True, False):
+        pg = c.page('/')
+        if fire:
+            pg.evaluate("() => dispatchEvent(new Event('beforeprint'))")
+        pg.emulate_media(media='print')
+        pg.wait_for_timeout(100)
+        bad = pg.evaluate(f"() => [...document.querySelectorAll('.log > .row')].filter(r => !({JS_VISIBLE})(r)).length")
+        expect(bad == 0, f'beforeprint={fire}: {bad} rows not visible in print')
+        expect(pg.evaluate(JS_PLANETS), 'no planets to check')
+        moving = planets_at_rest(pg)
+        expect(not moving, f'beforeprint={fire}: planets not at rest in print: {moving}')
+        pg.close()
+
+
+@check
+def jump_planet_at_rest(c):
+    """A jump shows its row at once, planet included: no planet rising or orbit drawing after the jump."""
     pg = c.page('/')
-    pg.emulate_media(media='print')
-    pg.wait_for_timeout(100)
-    bad = pg.evaluate(f"() => [...document.querySelectorAll('.log > .row')].filter(r => !({JS_VISIBLE})(r)).length")
-    expect(bad == 0, f'{bad} rows not visible in print')
+    pg.evaluate("() => { const g = __site.graph; g.go(g.rows.findIndex(r => r.hash === 'b3e0f17')) }")
+    pg.wait_for_timeout(150)
+    row = pg.evaluate("() => { const a = document.querySelector('#servers-and-mods .pc-att'); const s = getComputedStyle(a.querySelector('.sphere')), o = getComputedStyle(a.querySelector('.orbit')); return [a.closest('.row').className, s.opacity, s.transform, o.strokeDashoffset] }")
+    expect('now' in row[0].split(), f'jump target not revealed at once: {row[0]}')
+    expect(row[1] == '1' and row[2] in ('none', 'matrix(1, 0, 0, 1, 0, 0)') and row[3] in ('0', '0px'), f'150 ms after the jump the planet is still moving: {row[1:]}')
+    no_errors(pg)
     pg.close()
 
 
@@ -262,8 +305,8 @@ def reduced(c):
     pg.evaluate(JS_SWEEP, 400)
     pg.wait_for_timeout(300)
     expect(rv() == 0, 'reduced motion: rows got rv after a sweep')
-    anim = pg.eval_on_selector('.pc-att .l-back', 'e => getComputedStyle(e).animationName')
-    expect(anim == 'none', f'reduced motion: attachment drift runs ({anim})')
+    anims = pg.eval_on_selector_all('.pc-att :is(.l-back, .l-img, .l-planet, .l-word span)', 'els => els.map(e => getComputedStyle(e).animationName)')
+    expect(anims and all(a == 'none' for a in anims), f'reduced motion: attachment drift runs ({anims})')
     moved = pg.evaluate("() => [...document.querySelectorAll('.log > .row')].filter(r => r.style.transform || getComputedStyle(r).transform !== 'none').length")
     expect(moved == 0, f'reduced motion: {moved} rows carry a transform')
     no_errors(pg)
@@ -291,8 +334,15 @@ def script_fails(c):
 
 @check
 def attachment_effects(c):
+    """The last attachment with a generative planet, below the fold: its planet rises and its orbit draws in.
+    Picked by markup, not by slug, so real covers on other projects don't break it."""
     pg = c.page('/')
-    sel = '#servers-and-mods .pc-att'
+    slug = pg.evaluate("() => { const a = [...document.querySelectorAll('.pc-att')].filter(a => a.querySelector('.sphere')).pop(); return a && a.closest('.pc').id }")
+    if slug is None:  # every project has real art: no planet to animate
+        expect(pg.evaluate("() => !document.querySelector('.pc-att .l-planet')"), 'planet layers without spheres')
+        pg.close()
+        return
+    sel = f'#{slug} .pc-att'
     before = pg.eval_on_selector(f'{sel} .sphere', 'e => getComputedStyle(e).opacity')
     expect(before == '0', f'sphere before reveal: opacity {before}')
     pg.evaluate(f"() => document.querySelector({sel!r}).scrollIntoView({{ block: 'center' }})")
@@ -308,17 +358,21 @@ def attachment_effects(c):
 
 @check
 def drift_runs(c):
+    """Every attachment's art drifts with the scroll, generated planets and real art (image, layers, video) alike."""
     pg = c.page('/')
-    sel = '#configurator-framework .pc-att'
-    pg.evaluate(f"() => document.querySelector({sel!r}).scrollIntoView({{ block: 'center' }})")
-    pg.wait_for_timeout(300)
-    name = pg.eval_on_selector(f'{sel} .l-back', 'e => getComputedStyle(e).animationName')
-    expect(name != 'none', 'attachment art has no drift animation')
-    t1 = pg.eval_on_selector(f'{sel} .l-back', 'e => getComputedStyle(e).transform')
-    pg.evaluate('() => scrollBy(0, 200)')
-    pg.wait_for_timeout(300)
-    t2 = pg.eval_on_selector(f'{sel} .l-back', 'e => getComputedStyle(e).transform')
-    expect(t1 != t2, f'drift did not move with scroll: {t1}')
+    hrefs = pg.eval_on_selector_all('.pc-att', 'els => els.map(e => e.getAttribute("href"))')
+    expect(hrefs, 'no attachments')
+    for href in hrefs:
+        art = f'.pc-att[href="{href}"] :is(.l-back, .l-img)'
+        pg.evaluate(f"() => document.querySelector({art!r}).closest('.pc-att').scrollIntoView({{ block: 'center' }})")
+        pg.wait_for_timeout(300)
+        name = pg.eval_on_selector(art, 'e => getComputedStyle(e).animationName')
+        expect(name != 'none', f'{href}: art has no drift animation')
+        t1 = pg.eval_on_selector(art, 'e => getComputedStyle(e).transform')
+        pg.evaluate('() => scrollBy(0, 200)')
+        pg.wait_for_timeout(300)
+        t2 = pg.eval_on_selector(art, 'e => getComputedStyle(e).transform')
+        expect(t1 != t2, f'{href}: drift did not move with scroll: {t1}')
     no_errors(pg)
     pg.close()
 
