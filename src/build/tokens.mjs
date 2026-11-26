@@ -11,6 +11,7 @@ export const TOKENS = {
   line: '#313244',
   tick: '#6c7086',
   mauve: '#cba6f7',
+  lavender: '#b4befe',
   crema: '#d4a77a',
   'b-main': '#cdd6f4',
   'b-ibm': '#89b4fa',

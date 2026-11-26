@@ -189,3 +189,12 @@ test('the status bar carries a grain toggle, and the head applies a saved choice
   assert.match(head, /localStorage\.getItem\('grain'\)==='off'/);
   assert.match(head, /classList\.add\('nograin'\)/);
 });
+
+test('home ships its world palettes as JSON for the sky', async () => {
+  const m = /<script type="application\/json" id="worlds">(.*?)<\/script>/.exec(await page('index.html'));
+  assert.ok(m, 'no #worlds data on home');
+  const worlds = JSON.parse(m[1]);
+  assert.equal(worlds.length, 7);
+  assert.ok(worlds.some((w) => w.hashes.join(' ') === 'e8d77f0 1a7c3e9'), 'the two IBM rows share a world');
+  for (const w of worlds) assert.match(w.base + w.accent, /^#[0-9a-f]{6}#[0-9a-f]{6}$/);
+});

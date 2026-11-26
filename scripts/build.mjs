@@ -11,7 +11,7 @@ import { renderMarkdown } from '../src/build/markdown.mjs';
 import { layout } from '../src/build/layout.mjs';
 import { paletteVars } from '../src/build/cover.mjs';
 import { homePage } from '../src/build/pages/home.mjs';
-import { renderWorld } from '../src/build/world.mjs';
+import { renderWorld, renderWorldData } from '../src/build/world.mjs';
 import { projectPage } from '../src/build/pages/project.mjs';
 import { workPage } from '../src/build/pages/work.mjs';
 import { aboutPage } from '../src/build/pages/about.mjs';
@@ -57,7 +57,7 @@ export async function build({ outDir = join(ROOT, 'dist'), base = '' } = {}) {
   };
   const page = (rel, o) => write(rel, layout({ selfHostedFonts, ...o }));
 
-  await page('index.html', { title: `${site.name}, ${site.role.toLowerCase()}`, page: 'log', body: homePage(timeline), backdrop: renderWorld(timeline.rows), path: '/' });
+  await page('index.html', { title: `${site.name}, ${site.role.toLowerCase()}`, page: 'log', body: homePage(timeline), backdrop: renderWorldData(timeline.rows) + renderWorld(timeline.rows), path: '/' });
   await page('work/index.html', { title: `Work · ${site.name}`, page: 'work', body: workPage(projects, label), path: '/work/' });
   await page('about/index.html', {
     title: `About · ${site.name}`, page: 'about', path: '/about/',
