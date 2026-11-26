@@ -33,9 +33,10 @@ const style = (vars) => Object.entries(vars).map(([k, v]) => `${k}:${v}`).join('
 /**
  * The page shell shared by every page.
  * @param {{ title: string, page: string, body: string, description?: string,
- *   section?: string, vars?: Record<string,string>, selfHostedFonts?: boolean, path?: string }} o
+ *   section?: string, vars?: Record<string,string>, selfHostedFonts?: boolean, path?: string,
+ *   backdrop?: string }} o  backdrop: fixed layers painted under the stars (the home page's worlds)
  */
-export function layout({ title, page, body, description = site.description, section = page, vars, selfHostedFonts = false, path = '/', pos = 'HEAD · main' }) {
+export function layout({ title, page, body, description = site.description, section = page, vars, selfHostedFonts = false, path = '/', pos = 'HEAD · main', backdrop = '' }) {
   const tabs = TABS.map((t, i) => {
     const current = t.key === page ? ' aria-current="page"' : '';
     const on = t.key === section ? ' class="on"' : '';
@@ -64,7 +65,7 @@ ${fontLinks(selfHostedFonts)}
 </head>
 <body data-page="${page}"${vars ? ` style="${style(vars)}"` : ''}>
 <a class="skip" href="#main">Skip to content</a>
-<canvas id="stars" aria-hidden="true"></canvas>
+${backdrop}<canvas id="stars" aria-hidden="true"></canvas>
 <div id="grain" aria-hidden="true"></div>
 <div class="page">
 <svg id="graph" aria-hidden="true" focusable="false"></svg>

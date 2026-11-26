@@ -128,7 +128,7 @@ def fold_never_hidden(c):
         fold = pg.evaluate('() => window.__fold')
         expect(fold, f'{w}: no rows in view at startup')
         expect(all(v for _, v in fold), f'{w}: hidden on the first frame: {[k for k, v in fold if not v]}')
-        later = pg.evaluate("hs => hs.filter(h => document.querySelector(`[data-hash='${h}']`).closest('.row').classList.contains('rv'))",
+        later = pg.evaluate("hs => hs.filter(h => document.querySelector(`.log [data-hash='${h}']`).closest('.row').classList.contains('rv'))",
                             [k for k, _ in fold])
         expect(not later, f'{w}: fold rows got rv: {later}')
         no_errors(pg)
@@ -364,7 +364,7 @@ def go_stays(c):
 @check
 def resize(c):
     pg = c.page('/')
-    pg.evaluate("() => scrollTo(0, document.querySelector('[data-hash=\\'1a7c3e9\\']').getBoundingClientRect().top + scrollY - innerHeight * 0.3)")
+    pg.evaluate("() => scrollTo(0, document.querySelector('.log [data-hash=\\'1a7c3e9\\']').getBoundingClientRect().top + scrollY - innerHeight * 0.3)")
     pg.wait_for_timeout(900)
     a = cursor_vs_node(pg)
     expect(abs(a[0] - a[2]) <= 1 and abs(a[1] - a[3]) <= 1, f'1280: cursor off node {a}')
@@ -641,6 +641,180 @@ def attachment_corners(c):
             expect('k k3' not in shown, f'{w} {href}: bottom-left crop mark .k3 is drawn')
             expect(not under, f'{w} {href}: crop marks under the chip: {under}')
             expect(len(shown) == 3, f'{w} {href}: want 3 crop marks, got {shown}')
+        pg.close()
+
+
+# Worlds: each project and work entry tints the log while it is the current row.
+WORLD_ROWS = ('a3f9c1e', '5c2e91b', '4d01c9a', '7be2104', 'c7d41ab', 'e8d77f0', '1a7c3e9', 'b3e0f17')
+JS_GO = "h => { const g = __site.graph; g.go(g.rows.findIndex(r => r.hash === h)) }"
+JS_WORLD_STATE = """() => [...document.querySelectorAll('#world > i')].map(i => [i.dataset.hash, getComputedStyle(i).opacity, i.classList.contains('on')])"""
+
+
+def world_on(pg):
+    """data-hash of every layer fully on, and of every layer caught mid-fade. A world at rest is opaque:
+    the "faint" strength is mixed into its colours, so no translucent full-screen layer stays on screen."""
+    state = pg.evaluate(JS_WORLD_STATE)
+    return [h for h, o, _ in state if o == '1'], [h for h, o, _ in state if o not in ('0', '1')]
+
+
+@check
+def world_enters(c):
+    for w, h in ((1280, 800), (390, 844)):
+        pg = c.page('/', w, h)
+        for row in WORLD_ROWS:
+            pg.evaluate(JS_GO, row)
+            pg.wait_for_timeout(2000)
+            on, between = world_on(pg)
+            expect(len(on) == 1 and row in on[0].split() and not between, f'{w}: at {row}: on {on}, mid-fade {between}')
+        # Same world, two rows: nothing on screen changes.
+        pg.evaluate(JS_GO, 'e8d77f0')
+        pg.wait_for_timeout(2000)
+        pg.evaluate("""() => { window.__flips = 0; new MutationObserver(m => window.__flips += m.length)
+          .observe(document.getElementById('world'), { attributes: true, subtree: true, attributeFilter: ['class'] }) }""")
+        pg.evaluate(JS_GO, '1a7c3e9')
+        pg.wait_for_timeout(600)
+        expect(pg.evaluate('() => window.__flips') == 0, f'{w}: moving within the IBM world flipped layers')
+        pg.evaluate(JS_GO, '2e6a8d1')  # a merge: no world
+        pg.wait_for_timeout(2000)
+        on, between = world_on(pg)
+        expect(not on and not between, f'{w}: at a merge: on {on}, mid-fade {between}')
+        # A real scroll, not a jump: the world follows the cursor, never a stale row.
+        pg.reload()
+        pg.wait_for_timeout(500)
+        delta = pg.evaluate("() => { const r = document.getElementById('ba-art-direction').closest('.row').getBoundingClientRect(); return r.top + r.height / 2 - innerHeight / 2 }")
+        pg.mouse.move(w / 2, h / 2)
+        pg.mouse.wheel(0, delta)
+        pg.wait_for_timeout(2000)
+        on, between = world_on(pg)
+        cur = pg.evaluate('() => { const g = __site.graph; return g.rows[g.index].hash }')
+        expect(cur == '4d01c9a', f'{w}: wheel to BA left the cursor on {cur}')
+        expect(len(on) == 1 and on[0] == '4d01c9a' and not between, f'{w}: after scrolling to BA: on {on}, mid-fade {between}')
+        no_errors(pg)
+        pg.close()
+
+
+@check
+def world_one_blend(c):
+    """Switching worlds fades the new one in over the old, which stays opaque until it is covered:
+    at most one translucent full-screen layer at any moment (each one costs a full-screen blend)."""
+    pg = c.page('/')
+    pg.evaluate(JS_GO, '4d01c9a')
+    pg.wait_for_timeout(2000)
+    samples = pg.evaluate("""async h => {
+      const g = __site.graph, out = [];
+      g.go(g.rows.findIndex(r => r.hash === h));
+      for (let t = 0; t < 2000; t += 50) {
+        out.push([...document.querySelectorAll('#world > i')].map(i => [i.dataset.hash, +getComputedStyle(i).opacity]));
+        await new Promise(r => setTimeout(r, 50));
+      }
+      return out }""", '7be2104')
+    blends = [[h for h, o in s if 0 < o < 1] for s in samples]
+    expect(max(len(b) for b in blends) <= 1, f'two translucent world layers at once: {[b for b in blends if len(b) > 1][:3]}')
+    expect(any(blends), 'the switch did not fade at all')
+    old = [dict(s)['4d01c9a'] for s in samples]
+    new = [dict(s)['7be2104'] for s in samples]
+    first_full = next((i for i, o in enumerate(new) if o == 1), None)
+    expect(first_full is not None, f'the new world never reached full strength: {new[-1]}')
+    expect(all(o == 1 for o in old[:first_full]), f'the old world faded before it was covered: {old[:first_full]}')
+    expect(old[-1] == 0, f'the old world was not dropped after the switch: {old[-1]}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def world_under_stars(c):
+    pg = c.page('/')
+    r = pg.evaluate("""() => { const w = document.getElementById('world'), s = document.getElementById('stars');
+      return [w.parentElement === document.body, !!(w.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING),
+              getComputedStyle(w).zIndex, getComputedStyle(s).zIndex, getComputedStyle(w).position] }""")
+    expect(r == [True, True, '0', '0', 'fixed'], f'world layer placement: {r}')
+    pg.close()
+
+
+@check
+def world_contrast(c):
+    """Inside every world, text keeps the site's contrast rules: body text AAA (7:1), labels AA (4.5:1)."""
+    from io import BytesIO
+    from PIL import Image
+    pg = c.page('/')
+    for row in WORLD_ROWS:
+        pg.evaluate(JS_GO, row)
+        pg.wait_for_timeout(2000)
+        boxes = pg.evaluate("""h => { const row = document.querySelector(`.log [data-hash='${h}']`).closest('.row');
+          return [...row.querySelectorAll('.ds, .cells dd, .cells dt')].map(e => { const r = e.getBoundingClientRect();
+            return [e.tagName + '.' + e.className, r.left, r.top, r.right, r.bottom, getComputedStyle(e).color] }) }""", row)
+        expect(any(b[0].startswith('P.') for b in boxes) and any(b[0].startswith('DD') for b in boxes), f'{row}: no lede or cells to measure')
+        tag = pg.add_style_tag(content='#grain{display:none} .log *{color:transparent!important}')
+        pg.wait_for_timeout(100)
+        img = Image.open(BytesIO(pg.screenshot())).convert('RGB')
+        tag.evaluate('e => e.remove()')
+        for name, l, t, r, b, color in boxes:
+            rgb = [int(v) for v in color[color.index('(') + 1:color.index(')')].split(',')[:3]]
+            vals = sorted(contrast(rgb, img.getpixel((x, y)))
+                          for x in range(max(0, int(l)), min(1280, int(r)), 3)
+                          for y in range(max(0, int(t)), min(800, int(b)), 3))
+            expect(vals, f'{row} {name}: no on-screen pixels to sample')
+            need = 4.5 if name.startswith('DT') else 7
+            p1 = vals[len(vals) // 100]
+            expect(p1 >= need, f'{row} {name}: 1st percentile contrast {p1:.2f} < {need}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def world_reduced(c):
+    pg = c.page('/', reduced=True)
+    dur = pg.eval_on_selector('#world > i', 'e => getComputedStyle(e).transitionDuration')
+    expect(dur == '0.45s', f'reduced motion: world fade {dur}')
+    pg.evaluate(JS_GO, '4d01c9a')
+    pg.wait_for_timeout(1000)
+    on, between = world_on(pg)
+    expect(on == ['4d01c9a'] and not between, f'reduced motion: at BA: on {on}, mid-fade {between}')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def world_nojs(c):
+    pg = c.page('/', js=False)
+    state = pg.evaluate(JS_WORLD_STATE)
+    expect(state and all(o == '0' and not on for _, o, on in state), f'without JS: {state}')
+    pg.close()
+
+
+@check
+def world_print(c):
+    pg = c.page('/')
+    pg.emulate_media(media='print')
+    expect(pg.eval_on_selector('#world', 'e => getComputedStyle(e).display') == 'none', 'world layer prints')
+    pg.close()
+
+
+def css_alpha(col):
+    """Alpha of a computed CSS colour: rgba(r, g, b, a), or any space syntax with ' / a'."""
+    if '/' in col:
+        return float(col[col.rindex('/') + 1:].strip(' )'))
+    if col.startswith('rgba('):
+        return float(col[col.rindex(',') + 1:-1])
+    return 1.0
+
+
+@check
+def cells_see_through(c):
+    """Spec cells let the world show through; their 1px hairlines stay, drawn by outlines or borders, not a backing fill."""
+    for path in ('/', '/projects/configurator-framework/'):
+        pg = c.page(path)
+        r = pg.evaluate("""() => [...document.querySelectorAll('.cells')].map(d => [getComputedStyle(d).backgroundColor,
+          [...d.children].map(c => { const s = getComputedStyle(c);
+            return [s.backgroundColor, [s.outlineWidth, s.outlineStyle, s.outlineColor], [s.borderTopWidth, s.borderTopStyle, s.borderTopColor]] })])""")
+        expect(r, f'{path}: no cells')
+        # Each page keeps its hairline colour (the log's --line, a project page's palette): 1px, solid, visible.
+        line = lambda w, s, col: w == '1px' and s == 'solid' and css_alpha(col) > 0  # noqa: E731
+        for bg, cells in r:
+            expect(css_alpha(bg) == 0, f'{path}: .cells has a backing fill {bg}')
+            for cbg, outline, border in cells:
+                expect(0 < css_alpha(cbg) < 1, f'{path}: cell fill not see-through: {cbg}')
+                expect(line(*outline) or line(*border), f'{path}: cell hairline outline {outline} border {border}')
         pg.close()
 
 

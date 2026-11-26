@@ -36,8 +36,8 @@ body[data-page="project"] { color: var(--p-fg); }
 [data-page="project"] :focus-visible { outline-color: var(--p-accent); }
 [data-page="project"] .prose figcaption { color: var(--p-fg); }
 .project .prose { padding-top: 8vh; }
-.project .cells { background: color-mix(in oklab, var(--p-fg) 22%, transparent); border-color: color-mix(in oklab, var(--p-fg) 22%, transparent); margin: 0 0 3em; }
-.project .cells > div { background: var(--p-bg); }
+.project .cells { margin: 0 0 3em; }
+.project .cells > div { background: color-mix(in oklab, var(--p-bg) 55%, transparent); outline-color: color-mix(in oklab, var(--p-fg) 22%, transparent); }
 .project .cells dt { color: var(--p-accent); }
 .project .prose h2 { border-color: color-mix(in oklab, var(--p-fg) 22%, transparent); }
 .project .nda, .project .nda .ref { color: var(--p-fg); }

@@ -9,7 +9,7 @@ Luca: "when i reach each project or work, i want to have a faint change of backg
 ## Goals
 
 - When a project or work entry becomes the current row (the one the graph cursor sits on), the page background slowly crossfades into that entry's world. Moving on to a row with no world fades it back to the plain background.
-- Strength is "faint": the world layer at opacity 0.55, as picked in the spike.
+- Strength is "faint": the spike's world layer at opacity 0.55, as picked. (Built with the strength mixed into the colours; see Design.)
 - The spec cells (the "School / Years / Focus" boxes) are see-through, so the world shows behind them.
 
 ## Non-goals
@@ -44,7 +44,9 @@ Luca saw approach 1 in a spike with four strengths and picked "faint" and see-th
   - `#world` is `position: fixed; inset: 0; z-index: 0; pointer-events: none`, `aria-hidden`. It sits in the root stacking context, immediately before `#stars`, never inside `.page`, so the stars stay on top of it.
   - It holds one `<i>` per distinct world, rendered at build time.
   - Each `<i>` paints, from the spike: `radial-gradient(70% 90% at 0% 45%, <accent 26%>, transparent 72%)`, `radial-gradient(60% 55% at 100% 0%, <accent 12%>, transparent 75%)`, then the world's base colour.
-  - Off is opacity 0, on is opacity 0.55. The transition is `opacity 1.5s cubic-bezier(.4, 0, .2, 1)`.
+  - Off is opacity 0, on is opacity 1. The transition is `opacity 1.5s cubic-bezier(.4, 0, .2, 1)`.
+  - The "faint" strength (the spike's opacity 0.55) is mixed into the colours instead: the glows drop to 14.3% and 6.6%, and the base becomes `color-mix(in srgb, <world base> 55%, var(--base))`. A world at rest is therefore opaque and covers the page background instead of blending over it on every frame. On the host's software compositor (SwiftShader), the translucent version dropped about 16% of frames in a full sweep, against 0.2% with no world and 0.8% with worlds that never fade.
+  - A switch fades the new world in on top of the old one, which stays opaque until it is fully covered and is then dropped at once, unseen. So only one translucent layer blends during a switch. Going back to the plain background fades every visible world out together.
   - Under reduced motion the fade is 0.45 s. It is a colour change, not movement, so it stays.
 - **Driver:** a small client module listens to `graph:current` and flips one class when the current hash changes. It does no layout reads and no other style writes. Without JS there is no world and the background stays plain.
 - **See-through cells:**
