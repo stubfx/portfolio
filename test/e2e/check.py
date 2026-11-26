@@ -910,101 +910,51 @@ def attachment_corners(c):
 
 
 # Worlds: each project and work entry tints the log while it is the current row.
+# Worlds: while a project or work entry is the current row, the sky's palette fades to that world.
 WORLD_ROWS = ('a3f9c1e', '5c2e91b', '4d01c9a', '7be2104', 'c7d41ab', 'e8d77f0', '1a7c3e9', 'b3e0f17')
 JS_GO = "h => { const g = __site.graph; g.go(g.rows.findIndex(r => r.hash === h)) }"
-JS_WORLD_STATE = """() => [...document.querySelectorAll('#world > i')].map(i => [i.dataset.hash, getComputedStyle(i).opacity, i.classList.contains('on')])"""
+JS_WORLDS = "() => JSON.parse(document.getElementById('worlds').textContent)"
+PAGE_SKY = {'base': '#1e1e2e', 'accent': '#b4befe'}
 
 
-def world_on(pg):
-    """data-hash of every layer fully on, and of every layer caught mid-fade. A world at rest is opaque:
-    the "faint" strength is mixed into its colours, so no translucent full-screen layer stays on screen."""
-    state = pg.evaluate(JS_WORLD_STATE)
-    return [h for h, o, _ in state if o == '1'], [h for h, o, _ in state if o not in ('0', '1')]
+def world_of(worlds, h):
+    w = next((w for w in worlds if h in w['hashes']), None)
+    return {'base': w['base'], 'accent': w['accent']} if w else PAGE_SKY
 
 
 @check
 def world_enters(c):
+    """Each world row fades the sky to its colours; rows of one world change nothing; a merge brings back
+    the page's own sky; a real scroll ends in the world of the row it lands on."""
     for w, h in ((1280, 800), (390, 844)):
         pg = c.page('/', w, h)
+        sky_ready(pg)
+        worlds = pg.evaluate(JS_WORLDS)
         for row in WORLD_ROWS:
             pg.evaluate(JS_GO, row)
-            pg.wait_for_timeout(2000)
-            on, between = world_on(pg)
-            expect(len(on) == 1 and row in on[0].split() and not between, f'{w}: at {row}: on {on}, mid-fade {between}')
-        # Same world, two rows: nothing on screen changes.
+            pg.wait_for_timeout(1600)
+            st = pg.evaluate('() => __site.sky.state()')
+            expect(st['target'] == world_of(worlds, row) and not st['fading'], f'{w}: at {row}: sky {st["target"]} fading={st["fading"]}')
         pg.evaluate(JS_GO, 'e8d77f0')
-        pg.wait_for_timeout(2000)
-        pg.evaluate("""() => { window.__flips = 0; new MutationObserver(m => window.__flips += m.length)
-          .observe(document.getElementById('world'), { attributes: true, subtree: true, attributeFilter: ['class'] }) }""")
-        pg.evaluate(JS_GO, '1a7c3e9')
-        pg.wait_for_timeout(600)
-        expect(pg.evaluate('() => window.__flips') == 0, f'{w}: moving within the IBM world flipped layers')
-        pg.evaluate(JS_GO, '2e6a8d1')  # a merge: no world
-        pg.wait_for_timeout(2000)
-        on, between = world_on(pg)
-        expect(not on and not between, f'{w}: at a merge: on {on}, mid-fade {between}')
-        # A real scroll, not a jump: the world follows the cursor, never a stale row.
+        pg.wait_for_timeout(1600)
+        pg.evaluate(JS_GO, '1a7c3e9')  # the same IBM world
+        pg.wait_for_timeout(100)
+        expect(not pg.evaluate('() => __site.sky.state().fading'), f'{w}: moving within the IBM world started a fade')
+        pg.evaluate(JS_GO, '2e6a8d1')  # a merge: the page's own sky
+        pg.wait_for_timeout(1600)
+        expect(pg.evaluate('() => __site.sky.state().target') == PAGE_SKY, f'{w}: a merge did not bring the page sky back')
         pg.reload()
         pg.wait_for_timeout(500)
         delta = pg.evaluate("() => { const r = document.getElementById('ba-art-direction').closest('.row').getBoundingClientRect(); return r.top + r.height / 2 - innerHeight / 2 }")
         pg.mouse.move(w / 2, h / 2)
         pg.mouse.wheel(0, delta)
         pg.wait_for_timeout(2000)
-        on, between = world_on(pg)
         cur = pg.evaluate('() => { const g = __site.graph; return g.rows[g.index].hash }')
         expect(cur == '4d01c9a', f'{w}: wheel to BA left the cursor on {cur}')
-        expect(len(on) == 1 and on[0] == '4d01c9a' and not between, f'{w}: after scrolling to BA: on {on}, mid-fade {between}')
+        st = pg.evaluate('() => __site.sky.state()')
+        expect(st['target'] == world_of(pg.evaluate(JS_WORLDS), '4d01c9a') and not st['fading'], f'{w}: after scrolling to BA the sky is {st["target"]}')
         no_errors(pg)
         pg.close()
-
-
-@check
-def world_one_blend(c):
-    """Switching worlds fades the new one in over the old, which stays opaque until it is covered:
-    at most one translucent full-screen layer at any moment (each one costs a full-screen blend)."""
-    pg = c.page('/')
-    pg.evaluate(JS_GO, '4d01c9a')
-    pg.wait_for_timeout(2000)
-    samples = pg.evaluate("""async h => {
-      const g = __site.graph, out = [];
-      g.go(g.rows.findIndex(r => r.hash === h));
-      for (let t = 0; t < 2000; t += 50) {
-        out.push([...document.querySelectorAll('#world > i')].map(i => [i.dataset.hash, +getComputedStyle(i).opacity]));
-        await new Promise(r => setTimeout(r, 50));
-      }
-      return out }""", '7be2104')
-    blends = [[h for h, o in s if 0 < o < 1] for s in samples]
-    expect(max(len(b) for b in blends) <= 1, f'two translucent world layers at once: {[b for b in blends if len(b) > 1][:3]}')
-    expect(any(blends), 'the switch did not fade at all')
-    old = [dict(s)['4d01c9a'] for s in samples]
-    new = [dict(s)['7be2104'] for s in samples]
-    first_full = next((i for i, o in enumerate(new) if o == 1), None)
-    expect(first_full is not None, f'the new world never reached full strength: {new[-1]}')
-    expect(all(o == 1 for o in old[:first_full]), f'the old world faded before it was covered: {old[:first_full]}')
-    expect(old[-1] == 0, f'the old world was not dropped after the switch: {old[-1]}')
-    no_errors(pg)
-    pg.close()
-
-
-@check
-def world_reversal(c):
-    """Back to a world before the next one arrived (A at rest, B, then A again): the half-faded B is covered
-    by A and dropped at once, so a later fade to the plain background shows only A, never B's colour."""
-    pg = c.page('/')
-    pg.evaluate(JS_GO, '4d01c9a')  # A: BA, at rest
-    pg.wait_for_timeout(2000)
-    pg.evaluate(JS_GO, '7be2104')  # B: the configurator, starts fading in
-    pg.wait_for_timeout(300)
-    pg.evaluate(JS_GO, '4d01c9a')  # back to A before B arrives
-    pg.wait_for_timeout(200)
-    state = {h: (o, on) for h, o, on in pg.evaluate(JS_WORLD_STATE)}
-    expect(state['7be2104'] == ('0', False), f'B still on under A after the reversal: {state["7be2104"]}')
-    pg.evaluate(JS_GO, '2e6a8d1')  # a merge: back to the plain background
-    pg.wait_for_timeout(400)
-    showing = [h for h, o, _ in pg.evaluate(JS_WORLD_STATE) if o != '0']
-    expect(showing == ['4d01c9a'], f'fading to the plain background shows {showing}, want only BA')
-    no_errors(pg)
-    pg.close()
 
 
 @check
@@ -1013,9 +963,10 @@ def world_contrast(c):
     from io import BytesIO
     from PIL import Image
     pg = c.page('/')
+    sky_ready(pg)
     for row in WORLD_ROWS:
         pg.evaluate(JS_GO, row)
-        pg.wait_for_timeout(2000)
+        pg.wait_for_timeout(1700)
         boxes = pg.evaluate("""h => { const row = document.querySelector(`.log [data-hash='${h}']`).closest('.row');
           return [...row.querySelectorAll('.ds, .cells dd, .cells dt')].map(e => { const r = e.getBoundingClientRect();
             return [e.tagName + '.' + e.className, r.left, r.top, r.right, r.bottom, getComputedStyle(e).color] }) }""", row)
@@ -1039,30 +990,26 @@ def world_contrast(c):
 
 @check
 def world_reduced(c):
+    """With reduced motion a world is still a colour change, only quicker (0.45 s)."""
     pg = c.page('/', reduced=True)
-    dur = pg.eval_on_selector('#world > i', 'e => getComputedStyle(e).transitionDuration')
-    expect(dur == '0.45s', f'reduced motion: world fade {dur}')
+    sky_ready(pg)
     pg.evaluate(JS_GO, '4d01c9a')
-    pg.wait_for_timeout(1000)
-    on, between = world_on(pg)
-    expect(on == ['4d01c9a'] and not between, f'reduced motion: at BA: on {on}, mid-fade {between}')
+    pg.wait_for_timeout(600)
+    st = pg.evaluate('() => __site.sky.state()')
+    expect(st['target'] == world_of(pg.evaluate(JS_WORLDS), '4d01c9a') and not st['fading'], f'reduced motion: at BA after 0.6 s: {st}')
     no_errors(pg)
     pg.close()
 
 
 @check
-def world_nojs(c):
-    pg = c.page('/', js=False)
-    state = pg.evaluate(JS_WORLD_STATE)
-    expect(state and all(o == '0' and not on for _, o, on in state), f'without JS: {state}')
-    pg.close()
-
-
-@check
-def world_print(c):
-    pg = c.page('/')
-    pg.emulate_media(media='print')
-    expect(pg.eval_on_selector('#world', 'e => getComputedStyle(e).display') == 'none', 'world layer prints')
+def sky_project_palette(c):
+    """A project page's sky is its own palette: the page background and the cover's accent."""
+    pg = c.page('/projects/ba-art-direction/')
+    sky_ready(pg)
+    want = pg.evaluate("() => { const s = getComputedStyle(document.body); return { base: s.getPropertyValue('--bg').trim(), accent: s.getPropertyValue('--p-accent').trim() } }")
+    st = pg.evaluate('() => __site.sky.state()')
+    expect(st['target'] == want, f"project sky {st['target']}, want {want}")
+    no_errors(pg)
     pg.close()
 
 
@@ -1126,7 +1073,7 @@ def no_forced_layout(c):
     m = metrics(json.loads(c.browser.stop_tracing())['traceEvents'])
     expect(m['siteCalls'] > 0, 'no site script ran during the sweep')
     expect(m['forcedInRaf'] == 0, f"{m['forcedInRaf']} layouts forced inside animation frames (after writes) during a scroll sweep: {m['forcedBy']}")
-    expect(m['maxScript'] <= 4.0, f"a site script task took {m['maxScript']:.1f} ms (budget 4 ms)")
+    # Script time swings with the shared host's load: perf.py gates it on a median of 3 runs.
     no_errors(pg)
     pg.close()
 

@@ -1,50 +1,23 @@
-// Entering a world: while a project or work entry is the current row, its layer in #world is on.
-// The graph announces the current row (graph:current). A new world fades in on top of the old one; once
-// it has fully arrived, the worlds beneath it are covered and are dropped at once (.cut), unseen. So a
-// switch blends one translucent layer, not two (world.css), and nothing translucent stays on screen.
-// Class flips only: no layout reads, no style writes.
+// Entering a world: while a project or work entry is the current row, the sky's palette fades to that
+// world's colours (computed by the build, shipped as #worlds JSON); other rows bring back the page's own.
+// Rows that share colours share a world, so moving between them changes nothing.
 
 /**
  * @param {Document} doc
- * @returns {null | { readonly hash: string | null }} hash: the current row's; null before the first one.
+ * @param {{ tint(base: string, accent: string): void } | null} sky
+ * @param {{ base: string, accent: string }} home the page's own sky colours
+ * @returns {null | { readonly hash: string | null }}
  */
-export function startWorld(doc) {
-  const stack = doc.getElementById('world');
-  if (!stack) return null;
+export function startWorld(doc, sky, home) {
+  const data = doc.getElementById('worlds');
+  if (!data || !sky) return null;
+  const byHash = new Map();
+  for (const w of JSON.parse(data.textContent)) for (const h of w.hashes) byHash.set(h, w);
   let hash = null;
-  let top = null;
-  let arrived = null; // the world that last finished fading in: fully opaque for as long as it stays on
-
-  const dropUnder = (keep) => {
-    for (const i of stack.children) {
-      if (i !== keep && i.classList.contains('on')) { i.classList.add('cut'); i.classList.remove('on'); }
-    }
-  };
-
-  // The top world has fully faded in: everything under it is covered.
-  stack.addEventListener('transitionend', (e) => {
-    if (e.propertyName !== 'opacity' || e.target !== top || !top.classList.contains('on')) return;
-    arrived = top;
-    dropUnder(top);
-  });
-
   doc.addEventListener('graph:current', (e) => {
     hash = e.detail?.hash ?? null;
-    const next = hash ? stack.querySelector(`i[data-hash~="${CSS.escape(hash)}"]`) : null;
-    if (next === top) return;
-    top?.classList.remove('top');
-    if (next) {
-      next.classList.remove('cut');
-      next.classList.add('on', 'top');
-      // Back to a world that never left (A, B, A before B arrived): it is opaque and on top again, so the
-      // half-faded worlds under it are already covered. Drop them now, or a later fade would show them.
-      if (next === arrived) dropUnder(next);
-    } else {
-      // Back to the plain background: every world still showing fades out together.
-      for (const i of stack.children) i.classList.remove('on');
-      arrived = null;
-    }
-    top = next;
+    const w = byHash.get(hash) || home;
+    sky.tint(w.base, w.accent);
   });
   return { get hash() { return hash; } };
 }

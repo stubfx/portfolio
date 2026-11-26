@@ -140,14 +140,12 @@ test('motion ships as its own stylesheet section and script', async () => {
   assert.match(await page('assets/main.js'), /startReveal/);
 });
 
-test('home carries the world layer before the stars; other pages do not', async () => {
+test('home carries its world data before the sky, and no world layers anywhere', async () => {
   const home = await page('index.html');
-  assert.match(home, /<div id="world" aria-hidden="true">(<i data-hash="[0-9a-f]{7}( [0-9a-f]{7})*" style="[^"]+"><\/i>){7}<\/div>\s*<canvas id="sky"/);
-  assert.match(home, /<i data-hash="e8d77f0 1a7c3e9" style="[^"]*var\(--b-ibm\)/);
-  for (const rel of ['work/index.html', 'about/index.html', 'projects/configurator-framework/index.html'])
-    assert.doesNotMatch(await page(rel), /id="world"/);
-  const css = await page('assets/site.css');
-  assert.ok(css.indexOf('#world > i.on') > css.indexOf('.rv.in'), 'world.css comes after motion.css');
+  assert.match(home, /<script type="application\/json" id="worlds">[^<]+<\/script><canvas id="sky"/);
+  for (const rel of ['index.html', 'work/index.html', 'about/index.html', 'projects/configurator-framework/index.html'])
+    assert.doesNotMatch(await page(rel), /id="world"/, rel);
+  assert.doesNotMatch(await page('assets/site.css'), /#world/);
 });
 
 test('copy: Twitch years, no flight anywhere', async () => {
