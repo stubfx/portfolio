@@ -1,0 +1,4 @@
+/* The sky (sky.js): a canvas a third of the screen's size, scaled up with hard pixels, fixed behind the page.
+   Opaque once drawn; without JavaScript it stays an empty, transparent canvas over the plain page. */
+#sky { position: fixed; left: 0; top: 0; z-index: 0; pointer-events: none; image-rendering: pixelated; max-width: none; } /* exact x3: never squeezed to the viewport */
+@media print { #sky { display: none; } }

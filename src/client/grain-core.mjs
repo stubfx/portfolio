@@ -1,5 +1,5 @@
 // Film grain: one grey noise tile, shifted a few times per second.
-import { rng } from './stars-core.mjs';
+import { rng } from './sky-core.mjs';
 
 export function grainTile(size, seed) {
   const r = rng(seed);

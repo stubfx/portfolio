@@ -1,17 +1,4 @@
-/* Cockpit: starfield, film grain, tmux status bar, command line. */
-#stars {
-  position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
-  /* Stars fade out behind the reading column. */
-  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(50% - 470px), transparent calc(50% - 360px), transparent calc(50% + 380px), #000 calc(50% + 490px));
-  mask-image: linear-gradient(90deg, #000 0, #000 calc(50% - 470px), transparent calc(50% - 360px), transparent calc(50% + 380px), #000 calc(50% + 490px));
-}
-@media (max-width: 900px) {
-  #stars {
-    -webkit-mask-image: linear-gradient(90deg, rgb(0 0 0 / .55), rgb(0 0 0 / .18) 30%, rgb(0 0 0 / .18) 70%, rgb(0 0 0 / .55));
-    mask-image: linear-gradient(90deg, rgb(0 0 0 / .55), rgb(0 0 0 / .18) 30%, rgb(0 0 0 / .18) 70%, rgb(0 0 0 / .55));
-  }
-}
-
+/* Cockpit: film grain, tmux status bar, command line. The sky is sky.css. */
 /* Grain: an oversized noise layer, moved with transforms only. */
 #grain {
   position: fixed; left: -50%; top: -50%; width: 200%; height: 200%;

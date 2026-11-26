@@ -142,7 +142,7 @@ test('motion ships as its own stylesheet section and script', async () => {
 
 test('home carries the world layer before the stars; other pages do not', async () => {
   const home = await page('index.html');
-  assert.match(home, /<div id="world" aria-hidden="true">(<i data-hash="[0-9a-f]{7}( [0-9a-f]{7})*" style="[^"]+"><\/i>){7}<\/div>\s*<canvas id="stars"/);
+  assert.match(home, /<div id="world" aria-hidden="true">(<i data-hash="[0-9a-f]{7}( [0-9a-f]{7})*" style="[^"]+"><\/i>){7}<\/div>\s*<canvas id="sky"/);
   assert.match(home, /<i data-hash="e8d77f0 1a7c3e9" style="[^"]*var\(--b-ibm\)/);
   for (const rel of ['work/index.html', 'about/index.html', 'projects/configurator-framework/index.html'])
     assert.doesNotMatch(await page(rel), /id="world"/);

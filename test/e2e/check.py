@@ -468,14 +468,139 @@ def texture(c):
     pg.wait_for_timeout(400)
     t2 = pg.eval_on_selector('#grain', 'e => e.style.transform')
     expect(t1 != t2, 'grain is not moving')
-    lit = pg.evaluate("""() => { const c = document.getElementById('stars'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n }""")
-    expect(lit > 100, f'starfield is empty ({lit} lit pixels)')
+    sky_ready(pg)
+    colours = pg.evaluate(f"() => {JS_SKY_COLOURS}(0, 1)")
+    expect(colours >= 4, f'the sky is flat ({colours} colours)')
     no_errors(pg)
     pg.close()
     pg = c.page('/', reduced=True)
     t1 = pg.eval_on_selector('#grain', 'e => e.style.transform')
     pg.wait_for_timeout(400)
     expect(t1 == pg.eval_on_selector('#grain', 'e => e.style.transform') == '', 'grain moves under reduced motion')
+    pg.close()
+
+
+# The sky: distinct colours in a band of canvas columns (fractions of its width), read from the canvas itself.
+JS_SKY_COLOURS = """((a, b) => { const c = document.getElementById('sky'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+  const set = new Set(); for (let y = 0; y < c.height; y++) for (let x = Math.floor(a * c.width); x < Math.ceil(b * c.width); x++) {
+    const i = (y * c.width + x) * 4; set.add(d[i] << 16 | d[i + 1] << 8 | d[i + 2]) } return set.size })"""
+JS_LANE = """() => { const c = document.getElementById('sky'), r = document.querySelector('main .frame').getBoundingClientRect(), s = __site.sky.state().scale;
+  return [Math.ceil(r.left / s), Math.floor(r.right / s), c.width] }"""
+JS_BRIGHT = """((x0, x1, rgb) => { const c = document.getElementById('sky'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0;
+  for (let y = 0; y < c.height; y++) for (let x = x0; x < x1; x++) { const i = (y * c.width + x) * 4;
+    if (d[i] === rgb[0] && d[i + 1] === rgb[1] && d[i + 2] === rgb[2]) n++ } return n })"""
+def sky_ready(pg):
+    """The sky streams in a few dozen rows per frame after load: wait until it has filled the screen."""
+    pg.wait_for_function('() => window.__site && __site.sky && !__site.sky.state().pending', timeout=5000)
+
+
+METEOR_HEAD = [245, 224, 220]
+STAR_HI = [205, 214, 244]
+
+
+@check
+def sky_renders(c):
+    """Every page has the sky: a canvas a third of the screen's size, scaled up with hard pixels, with real texture."""
+    for path in ('/', '/work/', '/projects/ba-art-direction/'):
+        pg = c.page(path)
+        sky_ready(pg)
+        r = pg.evaluate("""() => { const c = document.getElementById('sky'), s = getComputedStyle(c);
+          return [c.width, c.height, s.imageRendering, s.position, parseFloat(s.width), innerWidth, !!window.__site.sky] }""")
+        expect(r[6], f'{path}: no sky')
+        expect(abs(r[0] - -(-r[5] // 3)) <= 1 and r[2] == 'pixelated' and r[3] == 'fixed', f'{path}: sky canvas {r}')
+        expect(abs(r[4] - r[0] * 3) < 1, f'{path}: not scaled x3: {r}')
+        colours = pg.evaluate(f"() => {JS_SKY_COLOURS}(0, 0.12)")
+        expect(colours >= 3, f'{path}: the sky margin is flat ({colours} colours)')
+        no_errors(pg)
+        pg.close()
+
+
+@check
+def sky_lane_calm(c):
+    """Behind the reading column the sky is nearly flat (the page base, a whisper of dither) with no stars."""
+    pg = c.page('/')
+    sky_ready(pg)
+    a, b, w = pg.evaluate(JS_LANE)
+    dist = pg.evaluate(f"""() => {{ const c = document.getElementById('sky'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, m = new Map(); let n = 0;
+      for (let y = 0; y < c.height; y++) for (let x = {a + 8}; x < {b - 8}; x++) {{ const i = (y * c.width + x) * 4, k = d[i] + ',' + d[i + 1] + ',' + d[i + 2]; m.set(k, (m.get(k) || 0) + 1); n++ }}
+      return [...m].map(([k, v]) => [k, v / n]).sort((p, q) => q[1] - p[1]) }}""")
+    base = pg.evaluate("() => getComputedStyle(document.body).backgroundColor").replace('rgb(', '').replace(')', '').replace(' ', '')
+    expect(len(dist) <= 3, f'{len(dist)} colours behind the text: {dist[:5]}')
+    expect(dist[0][0] == base and dist[0][1] >= 0.95, f'behind the text: {dist[0][1]:.1%} is {dist[0][0]}, want at least 95% page base {base}')
+    stars = pg.evaluate(f"() => {JS_BRIGHT}({a + 8}, {b - 8}, {STAR_HI})")
+    expect(stars == 0, f'{stars} bright star pixels behind the text')
+    outer = pg.evaluate(f"() => {JS_SKY_COLOURS}(0, {max(1, a - 45) / w})")
+    expect(outer >= 4, f'the margin sky is too flat ({outer} colours)')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def sky_meteor(c):
+    """A shooting star shows in the margin and passes behind the reading column, never over the text."""
+    pg = c.page('/')
+    sky_ready(pg)
+    a, b, w = pg.evaluate(JS_LANE)
+    pg.evaluate("() => __site.sky.meteor({ x: 4, y: 6, vx: 1.2, vy: 0.8 })")
+    pg.wait_for_timeout(250)
+    head = pg.evaluate(f"() => {JS_BRIGHT}(0, {max(1, a - 45)}, {METEOR_HEAD})")
+    expect(head > 0, 'no shooting star in the margin')
+    pg.evaluate(f"() => __site.sky.meteor({{ x: {(a + b) // 2}, y: 6, vx: 0.4, vy: 0.9 }})")
+    for _ in range(5):
+        pg.wait_for_timeout(120)
+        inside = pg.evaluate(f"() => {JS_BRIGHT}({a + 8}, {b - 8}, {METEOR_HEAD})")
+        expect(inside == 0, f'a shooting star drawn over the text ({inside} px)')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def sky_reduced(c):
+    """With reduced motion the sky is a still picture: no twinkle, breathing, parallax or shooting stars."""
+    pg = c.page('/', reduced=True)
+    sky_ready(pg)
+    snap = "() => { const c = document.getElementById('sky'); return c.toDataURL().length + ':' + c.getContext('2d').getImageData(0, 0, c.width, c.height).data.reduce((h, v, i) => (h * 31 + v * (i % 97 + 1)) >>> 0, 7) }"
+    first = pg.evaluate(snap)
+    pg.evaluate("() => __site.sky.meteor({ x: 4, y: 6, vx: 1.2, vy: 0.8 })")
+    pg.mouse.wheel(0, 600)
+    pg.wait_for_timeout(900)
+    expect(pg.evaluate(snap) == first, 'the sky changed under reduced motion')
+    expect(pg.evaluate("() => getComputedStyle(document.getElementById('sky')).transform") in ('none', 'matrix(1, 0, 0, 1, 0, 0)'), 'the sky scrolled under reduced motion')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def sky_print(c):
+    pg = c.page('/')
+    pg.emulate_media(media='print')
+    expect(pg.eval_on_selector('#sky', 'e => getComputedStyle(e).display') == 'none', 'the sky prints')
+    pg.close()
+
+
+@check
+def sky_nojs(c):
+    """Without JavaScript there is no sky: the page shows its plain background."""
+    pg = c.page('/', js=False)
+    r = pg.evaluate("() => { const c = document.getElementById('sky'); return [c.width, c.height] }")
+    expect(r == [300, 150], f'the sky canvas was drawn without JavaScript: {r}')
+    pg.close()
+
+
+@check
+def sky_resize(c):
+    """Resizing rebuilds the buffer and the lane: a phone-sized sky, then back, without errors."""
+    pg = c.page('/')
+    for w, h in ((390, 844), (1280, 800)):
+        pg.set_viewport_size({'width': w, 'height': h})
+        pg.wait_for_timeout(300)
+        sky_ready(pg)
+        st = pg.evaluate('() => __site.sky.state()')
+        expect(st['w'] == -(-w // 3), f'{w}: sky width {st["w"]}, want {-(-w // 3)}')
+        a, b, cw = pg.evaluate(JS_LANE)
+        stars = pg.evaluate(f"() => {JS_BRIGHT}({a + 8}, {max(a + 9, b - 8)}, {STAR_HI})")
+        expect(stars == 0, f'{w}: stars behind the text after a resize')
+    no_errors(pg)
     pg.close()
 
 
@@ -879,16 +1004,6 @@ def world_reversal(c):
     showing = [h for h, o, _ in pg.evaluate(JS_WORLD_STATE) if o != '0']
     expect(showing == ['4d01c9a'], f'fading to the plain background shows {showing}, want only BA')
     no_errors(pg)
-    pg.close()
-
-
-@check
-def world_under_stars(c):
-    pg = c.page('/')
-    r = pg.evaluate("""() => { const w = document.getElementById('world'), s = document.getElementById('stars');
-      return [w.parentElement === document.body, !!(w.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING),
-              getComputedStyle(w).zIndex, getComputedStyle(s).zIndex, getComputedStyle(w).position] }""")
-    expect(r == [True, True, '0', '0', 'fixed'], f'world layer placement: {r}')
     pg.close()
 
 
