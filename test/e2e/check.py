@@ -7,6 +7,7 @@ Web fonts are blocked so runs are offline and deterministic.
 import functools
 import http.server
 import os
+import signal
 import socketserver
 import sys
 import threading
@@ -63,6 +64,16 @@ def expect(cond, msg):
 
 def no_errors(pg):
     expect(not pg.errors, f'page errors: {pg.errors}')
+
+
+if os.environ.get('CHECK_SELFTEST'):
+    @check
+    def selftest_stall(c):
+        """Hangs on purpose (a promise that never settles): proves the watchdog fails a stuck check by name
+        and that the next check still runs, on a fresh connection.
+        Registered first so the checks after it prove the reconnect."""
+        pg = c.page('/')
+        pg.evaluate('() => new Promise(() => {})')
 
 
 @check
@@ -437,22 +448,49 @@ def connect(p):
     return p.chromium.launch(executable_path=CHROME, args=['--disable-gpu'])
 
 
+# The remote browser occasionally stops answering mid-check. Rather than hang the whole run,
+# a check that takes longer than this fails by name and the next one gets a fresh connection.
+CHECK_TIMEOUT = int(os.environ.get('CHECK_TIMEOUT', '240'))
+
+
+class Stalled(Exception):
+    pass
+
+
+def _stalled(signum, frame):
+    raise Stalled(f'stalled: no result within {CHECK_TIMEOUT} s')
+
+
 def main(names):
     expect(DIST.exists(), 'dist/ missing: run npm run build first')
+    unknown = [n for n in names if n not in CHECKS]
+    expect(not unknown, f'unknown checks: {unknown}')
     srv, base = serve()
     failed = 0
+    signal.signal(signal.SIGALRM, _stalled)
     with sync_playwright() as p:
         browser = connect(p)
         c = Ctx(browser, base)
         for name, fn in CHECKS.items():
             if names and name not in names:
                 continue
+            signal.alarm(CHECK_TIMEOUT)
             try:
                 fn(c)
                 print(f'ok   {name}', flush=True)
             except Exception as e:  # noqa: BLE001
                 failed += 1
                 print(f'FAIL {name}: {e}', flush=True)
+                if isinstance(e, Stalled):
+                    signal.alarm(20)  # closing a stuck connection can hang too
+                    try:
+                        browser.close()
+                    except Exception:  # noqa: BLE001
+                        pass
+                    signal.alarm(0)
+                    browser = c.browser = connect(p)
+            finally:
+                signal.alarm(0)
         browser.close()
     srv.shutdown()
     print(f'{len(CHECKS) if not names else len(names)} checks, {failed} failed')
