@@ -181,3 +181,11 @@ test('the fonts cover every character on the pages, and the typography real copy
   }
   assert.deepEqual([...missing], [], 'characters on the pages that render in the fallback face');
 });
+
+test('the status bar carries a grain toggle, and the head applies a saved choice before paint', async () => {
+  const html = await page('index.html');
+  assert.match(html, /<button id="grainbtn" class="hud" type="button" aria-pressed="true" title="Film grain">grain<\/button>\s*<a class="mail hud"/);
+  const head = html.split('</head>')[0];
+  assert.match(head, /localStorage\.getItem\('grain'\)==='off'/);
+  assert.match(head, /classList\.add\('nograin'\)/);
+});

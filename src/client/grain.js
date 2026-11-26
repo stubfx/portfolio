@@ -1,14 +1,19 @@
 // Film grain: a 128 px noise tile on an oversized layer, jumped with transforms 8 times a second.
+// The grain toggle in the status bar switches it off (html.nograin: no layer, no timer), remembered per
+// browser; the head script applies a saved "off" before the first paint.
 import { grainTile, grainOffset } from './grain-core.mjs';
 
 const SIZE = 128;
+const KEY = 'grain';
 
-export function startGrain(el, { reduced } = {}) {
+export function startGrain(el, { reduced, toggle } = {}) {
   if (!el) return () => {};
   const doc = el.ownerDocument;
   const win = doc.defaultView;
+  const root = doc.documentElement;
   const motion = win.matchMedia('(prefers-reduced-motion: reduce)');
   const isReduced = () => (reduced ?? motion.matches);
+  const isOn = () => !root.classList.contains('nograin');
 
   const c = doc.createElement('canvas');
   c.width = c.height = SIZE;
@@ -25,9 +30,21 @@ export function startGrain(el, { reduced } = {}) {
   const sync = () => {
     win.clearInterval(timer);
     timer = 0;
-    if (!isReduced() && !doc.hidden) timer = win.setInterval(tick, 125);
+    if (isOn() && !isReduced() && !doc.hidden) timer = win.setInterval(tick, 125);
     else el.style.transform = '';
   };
+
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', String(isOn()));
+    toggle.addEventListener('click', () => {
+      const on = !isOn();
+      root.classList.toggle('nograin', !on);
+      toggle.setAttribute('aria-pressed', String(on));
+      try { win.localStorage.setItem(KEY, on ? 'on' : 'off'); } catch { /* storage blocked: this visit only */ }
+      sync();
+    });
+  }
+
   doc.addEventListener('visibilitychange', sync);
   motion.addEventListener('change', sync);
   sync();

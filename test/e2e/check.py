@@ -453,6 +453,46 @@ def texture(c):
 
 
 @check
+def grain_toggle(c):
+    """The grain segment in the status bar switches the film grain off and on, by mouse and keyboard; off
+    removes the layer and stops its timer, and the choice survives a reload without a flash of grain."""
+    first_paint = """document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(() => {
+      window.__grainAtPaint = getComputedStyle(document.getElementById('grain')).display }))"""
+    pg = c.page('/', init=first_paint)
+    btn = '#grainbtn'
+    expect(pg.is_visible(btn), 'no grain toggle in the bar')
+    expect(pg.get_attribute(btn, 'aria-pressed') == 'true', 'grain toggle not pressed at first')
+
+    def moving():
+        return pg.evaluate("""async () => { const g = document.getElementById('grain'), a = g.style.transform;
+          await new Promise(r => setTimeout(r, 400)); return a !== g.style.transform }""")
+    expect(moving(), 'grain not moving while on')
+    pg.click(btn)
+    expect(pg.get_attribute(btn, 'aria-pressed') == 'false', 'click did not switch the grain off')
+    expect(pg.eval_on_selector('#grain', 'e => getComputedStyle(e).display') == 'none', 'grain layer still rendered when off')
+    expect(not moving(), 'grain timer still running when off')
+    expect(pg.evaluate("() => localStorage.getItem('grain')") == 'off', 'choice not saved')
+    pg.reload()
+    pg.wait_for_timeout(300)
+    expect(pg.evaluate('() => window.__grainAtPaint') == 'none', 'grain flashed on at first paint after reload')
+    expect(pg.get_attribute(btn, 'aria-pressed') == 'false', 'saved off state not restored')
+    pg.focus(btn)
+    pg.keyboard.press('Space')
+    expect(pg.get_attribute(btn, 'aria-pressed') == 'true', 'Space did not switch the grain back on')
+    expect(pg.eval_on_selector('#grain', 'e => getComputedStyle(e).display') != 'none', 'grain layer not back')
+    expect(moving(), 'grain not moving again')
+    expect(pg.evaluate("() => localStorage.getItem('grain')") == 'on', 'on not saved')
+    no_errors(pg)
+    pg.close()
+    pg = c.page('/', 390, 844)
+    expect(not pg.is_visible('#grainbtn'), 'grain toggle shown in the full phone bar')
+    pg.close()
+    pg = c.page('/', js=False)
+    expect(not pg.is_visible('#grainbtn'), 'grain toggle shown without JavaScript (it cannot work)')
+    pg.close()
+
+
+@check
 def vim_keys(c):
     pg = c.page('/')
     y0 = pg.evaluate('() => scrollY')

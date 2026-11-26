@@ -61,7 +61,7 @@ export function layout({ title, page, body, description = site.description, sect
 <meta property="og:url" content="https://${site.domain}${path}">
 <meta property="og:type" content="website">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<script>document.documentElement.classList.add('js');setTimeout(function(){if(!window.__site)document.documentElement.classList.remove('js')},4000)</script>
+<script>document.documentElement.classList.add('js');try{if(localStorage.getItem('grain')==='off')document.documentElement.classList.add('nograin')}catch(e){}setTimeout(function(){if(!window.__site)document.documentElement.classList.remove('js')},4000)</script>
 ${fontLinks(selfHostedFonts)}
 <link rel="stylesheet" href="/assets/site.css">
 <script type="module" src="/assets/main.js"></script>
@@ -83,6 +83,7 @@ ${page === 'log' ? '' : footer()}
 <span class="fill"></span>
 <span id="mode" class="hud">esc · normal</span>
 <span id="pos" class="hud">${esc(pos)}</span>
+<button id="grainbtn" class="hud" type="button" aria-pressed="true" title="Film grain">grain</button>
 <a class="mail hud" href="mailto:${site.email}">mail</a>
 <span id="clk" class="hud" title="Time in Rome">--:--</span>
 </nav>

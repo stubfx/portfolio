@@ -8,7 +8,7 @@ import { startHud } from './hud.js';
 import { startVim } from './vim.js';
 
 startStars(document.getElementById('stars'));
-startGrain(document.getElementById('grain'));
+startGrain(document.getElementById('grain'), { toggle: document.getElementById('grainbtn') });
 startHud(document);
 startReveal(document); // before the graph, so its first jump finds rows already marked
 startWorld(document); // before the graph, which announces the current row once at startup
