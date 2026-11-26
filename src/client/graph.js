@@ -1,7 +1,9 @@
 // The git graph in the gutter: main is the rail, the focused branch draws in
-// on lane 1, the previous one lingers as a ghost, and a Neovide cursor rides the nodes.
+// on lane 1, the previous one lingers as a ghost. In Vim normal mode a block cursor sits on the current
+// node; it snaps from node to node, it never slides after the scroll.
 import { focusReducer, laneTarget, branchPath, pickCurrent } from './graph-core.mjs';
-import { stepCursor, settled } from './cursor-core.mjs';
+
+const CURSOR_HALF = 11; // the block is 22 px tall, centred on its node
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -35,8 +37,8 @@ export function startGraph(doc = document) {
 
   const gBr = mk(doc, 'g');
   const gMain = mk(doc, 'g');
-  const cursor = mk(doc, 'rect', { width: 14, rx: 1.5, style: 'fill:var(--mauve)' });
-  const dot = mk(doc, 'circle', { r: 3.2, style: 'fill:var(--bg, var(--base))' });
+  const cursor = mk(doc, 'rect', { class: 'cur', width: 14, height: 2 * CURSOR_HALF, rx: 1.5, style: 'fill:var(--mauve)' });
+  const dot = mk(doc, 'circle', { class: 'cur', r: 3.2, style: 'fill:var(--bg, var(--base))' });
   svg.append(gBr, gMain, cursor, dot);
 
   const S = {};
@@ -60,8 +62,8 @@ export function startGraph(doc = document) {
   let idx = 0;
   let Y = [];
   let X0 = 0, L1 = 0, L2 = 0, narrow = false;
-  let c = null;
   let raf = 0;
+  let ready = false; // the first setCurrent always runs: it draws the first frame and announces the row
   // After go(), the chosen row stays current until the user scrolls by hand.
   let pinned = -1;
   // Geometry for detect() and go(), measured in layout(), and the scroll position, read in the scroll
@@ -163,14 +165,12 @@ export function startGraph(doc = document) {
       s.dots.setAttribute('opacity', vis);
     }
 
-    const target = { x: nodeX(idx), y: Y[idx] };
-    c = c ? stepCursor(c, target, kk === null ? null : undefined) : stepCursor(null, target, null);
-    if (!settled(c, target)) busy = true;
-    cursor.setAttribute('x', (c.x - 7).toFixed(2));
-    cursor.setAttribute('y', c.top.toFixed(2));
-    cursor.setAttribute('height', Math.max(22, c.bot - c.top).toFixed(2));
-    dot.setAttribute('cx', target.x.toFixed(2));
-    dot.setAttribute('cy', target.y.toFixed(2));
+    // The cursor snaps: wherever the current node is this frame, the block is on it.
+    const x = nodeX(idx), y = Y[idx];
+    cursor.setAttribute('x', (x - 7).toFixed(2));
+    cursor.setAttribute('y', (y - CURSOR_HALF).toFixed(2));
+    dot.setAttribute('cx', x.toFixed(2));
+    dot.setAttribute('cy', y.toFixed(2));
     if (busy) raf = win.requestAnimationFrame(frame);
   }
 
@@ -184,7 +184,8 @@ export function startGraph(doc = document) {
   }
 
   function setCurrent(i) {
-    if (i === idx && c) return;
+    if (i === idx && ready) return;
+    ready = true;
     idx = i;
     state = focusReducer(state, rows[i].branch);
     retarget();

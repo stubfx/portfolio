@@ -37,7 +37,7 @@ export function helpPage({ selfHostedFonts }) {
 <tbody>${rows}</tbody></table></div>
 
 <h2 id="motion">Motion</h2>
-<p>Scrolling is native: nothing hijacks the wheel or the touch. Entries fade in once as they arrive and stay put after that. Covers drift slowly as you scroll, each project and job tints the background with its own colours while you read it, and opening a project morphs its cover into the page. If your system asks for reduced motion, the fade-ins, the drift and the hover lift are off, the stars stop drifting, the film grain freezes, the cursor jumps instead of smearing, the colour changes are quicker, and page transitions fade.</p>
+<p>Scrolling is native: nothing hijacks the wheel or the touch. Entries fade in once as they arrive and stay put after that. Covers drift slowly as you scroll, each project and job tints the background with its own colours while you read it, and opening a project morphs its cover into the page. If your system asks for reduced motion, the fade-ins, the drift and the hover lift are off, the stars stop drifting, the film grain freezes, the colour changes are quicker, and page transitions fade.</p>
 
 <h2 id="keys">Keys</h2>
 <p>Vim keys work only in normal mode, so a single letter never fires by accident (WCAG 2.1.4).</p>

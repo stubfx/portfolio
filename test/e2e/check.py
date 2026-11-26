@@ -385,12 +385,37 @@ def cursor_vs_node(pg):
     }""")
 
 
+JS_CURSOR_VIS = "() => [...document.querySelectorAll('#graph > rect, #graph > circle')].map(e => getComputedStyle(e).visibility)"
+JS_TWO_FRAMES = '() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))'
+
+
+def on_node(v):
+    return abs(v[0] - v[2]) <= 1 and abs(v[1] - v[3]) <= 1
+
+
 @check
 def graph_cursor(c):
+    """The block cursor shows only in Vim normal mode (Esc), and snaps from node to node: on the new
+    current node within two frames, never sliding after the scroll."""
     pg = c.page('/')
     pg.wait_for_timeout(600)
+    expect(pg.evaluate(JS_CURSOR_VIS) == ['hidden', 'hidden'], f'cursor shown outside normal mode: {pg.evaluate(JS_CURSOR_VIS)}')
+    pg.keyboard.press('Escape')
+    pg.evaluate(JS_TWO_FRAMES)
+    expect(pg.evaluate(JS_CURSOR_VIS) == ['visible', 'visible'], 'Esc did not show the cursor')
     v = cursor_vs_node(pg)
-    expect(abs(v[0] - v[2]) <= 1 and abs(v[1] - v[3]) <= 1, f'cursor not on node at load: {v}')
+    expect(on_node(v), f'cursor not on node in normal mode: {v}')
+    for key in ('j', 'j', 'k'):
+        before = v
+        pg.keyboard.press(key)
+        pg.evaluate(JS_TWO_FRAMES)
+        v = cursor_vs_node(pg)
+        expect(abs(v[1] - before[1]) > 5, f'{key} did not move the cursor (a frozen graph would pass): {before} -> {v}')
+        expect(on_node(v), f'two frames after {key}, the cursor has not reached its node: {v}')
+        expect(abs(v[4] - 22) < 0.5, f'the cursor is smeared ({v[4]:.1f} px tall), it should be a 22 px block')
+    pg.keyboard.press('Escape')
+    pg.evaluate(JS_TWO_FRAMES)
+    expect(pg.evaluate(JS_CURSOR_VIS) == ['hidden', 'hidden'], 'leaving normal mode did not hide the cursor')
     paths = pg.eval_on_selector_all('#graph > g:first-child > g', "gs => gs.filter(g => +g.getAttribute('opacity') > 0.01).length")
     expect(paths <= 2, f'{paths} branches visible, max is 2')
     no_errors(pg)
@@ -401,6 +426,7 @@ def graph_cursor(c):
 def go_stays(c):
     for w, h in ((1280, 800), (390, 844)):
         pg = c.page('/', w, h)
+        pg.keyboard.press('Escape')  # the cursor shows in normal mode
         want = pg.evaluate('() => { const g = __site.graph; const i = g.rows.findIndex(r => r.hash === "2e6a8d1"); g.go(i); return i }')
         pg.wait_for_timeout(2500)
         got = pg.evaluate('() => __site.graph.index')
@@ -418,6 +444,7 @@ def go_stays(c):
 @check
 def resize(c):
     pg = c.page('/')
+    pg.keyboard.press('Escape')  # the cursor shows in normal mode
     pg.evaluate("() => scrollTo(0, document.querySelector('.log [data-hash=\\'1a7c3e9\\']').getBoundingClientRect().top + scrollY - innerHeight * 0.3)")
     pg.wait_for_timeout(900)
     a = cursor_vs_node(pg)

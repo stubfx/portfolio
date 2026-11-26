@@ -50,7 +50,8 @@ Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds sw
 - The build fails on a project palette below 7:1 (fg) or 4.5:1 (accent), or a project hash that does not match its commit. Cost: a build error instead of a broken page.
 - `content/site.mjs` holds contact facts (email `info@lucamolluso.com` from the CV); `content/about.md` is adapted from the LinkedIn About; a 404 page uses a vim error joke. Cost: none.
 - The graph exposes an interface for the vim keys; branch topology ships as JSON in the page; school's fork point was removed. Cost: none.
-- After a jump (j/k/J/K) the cursor stays on that commit until the user scrolls by hand (replaces a 700 ms lock). Cost: none.
+- After a jump (j/k/J/K) the current commit stays put until the user scrolls by hand (replaces a 700 ms lock). Cost: none.
+- The graph's block cursor shows only in Vim normal mode (Esc) and snaps from node to node (Luca, 2026-11-26: the trailing Neovide smear read as lag). Cost: no cursor while just reading.
 - Grain moves with a transform. Cost: none.
 - Esc announces normal mode for screen readers. Off the home page j/k scroll and J/K/Enter do nothing. Enter on a focused link always follows it. Cost: none.
 - Hero copy sits on a soft, blurred pool of the cover's own background (no straight edge anywhere), so any art keeps text readable. Art cost: on phones the pool mostly hides the giant accent word, and the blur has a paint cost on project pages; revisit when real covers exist.

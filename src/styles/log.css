@@ -10,6 +10,10 @@ main:focus { outline: none; }
   overflow: visible; pointer-events: none; z-index: 6;
 }
 
+/* The graph's block cursor belongs to Vim normal mode (Esc): hidden while you just read. */
+#graph > .cur { visibility: hidden; }
+.vim-normal #graph > .cur { visibility: visible; }
+
 .frame {
   position: relative;
   max-width: calc(var(--col) + var(--gw));

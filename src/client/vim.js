@@ -25,6 +25,7 @@ export function startVim(doc = document, graph = null) {
     if (!mode) return;
     mode.textContent = state.normal ? '-- NORMAL --' : 'esc · normal';
     mode.classList.toggle('normal', state.normal);
+    doc.documentElement.classList.toggle('vim-normal', state.normal); // shows the graph's block cursor
   }
 
   function openCmd() {

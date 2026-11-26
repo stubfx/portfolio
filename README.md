@@ -108,4 +108,4 @@ One-time setup:
 
 ## Keys
 
-`Esc` toggles normal mode. Then `j`/`k` commit, `J`/`K` project, `gg`/`G` top and bottom, `Enter` opens a project, `:help`, and `:q` (try it).
+`Esc` toggles normal mode and shows the block cursor on the graph. Then `j`/`k` commit, `J`/`K` project, `gg`/`G` top and bottom, `Enter` opens a project, `:help`, and `:q` (try it).
