@@ -17,7 +17,7 @@ Luca, in his words: a "retro futuristic look in the terminal style, polished for
 - **A calm reading lane:** behind the reading column the sky fades to almost nothing. It keeps under a tenth of its variation, as a whisper of dither, with no stars and no meteors. It dissolves into the full sky in the margins over about 120 px, with the ordered dither doing the fade.
 - **Shooting stars:** every 7 to 16 s, each running about 1.5 s with a short fading tail, never inside the lane.
 - **Worlds become palette fades:** on the home log the sky's palette follows the current world (the same colours and "faint" strength as the worlds spec), fading over about 1.2 s. Project pages use their own palette, and the other pages use the site's.
-- **Old-school tricks, documented in the colophon:** indexed colour, a precomputed ordered-dither table, a baked noise field, palette cycling, coarse plus fine scroll, low update rates and a dirty schedule.
+- **Old-school tricks, documented in the colophon:** indexed colour, a precomputed ordered-dither table, a baked noise field, palette cycling, hardware-style scroll, dirty pixels, low update rates and a dirty schedule.
 
 ## Non-goals
 
@@ -55,18 +55,17 @@ Luca, in his words: a "retro futuristic look in the terminal style, polished for
   - Value noise (fbm) and a diagonal band, minus dust lanes.
   - Ordered-dithered into palette levels in world space, so the dither scrolls with the sky and never crawls.
   - Built row by row on demand: only rows on screen are ever baked, a handful per scroll step.
-- **Scroll:**
+- **Scroll (changed while building, see below):**
   - The sky moves at 5% of the scroll.
-  - Whole low-res pixels move the window in the buffer (coarse scroll).
-  - The remainder moves the canvas by whole device pixels with a transform (a fine-scroll register).
-  - The scroll handler reads `scrollY` (an event, before any write in its frame) and writes only that transform.
+  - The canvas holds the whole page's sky: the screen's rows plus the rows the scroll reveals.
+  - A CSS scroll-driven animation (`animation-timeline: scroll(root)`, `steps()` of one screen pixel) slides it on the compositor. No script runs on scroll. Without support, or under reduced motion, the sky holds still.
 - **Lane:**
   - It is the reading column (`main .frame`), measured at start, on resize and when fonts load, never per frame.
   - Inside the lane, the sky's variation around the base level is scaled to 0.08 and stars are omitted.
   - Meteor pixels are drawn only where the lane factor is above 0.5.
 - **Update schedule:**
   - 10 ticks a second at rest: twinkle and temporal dither. 30 while a meteor flies or a palette fades.
-  - A scroll redraws only when the coarse row changes.
+  - Dirty pixels: a frame rewrites only new rows, the stars, and the pixels the lens and meteors covered. A palette step or a breath recomposes the buffer from per-row palette indices kept for both dither phases.
   - Paused while the tab is hidden.
 - **Reduced motion:** one still frame. No parallax, twinkle, temporal dither or meteors. A palette change is still a quick 0.45 s fade (colour, not movement).
 - **Worlds:**
@@ -84,6 +83,17 @@ Luca, in his words: a "retro futuristic look in the terminal style, polished for
 - The world colours are computed in the build, not read back from CSS, so the sky needs no hidden layers.
 - `--lavender` joins the tokens as the default accent.
 - The colophon (help) gets a short "How the sky is drawn" list of the tricks.
+
+## Added while building (Luca)
+
+- The dither reacts to the mouse "just a tiny little bit": a lens lifts the sky's values by up to 0.12 within 90 px of the pointer and re-dithers them, scaled by the lane factor, eased toward the pointer at the tick rate; fine pointers only, off under reduced motion.
+- "Make the shooting stars fade out, fast, but not abruptly": over their last 8 ticks (about a quarter of a second) they burn out with an ordered-dither dissolve while their colours step down.
+- "The stars are forming a pattern": stars are placed per row from a hashed seed (a linear seed lined them up into diagonals); a unit test fails if one step between rows repeats in more than 3% of rows.
+
+## Changed while building (Claude, for performance)
+
+- **Scroll moved to CSS.** The scroll handler's `scrollY` read forced a style recalc on every scroll event (3 to 8 ms tasks in traces), so the canvas now holds the whole page's sky and a scroll-driven animation moves it. `sky-scrolls-in-css` checks the offset (whole pixels, about 5% of the scroll) and that no sky script runs during a traced scroll.
+- **Dirty pixels.** Full redraws of the taller buffer at 30 frames a second during fades and meteors reached 4 to 5.5 ms on the test host. A frame now rewrites only what changed; the worst sky task in a sweep fell to about 1.9 ms.
 
 ## How we check it
 

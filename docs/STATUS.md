@@ -31,15 +31,15 @@ Read this first when resuming work. Last updated 2026-11-26.
 
 Measured with `test/e2e/perf.py` (median of 3, 1280×800, a steady scroll from the top of the log to the EOF footer) on the host's headless Chromium 156.0.8078.4. That browser renders with SwiftShader, a software GPU, so dropped frames overstate the cost of full-screen layers and fades compared with a real desktop GPU. The budgets were resized with Luca on 2026-11-26: the audience is companies on good desktops; gates are only the numbers that don't depend on the GPU.
 
-| | Flight (before) | Log with attachments (now) |
-| --- | --- | --- |
-| Layouts forced by site scripts, in total (information) | about 1,320 | about 830 |
-| … of those, inside animation frames, after writes (gate: 0) | not measured | 0 |
-| Longest site script task at 1× (gate: 4 ms) | | 0.8 ms |
-| Site script time over the sweep, 1× | | 289 ms |
-| Dropped frames 1× / 4× (information) | 22.1% / 36.9% | 17.8% / 24.7% |
+| | Flight (before) | Log with world layers | The sky (now, 2026-11-26) |
+| --- | --- | --- | --- |
+| Layouts forced by site scripts, in total (information) | about 1,320 | about 830 | about 840, all from the graph's scroll handler, read before any write |
+| … of those, inside animation frames, after writes (gate: 0) | not measured | 0 | 0 |
+| Longest site script task at 1× (gate: 4 ms) | | 0.8 ms | 1.6 ms |
+| Site script time over the sweep, 1× | | 289 ms | 350 ms |
+| Dropped frames 1× / 4× (information) | 22.1% / 36.9% | 17.8% / 24.7% | 0.4% / 22 to 29% |
 
-Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds switched off drops 0.2% at 1×, and with worlds that never fade 0.8%. What remains is the worlds' crossfades on a software compositor; a world at rest is opaque and costs nothing. `npm run perf -- --assert` (or `perf.py --assert`) checks the gates; `check.py no-forced-layout graph-no-churn` guards them on every run.
+The sky scrolls in CSS (a scroll-driven animation on the compositor), so no sky script runs on scroll; its own ticks (ten a second at rest, thirty while a meteor flies, a palette fades or the lens moves) peak at about 1.9 ms on this host and redraw only dirty pixels. The 4× figure moves by several points between runs on this shared software-GPU host. Floor on the same browser: `/about/` drops 1.0% at 4×. `npm run perf -- --assert` (or `perf.py --assert`) checks the gates; `check.py no-forced-layout graph-no-churn sky-scrolls-in-css` guard them on every run.
 
 ## Decisions taken during the build (and the cost if wrong)
 
@@ -64,7 +64,7 @@ Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds sw
 - The attachment link's accessible name is "git show <hash>: open <title>", starting with the chip's visible text (WCAG 2.5.3). Cost: a longer spoken name.
 - Motion is CSS-first. Only rows below the fold at startup fade in, once (`reveal.js`), and only under `html.js`; focus, jumps, hash links, reload, Back, print and reduced motion show rows at once. Covers drift on a `view()` timeline; the planet rises and its orbit draws in. Hash links land 24 px below the top. Cost: none.
 - The planet is its own layer, placed with container-query units so it stays on screen at any aspect ratio; portrait covers use a second seed. Cost: none.
-- Entering a world (2026-11-26, Luca picked "faint" in a spike): while a project or work entry is the current row, the page takes on its colours; both IBM rows share one world. A world at rest is opaque (the strength is mixed into its colours) and a switch fades the new one in over the old, because translucent full-screen layers cost frames on a software GPU. Spec cells are see-through everywhere. Cost: rapid switches briefly blend two layers.
+- The sky (2026-11-26, Luca picked "lowbit" in a spike, then "waay softer" behind the text): a dithered galaxy in a third-resolution indexed framebuffer behind every page, drawn with old-school tricks on purpose (Bayer dithering baked per row, hardware-style scroll in CSS, dirty pixels, palette-cycled twinkle, rare shooting stars that burn out in dither, a faint mouse lens); 97% flat page base behind the reading column. Worlds are palette fades in it; project pages use their own palette. It replaced the starfield and the full-screen world layers. Spec `2026-11-26-sky-design.md`. Cost: no script on scroll; ten small frames a second at rest (stars only), a full repaint on a breath or a palette step.
 - The view-transition opt-in is inline in every page's head: in `site.css` it lost a race with the module graph, and no page transition ever ran. Cost: none.
 - Performance budgets were resized with Luca for an audience on good desktops (see Performance). Cost: phones are not a performance target; they must still work and stay accessible.
 
@@ -78,7 +78,7 @@ Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds sw
 - Video covers would preload and have no pause button; image layers are not lazy-loaded (no media yet).
 - The NDA dagger reads "frameworkunder NDA" to screen readers.
 - Slugs and all-digit hashes are not validated.
-- Spec extras not built: faster stars between sections, lighter grain and shallower perspective on phones, graph on project pages, project palettes in the colophon, session cell "luca", stars jump when the mobile address bar hides.
+- Spec extras not built: lighter grain and shallower perspective on phones, graph on project pages, project palettes in the colophon, session cell "luca", stars jump when the mobile address bar hides.
 - The idle "esc · normal" label is uppercase and looks like the active state.
 - Markdown: a paragraph starting with `<` passes through raw; emphasis can fire inside link URLs.
 - CI runs only on pushes to `main`; scripts load in three rounds with no preloading.
@@ -89,6 +89,5 @@ Floors on the same browser: `/about/` drops 0.0% / 1.0%; home with the worlds sw
 
 ## Next
 
-- The background: a dithered, low-bit galaxy as quiet texture in the retro-futuristic terminal style, with each project page in its own palette, built with deliberate old-school tricks (small indexed framebuffer, dither tables, palette cycling, a low update rate). Design first.
 - The micro-animation pass with Luca: tune the fade-ins, drift, hover, the worlds' strength and timing, and the planet draw-in by eye.
 - Real project copy and covers; then the merge to `main`.

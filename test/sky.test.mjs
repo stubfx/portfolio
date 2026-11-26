@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { bayer, noise, fbm, baseLevel, ramp, laneFactors, quantize, lazyRows, twinkle, stepMeteor, starsForRow } from '../src/client/sky-core.mjs';
+import { bayer, noise, fbm, baseLevel, ramp, laneFactors, quantize, lazyRows, twinkle, stepMeteor, starsForRow, meteorPixels } from '../src/client/sky-core.mjs';
 
 test('bayer(n) is every threshold (i + 0.5) / n² exactly once, all inside (0, 1)', () => {
   for (const n of [2, 4, 8]) {
@@ -93,4 +93,19 @@ test('stars per row look random: no streaks or diagonal lines across rows', () =
   const mean = cols.reduce((a, b) => a + b) / 8;
   assert.ok(cols.every((n) => Math.abs(n - mean) < mean * 0.35), `uneven columns: ${cols}`);
   for (const r of rows) for (const s of r) assert.ok(s.g >= 0 && s.g < 4 && s.x >= 0 && s.x < W);
+});
+
+test('a shooting star burns out over its last ticks: fewer pixels, dimmer, then nothing', () => {
+  const B = bayer(4);
+  const threshold = (x, y) => B[((y & 3) * 4) + (x & 3)];
+  const trail = Array.from({ length: 8 }, (_, k) => [40 - k * 1.5, 20 - k * 0.8]);
+  const at = (life) => meteorPixels({ life, trail }, 8, threshold);
+  const full = at(20);
+  assert.equal(full.length, 8, 'in full flight every trail pixel shows');
+  assert.deepEqual(full.map((p) => p.slot), [12, 12, 13, 13, 14, 14, 15, 15], 'head bright, tail dim');
+  const counts = [8, 6, 4, 2, 1].map((life) => at(life).length);
+  for (let i = 1; i < counts.length; i++) assert.ok(counts[i] <= counts[i - 1], `not fading monotonically: ${counts}`);
+  assert.ok(counts[2] < 8 && counts[2] > 0, `half-way through the fade it should be partly there: ${counts}`);
+  assert.ok(at(4).every((p) => p.slot >= full.find((f) => f.x === p.x && f.y === p.y).slot), 'fading never brightens a pixel');
+  assert.deepEqual(at(0), [], 'gone at the end');
 });

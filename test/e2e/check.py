@@ -571,6 +571,33 @@ def sky_reduced(c):
 
 
 @check
+def sky_scrolls_in_css(c):
+    """The sky's parallax is CSS (a scroll-driven animation in whole-pixel steps): it moves with the page at
+    about a twentieth of the scroll, lands on whole pixels, and no sky script runs to move it."""
+    import json
+    from tracing import CATEGORIES
+    pg = c.page('/')
+    sky_ready(pg)
+    ys = []
+    for y in (0, 777, 2311, 4050):
+        pg.evaluate(f'() => scrollTo(0, {y})')
+        pg.wait_for_timeout(250)
+        t = pg.evaluate("() => new DOMMatrix(getComputedStyle(document.getElementById('sky')).transform).m42")
+        ys.append((pg.evaluate('() => scrollY'), t))
+    for sy, t in ys:
+        expect(abs(t - round(t)) < 0.01, f'the sky sits between pixels at scroll {sy}: {t}')
+        expect(abs(-t - sy * 0.05) <= 3.5, f'at scroll {sy} the sky is at {t}, want about {-sy * 0.05:.1f}')
+    c.browser.start_tracing(page=pg, categories=CATEGORIES)
+    pg.evaluate("() => new Promise(r => { let n = 0; (function f() { scrollBy(0, 24); if (++n < 40) requestAnimationFrame(f); else r(); })() })")
+    trace = json.loads(c.browser.stop_tracing())['traceEvents']
+    handlers = [e for e in trace if e.get('name') == 'FunctionCall' and 'sky.js' in (e.get('args', {}).get('data', {}).get('url') or '')
+                and e.get('args', {}).get('data', {}).get('functionName', '').startswith('win.addEventListener')]
+    expect(not handlers, f'a sky scroll handler ran {len(handlers)} times')
+    no_errors(pg)
+    pg.close()
+
+
+@check
 def sky_print(c):
     pg = c.page('/')
     pg.emulate_media(media='print')

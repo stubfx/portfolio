@@ -118,3 +118,21 @@ export function starsForRow(y, width, density) {
   for (let i = 0, n = Math.floor(width * density + r()); i < n; i++) out.push({ x: Math.floor(r() * width), g: Math.floor(r() * 4) });
   return out;
 }
+
+/**
+ * The pixels a shooting star draws this tick: its trail, head bright and tail dim (palette slots 12..15).
+ * Over its last `fadeTicks` ticks it burns out instead of vanishing: an ordered-dither dissolve (a pixel shows
+ * only while its threshold is under the star's remaining brightness) while its colours step down.
+ * @returns {{ x: number, y: number, slot: number }[]}
+ */
+export function meteorPixels(m, fadeTicks, threshold) {
+  const a = Math.max(0, Math.min(1, m.life / fadeTicks));
+  if (a <= 0) return [];
+  const dim = Math.round((1 - a) * 3), out = [];
+  m.trail.forEach(([mx, my], k) => {
+    const x = Math.round(mx), y = Math.round(my);
+    if (a < 1 && threshold(x, y) >= a) return;
+    out.push({ x, y, slot: 12 + Math.min(3, (k >> 1) + dim) });
+  });
+  return out;
+}

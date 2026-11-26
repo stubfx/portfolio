@@ -1,4 +1,16 @@
 /* The sky (sky.js): a canvas a third of the screen's size, scaled up with hard pixels, fixed behind the page.
-   Opaque once drawn; without JavaScript it stays an empty, transparent canvas over the plain page. */
+   Opaque once drawn; without JavaScript it stays an empty, transparent canvas over the plain page.
+   The canvas holds the whole page's sky; scrolling moves it a twentieth of the scroll, in whole-pixel steps,
+   as a scroll-driven animation on the compositor: no script runs on scroll. sky.js sets the distance
+   (--sky-travel) and the number of steps (--sky-steps, one per pixel). */
 #sky { position: fixed; left: 0; top: 0; z-index: 0; pointer-events: none; image-rendering: pixelated; max-width: none; } /* exact x3: never squeezed to the viewport */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    #sky { animation: sky-drift steps(var(--sky-steps, 1), end) both; animation-timeline: scroll(root); }
+  }
+}
+@keyframes sky-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, calc(-1 * var(--sky-travel, 0px)), 0); }
+}
 @media print { #sky { display: none; } }

@@ -39,8 +39,8 @@ Node 22 or newer.
 | `content/about.md` | The About page. |
 | `content/site.mjs` | Name, email, links. |
 | `src/build/` | Templates and the content pipeline. |
-| `src/client/` | Browser code: git graph, cursor, once-only fade-ins (`reveal.js`), project and work colours (`world.js`), starfield, grain, vim keys. `*-core.mjs` files are pure and unit-tested. |
-| `src/styles/` | CSS, concatenated in order: tokens, base, log, cover, hud, pages, motion (fade-ins, drift, hover: `motion.css`), world. |
+| `src/client/` | Browser code: the dithered sky (`sky.js`, `sky-core.mjs`), worlds as palette fades (`world.js`), git graph, once-only fade-ins (`reveal.js`), grain, vim keys. `*-core.mjs` files are pure and unit-tested. |
+| `src/styles/` | CSS, concatenated in order: tokens, base, log, cover, hud, pages, motion (fade-ins, drift, hover: `motion.css`), sky. |
 | `public/` | Copied as-is into `dist/` (favicon, CNAME, fonts, media). |
 
 ## Add a project

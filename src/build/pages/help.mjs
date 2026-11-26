@@ -37,7 +37,18 @@ export function helpPage({ selfHostedFonts }) {
 <tbody>${rows}</tbody></table></div>
 
 <h2 id="motion">Motion</h2>
-<p>Scrolling is native: nothing hijacks the wheel or the touch. Entries fade in once as they arrive and stay put after that. Covers drift slowly as you scroll, each project and job tints the background with its own colours while you read it, and opening a project morphs its cover into the page. If your system asks for reduced motion, the fade-ins, the drift and the hover lift are off, the stars stop drifting, the film grain freezes, the colour changes are quicker, and page transitions fade.</p>
+<p>Scrolling is native: nothing hijacks the wheel or the touch. Entries fade in once as they arrive and stay put after that. Covers drift slowly as you scroll, and opening a project morphs its cover into the page. Behind every page sits a dithered sky: it moves at a twentieth of your scroll, its stars twinkle, a shooting star crosses the margins now and then, and it stays calm behind the text. Each project and job tints it with its own colours while you read it, and the mouse lifts the dither a touch around the pointer. If your system asks for reduced motion, the fade-ins, the drift and the hover lift are off, the sky holds still, the film grain freezes, the colour changes are quicker, and page transitions fade.</p>
+
+<h2 id="sky">How the sky is drawn</h2>
+<p>The old way, on purpose:</p>
+<ul>
+<li>A framebuffer a third of the screen's size, four colours plus the stars, scaled up with hard pixels.</li>
+<li>Ordered dithering (a 4 by 4 Bayer matrix), baked into the sky row by row, so the pattern scrolls with it instead of crawling. Two dither phases alternate, so the mid-tones breathe.</li>
+<li>Scrolling runs no script at all. The buffer holds the whole page's sky, and the browser slides it a twentieth of your scroll in whole-pixel steps, like an old console's hardware scroll.</li>
+<li>Twinkle by palette cycling: four colour groups cycle, no star is ever redrawn. A world is a palette fade, not another layer.</li>
+<li>Dirty pixels: a frame rewrites only what changed (the stars, a shooting star, the pixels around the mouse). Only a palette step or a breath repaints the whole buffer, one table lookup a pixel.</li>
+<li>Ten frames a second at rest, thirty only while something moves, a few dozen rows baked per frame, so nothing stalls.</li>
+</ul>
 
 <h2 id="keys">Keys</h2>
 <p>Vim keys work only in normal mode, so a single letter never fires by accident (WCAG 2.1.4).</p>
