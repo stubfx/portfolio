@@ -2,7 +2,6 @@
 // on lane 1, the previous one lingers as a ghost, and a Neovide cursor rides the nodes.
 import { focusReducer, laneTarget, branchPath, pickCurrent } from './graph-core.mjs';
 import { stepCursor, settled } from './cursor-core.mjs';
-import { segmentProgress } from './phases.mjs';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -19,7 +18,7 @@ export function startGraph(doc = document) {
   const win = doc.defaultView;
   const svg = doc.getElementById('graph');
   const page = doc.querySelector('.page');
-  const anchors = [...doc.querySelectorAll('.eb[data-hash], .slim[data-hash], .seg[data-hash]')];
+  const anchors = [...doc.querySelectorAll('.eb[data-hash], .slim[data-hash]')];
   if (!svg || !page || !anchors.length) return null;
 
   const topo = JSON.parse(doc.getElementById('branches')?.textContent || '[]');
@@ -31,7 +30,6 @@ export function startGraph(doc = document) {
     branch: el.dataset.branch,
     kind: el.dataset.kind,
     special: el.hasAttribute('data-special'),
-    seg: el.classList.contains('seg') ? el : null,
   }));
   const motion = win.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -89,7 +87,7 @@ export function startGraph(doc = document) {
     svg.setAttribute('width', gw + 8);
     svg.setAttribute('height', H);
     svg.setAttribute('viewBox', `0 0 ${gw + 8} ${H}`);
-    Y = rows.map((r) => (r.seg ? docY(r.seg) + r.seg.offsetHeight / 2 : docY(r.el) + r.el.offsetHeight / 2));
+    Y = rows.map((r) => docY(r.el) + r.el.offsetHeight / 2);
     const at = Object.fromEntries(rows.map((r, i) => [r.hash, i]));
     const topY = Y[0] - 26;
 
@@ -179,38 +177,20 @@ export function startGraph(doc = document) {
     kick();
   }
 
-  function dwellIndex() {
-    for (let i = 0; i < rows.length; i++) {
-      const seg = rows[i].seg;
-      if (!seg) continue;
-      const r = seg.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > win.innerHeight) continue;
-      const p = segmentProgress(r.top, r.height, seg.querySelector('.stage').offsetHeight);
-      if (p >= 0.2 && p <= 0.8) return i;
-    }
-    return -1;
-  }
-
   function detect() {
     if (pinned >= 0) return;
     const pageTop = page.getBoundingClientRect().top + win.scrollY;
     const line = win.scrollY - pageTop + win.innerHeight * 0.6;
     const atBottom = win.innerHeight + win.scrollY >= doc.documentElement.scrollHeight - 2;
-    setCurrent(pickCurrent(Y, line, atBottom, dwellIndex()));
-  }
-
-  function scrollTargetFor(i) {
-    const pageTop = page.getBoundingClientRect().top + win.scrollY;
-    const seg = rows[i].seg;
-    if (seg) return pageTop + docY(seg) + 0.55 * (seg.offsetHeight - seg.querySelector('.stage').offsetHeight);
-    return pageTop + Y[i] - win.innerHeight * 0.25;
+    setCurrent(pickCurrent(Y, line, atBottom, -1));
   }
 
   function go(i) {
     const n = Math.max(0, Math.min(rows.length - 1, i));
     setCurrent(n);
     pinned = n;
-    win.scrollTo({ top: scrollTargetFor(n), behavior: motion.matches ? 'instant' : 'smooth' });
+    const pageTop = page.getBoundingClientRect().top + win.scrollY;
+    win.scrollTo({ top: pageTop + Y[n] - win.innerHeight * 0.25, behavior: motion.matches ? 'instant' : 'smooth' });
   }
 
   function onClick(e) {
@@ -246,7 +226,7 @@ export function startGraph(doc = document) {
   detect();
   emit();
 
-  const projects = () => rows.map((r, i) => (r.seg ? i : -1)).filter((i) => i >= 0);
+  const projects = () => rows.map((r, i) => (r.kind === 'project' ? i : -1)).filter((i) => i >= 0);
   return {
     rows,
     get index() { return idx; },
@@ -258,8 +238,7 @@ export function startGraph(doc = document) {
       if (target !== undefined) go(target);
     },
     land() {
-      const seg = rows[idx].seg;
-      const a = seg && seg.querySelector('a.land');
+      const a = rows[idx].el.closest('.entry')?.querySelector('a.pc-att');
       if (a) { a.click(); return true; }
       return false;
     },

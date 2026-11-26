@@ -1,6 +1,4 @@
-/* Cockpit: ground, starfield, film grain, tmux status bar, command line. */
-/* The screen goes dark under a cover by fading this in, not by repainting the body. */
-#ground { position: fixed; inset: 0; z-index: 0; background: #000; opacity: 0; pointer-events: none; }
+/* Cockpit: starfield, film grain, tmux status bar, command line. */
 #stars {
   position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
   /* Stars fade out behind the reading column. */

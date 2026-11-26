@@ -54,35 +54,38 @@ function meta(p, branchLabel) {
     + `<time datetime="${p.year}">${esc(p.span || p.year)}</time>${tags}</p>`;
 }
 
+export const dagger = (p) => (p.nda ? '<sup class="dg" aria-label="under NDA">†</sup>' : '');
+
+const MODES = new Set(['hero', 'card', 'attachment']);
+
 /**
+ * hero: the project page header. card: a work page tile. attachment: the cover attached to its commit in the log.
  * @param {object} p project
- * @param {{ mode?: 'seg'|'hero'|'card', branchLabel?: string }} o
+ * @param {{ mode?: 'hero'|'card'|'attachment', branchLabel?: string }} o
  */
-export function renderCover(p, { mode = 'seg', branchLabel } = {}) {
+export function renderCover(p, { mode = 'hero', branchLabel } = {}) {
+  if (!MODES.has(mode)) throw new Error(`Unknown cover mode "${mode}"`);
   const id = `g-${p.slug}-${mode}`;
   const vt = `view-transition-name:cover-${p.slug}`;
   const word = p.accent ? `<div class="layer l-word" style="--depth:.3" aria-hidden="true"><span>${esc(p.accent)}</span></div>` : '';
-  const dagger = p.nda ? '<sup class="dg" aria-label="under NDA">†</sup>' : '';
+  const href = `/projects/${p.slug}/`;
+  const vars = cssVars(paletteVars(p));
 
   if (mode === 'card') {
-    return `<a class="card" href="/projects/${p.slug}/" style="${cssVars(paletteVars(p))}">`
+    return `<a class="card" href="${href}" style="${vars}">`
       + `<div class="cover mini" style="${vt}">${backLayers(p, id)}${word}${corners}</div>`
-      + `<div class="card-meta">${meta(p, branchLabel)}<h2 class="card-title">${accentTitle(p.title, p.accent)}${dagger}</h2></div></a>`;
+      + `<div class="card-meta">${meta(p, branchLabel)}<h2 class="card-title">${accentTitle(p.title, p.accent)}${dagger(p)}</h2></div></a>`;
   }
 
-  const heading = mode === 'hero' ? 'h1' : 'h2';
+  if (mode === 'attachment') {
+    return `<a class="pc-att" href="${href}" style="${vars}" aria-label="Open ${esc(p.title)}">`
+      + `<div class="cover mini att" style="${vt}">${backLayers(p, id)}${word}${corners}</div>`
+      + `<span class="pc-chip" aria-hidden="true">git show ${esc(p.hash)}</span></a>`;
+  }
+
   const front = `<div class="layer l-front" style="--depth:0">${corners}`
     + `<div class="cv-copy">${meta(p, branchLabel)}`
-    + `<${heading} class="cv-title" id="cv-${p.slug}">${accentTitle(p.title, p.accent)}${dagger}</${heading}>`
-    + `<p class="cv-lede">${lede(p.html)}</p>`
-    + (mode === 'seg' ? `<a class="land" href="/projects/${p.slug}/">Land on this project</a>` : '')
-    + `</div></div>`;
-  const cover = `<div class="cover" style="${vt}">${backLayers(p, id)}${word}${front}</div>`;
-
-  if (mode === 'hero') return `<header class="hero">${cover}</header>`;
-
-  const vars = { ...paletteVars(p), '--seg-desk': `${p.segmentHeight}vh` };
-  return `<section class="seg" id="seg-${p.slug}" data-slug="${p.slug}" data-height="${p.segmentHeight}" `
-    + `data-hash="${esc(p.hash)}" data-branch="${esc(p.branch)}" data-kind="project" style="${cssVars(vars)}" aria-labelledby="cv-${p.slug}">`
-    + `<span class="dwell" id="${p.slug}"></span><div class="stage">${cover}</div></section>`;
+    + `<h1 class="cv-title" id="cv-${p.slug}">${accentTitle(p.title, p.accent)}${dagger(p)}</h1>`
+    + `<p class="cv-lede">${lede(p.html)}</p></div></div>`;
+  return `<header class="hero"><div class="cover" style="${vt}">${backLayers(p, id)}${word}${front}</div></header>`;
 }

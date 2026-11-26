@@ -36,7 +36,7 @@ test('project hash must match the commit that points at it', () => {
 test('project defaults', () => {
   const p = loadProjects('test/fixtures/minimal-project')[0];
   assert.deepEqual(p.palette, { bg: '#000000', fg: '#cdd6f4', accent: '#cba6f7' });
-  assert.equal(p.segmentHeight, 300);
+  assert.equal('segmentHeight' in p, false);
   assert.deepEqual(p.cover, {});
   assert.deepEqual(p.tags, []);
   assert.equal(p.nda, false);

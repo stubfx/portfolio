@@ -2,8 +2,8 @@
 
 Usage: python3 test/e2e/perf.py [--cpu 1 4] [--runs 3] [--route home|control] [--assert] [--json PATH]
 Run it without -I: it imports serve() and DIST from check.py next to it.
-home sweeps the flight (first segment to the end of the configurator); control sweeps /about/
-top to bottom, the floor for this browser and host. Set PW_WS to use a remote Playwright.
+home sweeps the whole log top to bottom; control sweeps /about/ top to bottom, the floor
+for this browser and host. Set PW_WS to use a remote Playwright.
 """
 import argparse
 import bisect
@@ -20,15 +20,10 @@ BUDGET = {1: 2.0, 4: 10.0}  # max dropped %, by CPU rate
 MAX_SCRIPT_MS = 4.0
 SITE_PATH = '/assets/'  # script urls under this path are the site's own
 
-SWEEP = '''([route, step]) => new Promise(done => {
-  const seg = document.querySelector('.seg');
-  const top = e => { let t = 0; for (; e; e = e.offsetParent) t += e.offsetTop; return t };
-  const cfg = document.getElementById('seg-configurator-framework');
-  const a = route === 'home' ? top(seg) - 0.5 * innerHeight : 0;
-  const b = route === 'home' ? top(cfg) + cfg.offsetHeight + innerHeight : document.documentElement.scrollHeight;
-  scrollTo(0, a);
+SWEEP = '''step => new Promise(done => {
+  scrollTo(0, 0);
   requestAnimationFrame(function tick() {
-    if (scrollY >= b - 1 || scrollY >= document.documentElement.scrollHeight - innerHeight - 1) return done();
+    if (scrollY >= document.documentElement.scrollHeight - innerHeight - 1) return done();
     scrollBy(0, step);
     requestAnimationFrame(tick);
   });
@@ -88,7 +83,7 @@ def run_once(browser, base, route, rate):
         pg.wait_for_load_state('load')
         pg.wait_for_timeout(500)
         browser.start_tracing(page=pg, categories=CATEGORIES)
-        pg.evaluate(SWEEP, [route, 12])
+        pg.evaluate(SWEEP, 12)
         trace = json.loads(browser.stop_tracing())
     finally:
         pg.close()

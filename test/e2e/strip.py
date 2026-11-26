@@ -1,9 +1,9 @@
-"""Frame strips of the flight transitions, for looking at them.
+"""Frame strips of the home page, for looking at them.
 
 Usage: python3 test/e2e/strip.py [--out DIR] [--video]
 Writes <out>/<transition>-<width>.png (24 frames tiled 6x4 at 1/4 scale, labelled with frame
-index and the active segment's p (slug cut to 5 chars)); --video adds home-1280.webm, a steady scroll through the
-whole home page. Run it without -I: it imports serve() and DIST from check.py next to it.
+index and scrollY); --video adds home-1280.webm, a steady scroll through the whole home page.
+Run it without -I: it imports serve() and DIST from check.py next to it.
 Set PW_WS to use a remote Playwright.
 """
 import argparse
@@ -18,27 +18,15 @@ from check import DIST, SHOTS, connect, expect, serve
 FRAMES, COLS = 24, 6
 VIEWPORTS = ((1280, 800), (390, 844))
 
-# Page-side helpers: document y of a segment edge, and the scroll-progress of the segment on screen.
+# Page-side helpers: document y of an element's top and bottom edge, by id (layout boxes, transforms ignored).
 JS = '''() => {
-  const top = e => { let t = 0; for (; e; e = e.offsetParent) t += e.offsetTop; return t };
-  const seg = s => document.getElementById('seg-' + s);
-  const span = s => seg(s).offsetHeight - seg(s).querySelector('.stage').offsetHeight;
-  window.__strip = {
-    at: (s, p) => top(seg(s)) + p * span(s),
-    start: s => top(seg(s)),
-    end: s => top(seg(s)) + seg(s).offsetHeight,
-    p: () => { for (const s of document.querySelectorAll('.seg')) {
-      const p = (scrollY - top(s)) / (s.offsetHeight - s.querySelector('.stage').offsetHeight);
-      if (p >= 0 && p <= 1) return s.dataset.slug.slice(0, 5) + ' p=' + p.toFixed(2) } return '-' },
-  };
+  const top = id => { let t = 0; for (let e = document.getElementById(id); e; e = e.offsetParent) t += e.offsetTop; return t };
+  window.__strip = { top, bottom: id => top(id) + document.getElementById(id).offsetHeight };
 }'''
 
 TRANSITIONS = {
-    'log-cover-log': lambda s, vh: (s('start', 'agentic-texture-pipeline') - 0.5 * vh,
-                                    s('end', 'agentic-texture-pipeline') + 0.5 * vh),
-    'cover-cover': lambda s, vh: (s('at', 'ba-art-direction', 0.6), s('at', 'configurator-framework', 0.45)),
-    'cover-log': lambda s, vh: (s('at', 'configurator-framework', 0.6),
-                                s('end', 'configurator-framework') + 0.8 * vh),
+    'load': lambda s, vh: (0, 1.5 * vh),
+    'attachment': lambda s, vh: (s('top', 'configurator-framework') - vh, s('bottom', 'configurator-framework') + 0.2 * vh),
 }
 
 
@@ -54,8 +42,7 @@ def new_page(browser, base, w, h, **ctx):
 
 
 def edge(pg):
-    return lambda kind, slug, p=None: pg.evaluate(
-        f'() => __strip.{kind}({", ".join(repr(a) if isinstance(a, str) else str(a) for a in (slug, p) if a is not None)})')
+    return lambda kind, el_id: pg.evaluate(f'() => __strip.{kind}({el_id!r})')
 
 
 def strip(pg, name, w, h, a, b, out):
@@ -64,7 +51,7 @@ def strip(pg, name, w, h, a, b, out):
     for i in range(FRAMES):
         pg.evaluate(f'() => scrollTo(0, {a + (b - a) * i / (FRAMES - 1)})')
         pg.wait_for_timeout(250)
-        label = f'{i} {pg.evaluate("() => __strip.p()")}'
+        label = f'{i} y={pg.evaluate("() => Math.round(scrollY)")}'
         tile = Image.open(BytesIO(pg.screenshot())).convert('RGB').resize((cw, ch), Image.LANCZOS)
         d = ImageDraw.Draw(tile)
         tw = d.textlength(label)

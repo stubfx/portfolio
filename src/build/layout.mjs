@@ -63,7 +63,6 @@ ${fontLinks(selfHostedFonts)}
 </head>
 <body data-page="${page}"${vars ? ` style="${style(vars)}"` : ''}>
 <a class="skip" href="#main">Skip to content</a>
-<div id="ground" aria-hidden="true"></div>
 <canvas id="stars" aria-hidden="true"></canvas>
 <div id="grain" aria-hidden="true"></div>
 <div class="page">

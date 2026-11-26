@@ -64,62 +64,14 @@ def no_errors(pg):
 
 
 @check
-def mid_dwell_load(c):
+def hash_lands(c):
     for w, h in ((1280, 800), (390, 844)):
         pg = c.page('/#configurator-framework', w, h)
-        r = pg.eval_on_selector('#seg-configurator-framework .cover', 'e => { const b = e.getBoundingClientRect(); return [b.left, b.top, b.right, b.bottom, getComputedStyle(e).opacity] }')
-        expect(abs(r[0]) <= 2 and abs(r[1]) <= 2 and abs(r[2] - w) <= 2 and abs(r[3] - h) <= 2, f'{w}: cover rect {r[:4]}')
-        expect(float(r[4]) == 1, f'{w}: cover opacity {r[4]}')
+        top = pg.evaluate("() => [document.getElementById('configurator-framework').getBoundingClientRect().top, innerHeight]")
+        # -1, not 0: the browser snaps the scroll to whole pixels, so the top can land a fraction above.
+        expect(-1 < top[0] <= 0.5 * top[1], f'{w}: #configurator-framework top at {top[0]} of {top[1]}')
         no_errors(pg)
         pg.close()
-
-
-@check
-def focus_reveals(c):
-    pg = c.page('/#configurator-framework')
-    first = pg.evaluate("() => getComputedStyle(document.querySelector('.logseg')).opacity")
-    expect(float(first) < 1, f'precondition: first log should be faded mid-dwell, is {first}')
-    found = None
-    for _ in range(25):
-        pg.keyboard.press('Tab')
-        found = pg.evaluate("() => { const a = document.activeElement; return a && a.closest('.logseg') ? true : null }")
-        if found:
-            break
-    expect(found, 'never focused a link inside the log')
-    pg.wait_for_timeout(300)
-    op = pg.evaluate("() => getComputedStyle(document.activeElement.closest('.logseg')).opacity")
-    expect(float(op) == 1, f'focused log is at opacity {op}')
-    box = pg.evaluate("() => { const b = document.activeElement.getBoundingClientRect(); return [b.top, b.bottom, innerHeight] }")
-    expect(box[0] >= 0 and box[1] <= box[2], f'focused element off screen {box}')
-    no_errors(pg)
-    pg.close()
-
-
-@check
-def reduced(c):
-    pg = c.page('/#configurator-framework', reduced=True)
-    op = pg.eval_on_selector('#seg-configurator-framework .cover', 'e => getComputedStyle(e).opacity')
-    expect(float(op) == 1, f'reduced motion still crossfades the cover in; opacity {op}')
-    tf = pg.eval_on_selector_all('.seg .cover', "els => els.map(e => e.style.transform)")
-    expect(all('scale(' not in t or 'scale(1)' in t for t in tf), f'transforms under reduced motion: {tf}')
-    logs = pg.eval_on_selector_all('.logseg', "els => els.map(e => e.style.transform)")
-    expect(all(t == '' for t in logs), f'log transforms under reduced motion: {logs}')
-    no_errors(pg)
-    pg.close()
-
-
-@check
-def approach_darkens(c):
-    pg = c.page('/')
-    top = pg.evaluate("() => { const s = document.querySelector('.seg'); return s.getBoundingClientRect().top + scrollY }")
-    pg.evaluate(f'() => scrollTo(0, {top} + 0.1 * (document.querySelector(".seg").offsetHeight - innerHeight))')
-    pg.wait_for_timeout(200)
-    st = pg.evaluate("() => [getComputedStyle(document.getElementById('ground')).opacity, getComputedStyle(document.querySelector('.seg .cover')).opacity, getComputedStyle(document.querySelector('.logseg')).opacity]")
-    expect(0 < float(st[0]) < 1, f'ground mid-approach {st[0]}')
-    expect(0 < float(st[1]) < 1, f'cover mid-approach {st[1]}')
-    expect(0 < float(st[2]) < 1, f'log mid-approach {st[2]}')
-    no_errors(pg)
-    pg.close()
 
 
 def cursor_vs_node(pg):
@@ -232,42 +184,48 @@ def vim_keys(c):
     pg.close()
 
 
-def seg_scroll(pg, slug, p):
-    pg.evaluate(f'''() => {{ const s = document.getElementById('seg-{slug}'); let t = 0;
-      for (let e = s; e; e = e.offsetParent) t += e.offsetTop;
-      scrollTo(0, t + {p} * (s.offsetHeight - s.querySelector('.stage').offsetHeight)) }}''')
-    pg.wait_for_timeout(250)
-
-
 @check
-def covers_reachable(c):
+def attachments_reachable(c):
     pg = c.page('/')
-    lands = set()
-    for _ in range(40):
+    reached = set()
+    for _ in range(60):
         pg.keyboard.press('Tab')
-        href = pg.evaluate("() => document.activeElement.matches('.land') ? document.activeElement.getAttribute('href') : null")
+        href = pg.evaluate("() => document.activeElement.matches('a.pc-att') ? document.activeElement.getAttribute('href') : null")
         if href:
-            lands.add(href)
-    total = pg.eval_on_selector_all('.land', 'els => els.length')
-    expect(len(lands) == total, f'Tab reached {len(lands)} of {total} land links')
+            reached.add(href)
+    total = pg.eval_on_selector_all('a.pc-att', 'els => els.length')
+    expect(total > 0 and len(reached) == total, f'Tab reached {len(reached)} of {total} attachments')
     snap = pg.locator('main').aria_snapshot()
-    for title in pg.eval_on_selector_all('.seg .cv-title', 'els => els.map(e => e.textContent)'):
+    for title in pg.eval_on_selector_all('.pc .ttl', 'els => els.map(e => e.textContent)'):
         word = title.split()[0]
-        expect(word in snap, f'cover "{title}" missing from the accessibility tree')
-    expect(pg.evaluate("() => window.find('Servers for real')"), 'find-in-page cannot see off-screen covers')
+        expect(word in snap, f'project "{title}" missing from the accessibility tree')
+    expect(pg.evaluate("() => window.find('Servers for real')"), 'find-in-page cannot see the project rows')
     no_errors(pg)
     pg.close()
 
 
 @check
-def land_click(c):
-    for p in (0.25, 0.15):
-        pg = c.page('/')
-        seg_scroll(pg, 'configurator-framework', p)
-        pg.click('#seg-configurator-framework .land')
-        pg.wait_for_timeout(600)
-        expect(pg.url.endswith('/projects/configurator-framework/'), f'click at p={p} stayed on {pg.url}')
-        pg.close()
+def attachment_click(c):
+    pg = c.page('/')
+    pg.click('#configurator-framework .pc-att')
+    pg.wait_for_timeout(600)
+    expect(pg.url.endswith('/projects/configurator-framework/'), f'click stayed on {pg.url}')
+    pg.close()
+
+
+@check
+def enter_opens_project(c):
+    pg = c.page('/')
+    pg.keyboard.press('Escape')
+    pg.keyboard.press('Shift+J')
+    pg.wait_for_timeout(2500)
+    slug = pg.evaluate("() => { const g = __site.graph; return g.rows[g.index].el.closest('.entry').id }")
+    # Before the navigation: headless Chromium logs an aborted cross-document view transition on any page change.
+    no_errors(pg)
+    pg.keyboard.press('Enter')
+    pg.wait_for_timeout(600)
+    expect(pg.url.endswith(f'/projects/{slug}/'), f'Enter on {slug} ended on {pg.url}')
+    pg.close()
 
 
 @check
@@ -294,13 +252,16 @@ def contrast(a, b):
 def cover_contrast(c):
     from io import BytesIO
     from PIL import Image
+    slugs = sorted(d.name for d in (DIST / 'projects').iterdir() if d.is_dir())
+    expect(slugs, 'no project pages in dist/')
     for w, h in ((844, 390), (1280, 800), (390, 844)):
-        for slug in c.page('/').eval_on_selector_all('.seg', 'els => els.map(e => e.dataset.slug)'):
-            pg = c.page('/', w, h)
-            seg_scroll(pg, slug, 0.55)
-            boxes = pg.evaluate(f'''() => [...document.querySelectorAll('#seg-{slug} .cv-title, #seg-{slug} .cv-title em, #seg-{slug} .cv-lede')].map(e => {{
+        for slug in slugs:
+            pg = c.page(f'/projects/{slug}/', w, h)
+            pg.evaluate("() => document.querySelector('.hero .cv-copy').scrollIntoView({ block: 'center', behavior: 'instant' })")
+            pg.wait_for_timeout(100)
+            boxes = pg.evaluate('''() => [...document.querySelectorAll('.hero .cv-title, .hero .cv-title em, .hero .cv-lede')].map(e => {
               const r = e.getBoundingClientRect(); const s = getComputedStyle(e);
-              return [e.className || e.tagName, r.left, r.top, r.right, r.bottom, s.color, parseFloat(s.fontSize)] }})''')
+              return [e.className || e.tagName, r.left, r.top, r.right, r.bottom, s.color, parseFloat(s.fontSize)] })''')
             pg.add_style_tag(content='#grain{display:none} .cv-copy, .cv-copy *{color:transparent!important;border-color:transparent!important}')
             pg.wait_for_timeout(100)
             img = Image.open(BytesIO(pg.screenshot())).convert('RGB')
@@ -315,21 +276,6 @@ def cover_contrast(c):
                 need = 3 if size >= 24 else 4.5
                 expect(p1 >= need, f'{w}x{h} {slug} {name}: 1st percentile contrast {p1:.2f} < {need}')
             pg.close()
-
-
-@check
-def light_frames(c):
-    pg = c.page('/')
-    for p in (0.1, 0.55, 0.9):
-        seg_scroll(pg, 'configurator-framework', p)
-    style = pg.evaluate("() => document.body.getAttribute('style') || ''")
-    expect(style == '', f'flight writes to body every frame: {style!r}')
-    g = pg.eval_on_selector('#ground', 'e => getComputedStyle(e).opacity')
-    seg_scroll(pg, 'configurator-framework', 0.55)
-    g2 = pg.eval_on_selector('#ground', 'e => getComputedStyle(e).opacity')
-    expect(float(g2) == 1 and g != g2, f'ground overlay not driven: {g} -> {g2}')
-    no_errors(pg)
-    pg.close()
 
 
 @check
@@ -414,10 +360,10 @@ def main(names):
                 continue
             try:
                 fn(c)
-                print(f'ok   {name}')
+                print(f'ok   {name}', flush=True)
             except Exception as e:  # noqa: BLE001
                 failed += 1
-                print(f'FAIL {name}: {e}')
+                print(f'FAIL {name}: {e}', flush=True)
         browser.close()
     srv.shutdown()
     print(f'{len(CHECKS) if not names else len(names)} checks, {failed} failed')

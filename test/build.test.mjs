@@ -22,11 +22,28 @@ test('home structure is semantic', async () => {
   const html = await page('index.html');
   assert.match(html, /<ol class="log"/);
   assert.match(html, /<time datetime="2015">/);
-  assert.match(html, /class="land" href="\/projects\/configurator-framework\/"/);
   assert.match(html, /aria-current="page"[^>]*>.*log/s);
   assert.match(html, /data-hash="7be2104" data-branch="accenture" data-kind="project"/);
   assert.match(html, /id="configurator-framework"/);
   assert.doesNotMatch(html, /—/);
+});
+
+test('home is one log with project attachments', async () => {
+  const html = await page('index.html');
+  assert.equal(html.match(/<ol class="log"/g).length, 1);
+  assert.doesNotMatch(html, /class="seg"|id="ground"|class="stage"|class="land"|--seg-desk/);
+  const at = html.indexOf('id="configurator-framework"');
+  const row = html.slice(html.lastIndexOf('<li', at), html.indexOf('</li>', at));
+  assert.match(row, /^<li class="row k-project" style="--c:var\(--b-accenture\)">/);
+  assert.match(row, /<article class="entry pc" id="configurator-framework" aria-labelledby="t-7be2104">/);
+  assert.match(row, /data-hash="7be2104" data-branch="accenture" data-kind="project"/);
+  assert.match(row, /<time datetime="2024">2021–24<\/time>/);
+  assert.match(row, /<h2 class="ttl" id="t-7be2104">Configurator <em>framework<\/em><sup class="dg" aria-label="under NDA">†<\/sup><\/h2>/);
+  assert.match(row, /<dl class="cells">.*Babylon\.js/s);
+  assert.match(row, /<a class="pc-att" href="\/projects\/configurator-framework\/" style="[^"]*--p-accent:#d4a77a[^"]*" aria-label="Open Configurator framework">/);
+  assert.match(row, /view-transition-name:cover-configurator-framework/);
+  assert.match(row, /<span class="pc-chip" aria-hidden="true">git show 7be2104<\/span>/);
+  assert.match(html, /<span class="tag hud">planned<\/span>/);
 });
 
 test('every page has one h1, a skip link and a lang', async () => {

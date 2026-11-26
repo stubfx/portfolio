@@ -27,7 +27,6 @@ export function loadProjects(dir) {
         nda: false,
         cover: {},
         cells: {},
-        segmentHeight: 300,
         order: 0,
         ...data,
         hash: String(data.hash),
