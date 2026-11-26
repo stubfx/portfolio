@@ -6,70 +6,21 @@ home sweeps the whole log top to bottom; control sweeps /about/ top to bottom, t
 for this browser and host. Set PW_WS to use a remote Playwright.
 """
 import argparse
-import bisect
 import json
-import statistics
+import os
+import signal
 import sys
 
 from playwright.sync_api import sync_playwright
 
 from check import DIST, connect, expect, serve
+from tracing import CATEGORIES, SWEEP, metrics
 
-CATEGORIES = ['devtools.timeline', 'disabled-by-default-devtools.timeline.frame']
-BUDGET = {1: 2.0, 4: 10.0}  # max dropped %, by CPU rate
+# Resized 2026-11-26 (spec, Performance budgets): this host renders with SwiftShader, so dropped frames
+# are information here; the gates are the numbers that don't depend on the GPU, at 1x CPU.
+GATE_RATE = 1
 MAX_SCRIPT_MS = 4.0
-SITE_PATH = '/assets/'  # script urls under this path are the site's own
-
-SWEEP = '''step => new Promise(done => {
-  scrollTo(0, 0);
-  requestAnimationFrame(function tick() {
-    if (scrollY >= document.documentElement.scrollHeight - innerHeight - 1) return done();
-    scrollBy(0, step);
-    requestAnimationFrame(tick);
-  });
-})'''
-
-
-def metrics(events):
-    """forced/maxScript/scriptTotal count the site's scripts (url under /assets/) only; layouts
-    forced from the harness's own scroll driver are reported apart as forced_harness."""
-    frames = sum(1 for e in events if e.get('name') == 'BeginFrame')
-    dropped = sum(1 for e in events if e.get('name') == 'DroppedFrame')
-    calls = [e for e in events if e.get('name') == 'FunctionCall' and e.get('ph') == 'X']
-    by_thread = {}
-    for e in sorted(calls, key=lambda e: e['ts']):
-        by_thread.setdefault((e['pid'], e['tid']), []).append(e)
-    starts = {k: [c['ts'] for c in cs] for k, cs in by_thread.items()}
-    # running max of call end times lets the backwards scan stop once nothing earlier can contain a ts
-    reach = {}
-    for k, cs in by_thread.items():
-        m, reach[k] = 0, []
-        for c in cs:
-            m = max(m, c['ts'] + c.get('dur', 0))
-            reach[k].append(m)
-    forced = forced_harness = 0
-    for e in events:
-        if e.get('name') in ('Layout', 'UpdateLayoutTree') and e.get('ph') == 'X':
-            k = (e['pid'], e['tid'])
-            cs = by_thread.get(k, [])
-            i = bisect.bisect_right(starts.get(k, []), e['ts']) - 1
-            while i >= 0 and reach[k][i] >= e['ts']:
-                if cs[i]['ts'] + cs[i].get('dur', 0) >= e['ts']:
-                    if is_site(cs[i]):
-                        forced += 1
-                    else:
-                        forced_harness += 1
-                    break
-                i -= 1
-    durs = [e.get('dur', 0) / 1000 for e in calls if is_site(e)]
-    return {'siteCalls': len(durs), 'frames': frames, 'dropped': dropped,
-            'droppedPct': 100 * dropped / frames if frames else 0.0,
-            'forced': forced, 'forced_harness': forced_harness,
-            'maxScript': max(durs, default=0.0), 'scriptTotal': sum(durs)}
-
-
-def is_site(call):
-    return SITE_PATH in (call.get('args', {}).get('data', {}).get('url') or '')
+RUN_TIMEOUT = int(os.environ.get('PERF_RUN_TIMEOUT', '300'))  # a stalled remote browser fails the run, not the session
 
 
 def run_once(browser, base, route, rate):
@@ -100,6 +51,14 @@ def median(runs):
     return sorted(runs, key=lambda r: r['droppedPct'])[len(runs) // 2]
 
 
+class Stalled(Exception):
+    pass
+
+
+def _stalled(signum, frame):
+    raise Stalled(f'stalled: a run took over {RUN_TIMEOUT} s (the remote browser stopped answering)')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--cpu', type=int, nargs='+', default=[1, 4])
@@ -115,11 +74,19 @@ def main():
         with sync_playwright() as p:
             browser = connect(p)
             try:
+                signal.signal(signal.SIGALRM, _stalled)
                 for rate in args.cpu:
-                    m = median([run_once(browser, base, args.route, rate) for _ in range(args.runs)])
+                    runs = []
+                    for _ in range(args.runs):
+                        signal.alarm(RUN_TIMEOUT)
+                        try:
+                            runs.append(run_once(browser, base, args.route, rate))
+                        finally:
+                            signal.alarm(0)
+                    m = median(runs)
                     results[rate] = m
                     print(f"{args.route} {rate}x: frames={m['frames']:.0f} dropped={m['dropped']:.0f} ({m['droppedPct']:.1f}%) "
-                          f"forced={m['forced']:.0f} forced_harness={m['forced_harness']:.0f} maxScript={m['maxScript']:.1f}ms scriptTotal={m['scriptTotal']:.0f}ms")
+                          f"forced={m['forced']:.0f} forcedInRaf={m['forcedInRaf']:.0f} forced_harness={m['forced_harness']:.0f} maxScript={m['maxScript']:.1f}ms scriptTotal={m['scriptTotal']:.0f}ms")
             finally:
                 browser.close()
     finally:
@@ -127,19 +94,16 @@ def main():
     if args.json:
         with open(args.json, 'w') as f:
             json.dump({str(k): v for k, v in results.items()}, f, indent=2)
+    # Gates (spec, Performance budgets, resized 2026-11-26): at 1x CPU, no site-forced layout and no site
+    # script task over 4 ms. Dropped frames are printed above as information: this host renders in software.
     failed = []
-    for rate, m in results.items():
-        budget = BUDGET.get(rate)
-        if args.route == 'control':
-            if budget is not None and m['droppedPct'] > budget:
-                print(f"FLOOR: control drops {m['droppedPct']:.0f}% at {rate}x")
-            continue
-        if budget is not None and m['droppedPct'] >= budget:
-            failed.append(f"{rate}x dropped {m['droppedPct']:.1f}% >= {budget}%")
-        if m['forced'] != 0:
-            failed.append(f"{rate}x forced layouts {m['forced']:.0f} != 0")
-        if rate == 1 and m['maxScript'] > MAX_SCRIPT_MS:
-            failed.append(f"1x maxScript {m['maxScript']:.1f}ms > {MAX_SCRIPT_MS}ms")
+    m = results.get(GATE_RATE)
+    if args.check and args.route == 'home':
+        expect(m is not None, f'--assert needs --cpu {GATE_RATE} in the run')
+        if m['forcedInRaf'] != 0:
+            failed.append(f"{GATE_RATE}x layouts forced inside animation frames {m['forcedInRaf']:.0f} != 0: {m['forcedBy']}")
+        if m['maxScript'] > MAX_SCRIPT_MS:
+            failed.append(f"{GATE_RATE}x maxScript {m['maxScript']:.1f}ms > {MAX_SCRIPT_MS}ms")
     if args.check and failed:
         print('FAIL ' + '; '.join(failed))
         sys.exit(1)

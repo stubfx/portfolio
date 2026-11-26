@@ -11,6 +11,9 @@ export function startStars(canvas, { reduced } = {}) {
   const isReduced = () => (reduced ?? motion.matches);
   let stars = [];
   let w = 0, h = 0, raf = 0;
+  // The scroll position, read where reading it is free (event handlers, before this frame's writes),
+  // never inside draw(): there it would force a layout after the graph's writes.
+  let y0 = win.scrollY;
 
   function size() {
     const dpr = Math.min(win.devicePixelRatio || 1, 2);
@@ -21,6 +24,7 @@ export function startStars(canvas, { reduced } = {}) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const layers = w < 600 ? 2 : 3;
     stars = makeStars({ count: starCount(w, h), layers, seed: 2015, w, h });
+    y0 = win.scrollY;
     draw();
   }
 
@@ -28,7 +32,6 @@ export function startStars(canvas, { reduced } = {}) {
     raf = 0;
     if (canvas.ownerDocument.hidden) return;
     ctx.clearRect(0, 0, w, h);
-    const y0 = win.scrollY;
     const off = [0, 1, 2].map((l) => starOffset(y0, l, h, isReduced()));
     ctx.fillStyle = '#cdd6f4';
     for (const s of stars) {
@@ -43,10 +46,11 @@ export function startStars(canvas, { reduced } = {}) {
   }
 
   const schedule = () => { if (!raf) raf = win.requestAnimationFrame(draw); };
-  win.addEventListener('scroll', () => { if (!isReduced()) schedule(); }, { passive: true });
+  const sync = () => { y0 = win.scrollY; schedule(); };
+  win.addEventListener('scroll', () => { y0 = win.scrollY; if (!isReduced()) schedule(); }, { passive: true });
   win.addEventListener('resize', size, { passive: true });
-  canvas.ownerDocument.addEventListener('visibilitychange', schedule);
-  motion.addEventListener('change', schedule);
+  canvas.ownerDocument.addEventListener('visibilitychange', sync);
+  motion.addEventListener('change', sync);
   size();
   return () => { if (raf) win.cancelAnimationFrame(raf); };
 }

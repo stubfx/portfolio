@@ -819,6 +819,42 @@ def cells_see_through(c):
 
 
 @check
+def graph_no_churn(c):
+    """While you scroll, the graph only moves what it already drew: no nodes are created or removed
+    in #graph frame after frame (they are built once per layout)."""
+    pg = c.page('/', wait=800)
+    churn = pg.evaluate("""async () => {
+      let added = 0, removed = 0;
+      const mo = new MutationObserver(ms => { for (const m of ms) { added += m.addedNodes.length; removed += m.removedNodes.length } });
+      mo.observe(document.getElementById('graph'), { childList: true, subtree: true });
+      for (let i = 0; i < 120; i++) { scrollBy(0, 30); await new Promise(r => requestAnimationFrame(r)) }
+      await new Promise(r => setTimeout(r, 1500));
+      mo.disconnect();
+      return [added, removed] }""")
+    expect(churn == [0, 0], f'the graph added {churn[0]} and removed {churn[1]} nodes while scrolling')
+    no_errors(pg)
+    pg.close()
+
+
+@check
+def no_forced_layout(c):
+    """Scrolling the whole log (worlds switching, rows revealing, the graph following) never makes the
+    site's own scripts read layout after a write: no layout forced from /assets/ inside an animation
+    frame, the write phase (spec, Performance budgets). Scroll handlers may read: that comes first."""
+    import json
+    from tracing import CATEGORIES, SWEEP, metrics
+    pg = c.page('/', wait=800)
+    c.browser.start_tracing(page=pg, categories=CATEGORIES)
+    pg.evaluate(SWEEP, 16)
+    m = metrics(json.loads(c.browser.stop_tracing())['traceEvents'])
+    expect(m['siteCalls'] > 0, 'no site script ran during the sweep')
+    expect(m['forcedInRaf'] == 0, f"{m['forcedInRaf']} layouts forced inside animation frames (after writes) during a scroll sweep: {m['forcedBy']}")
+    expect(m['maxScript'] <= 4.0, f"a site script task took {m['maxScript']:.1f} ms (budget 4 ms)")
+    no_errors(pg)
+    pg.close()
+
+
+@check
 def contact_everywhere(c):
     for path in ('/projects/configurator-framework/', '/work/', '/about/', '/help/', '/'):
         pg = c.page(path, 390, 844)

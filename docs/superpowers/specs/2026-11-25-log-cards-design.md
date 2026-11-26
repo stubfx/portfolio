@@ -154,10 +154,17 @@ If the files exceed 120 KB (Claude's call), cut in this order. The budget itself
 
 ## Performance budgets
 
-`test/e2e/perf.py --assert`, median of 3, 1280×800, steady scroll from the top of the log to the EOF footer:
-- dropped frames under 2% at 1× CPU and under 10% at 4×;
-- zero site-forced layouts;
-- no site script task over 4 ms at 1×.
+Resized by Luca on 2026-11-26: "people watching my portfolio have normal (good) devices… im targeting companies with powerful pcs, not cellphones. so if overkill means sacrificing all of that, we need to resize the 'overkill' claim." The target is smooth scrolling on a good desktop or laptop with a real GPU. No effect gets cut or dulled to satisfy a phone-class or software-rendered benchmark. Phones must still work, read well and stay accessible.
+
+The test browser on the host renders with SwiftShader (a software GPU), which overstates the cost of full-screen layers and fades, so only the numbers that don't depend on the GPU are gates. `test/e2e/perf.py --assert`, median of 3, 1280×800, at 1× CPU, steady scroll from the top of the log to the EOF footer:
+- zero site-forced layouts (no layout read after a write in the site's scroll path);
+- no site script task over 4 ms.
+
+Recorded as information, never as a gate on this harness:
+- dropped frames at 1× and 4× CPU;
+- the same with every effect switched off (the home floor) and on `/about/` (the control).
+
+If the host's Playwright server is ever started with its real GPU, dropped frames under 2% at 1× CPU becomes a gate again.
 
 `perf.py` and `strip.py` lose their `.seg` ranges:
 - **perf:** the full log, top to bottom.

@@ -47,10 +47,13 @@ export function startGraph(doc = document) {
       pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1,
       style: `fill:none;stroke:var(--b-${b.name});stroke-width:2;stroke-linecap:round`,
     });
-    const nodes = mk(doc, 'g');
-    g.append(p, nodes);
+    // Ticks to the main rail (one path) and the branch's dots, drawn at x = 0 once per layout and
+    // moved with a transform: a frame only changes attributes, it never rebuilds nodes.
+    const ticks = mk(doc, 'path', { style: `fill:none;stroke:var(--b-${b.name});stroke-width:1` });
+    const dots = mk(doc, 'g');
+    g.append(p, ticks, dots);
     gBr.append(g);
-    S[b.name] = { ...b, g, p, nodes, x: 0, op: 0, draw: 0, tx: 0, top: 0, tdraw: 0, geo: null };
+    S[b.name] = { ...b, g, p, ticks, dots, x: 0, op: 0, draw: 0, tx: 0, top: 0, tdraw: 0, geo: null };
   }
 
   let state = { focus: 'main', ghost: null };
@@ -61,6 +64,10 @@ export function startGraph(doc = document) {
   let raf = 0;
   // After go(), the chosen row stays current until the user scrolls by hand.
   let pinned = -1;
+  // Geometry for detect() and go(), measured in layout(), and the scroll position, read in the scroll
+  // handler: animation-frame callbacks write, they never read layout (no thrash; see perf.py).
+  let pageTop = 0, vh = 0, scrollMax = 0;
+  let sy = win.scrollY;
 
   const docY = (el) => { let y = 0; while (el && el !== page) { y += el.offsetTop; el = el.offsetParent; } return y; };
   const k = () => (motion.matches ? null : 0.16);
@@ -84,6 +91,10 @@ export function startGraph(doc = document) {
     L1 = gw - (narrow ? 18 : 22);
     L2 = gw - 46;
     const H = page.offsetHeight;
+    pageTop = page.getBoundingClientRect().top + win.scrollY;
+    vh = win.innerHeight;
+    scrollMax = doc.documentElement.scrollHeight - vh;
+    sy = win.scrollY;
     svg.setAttribute('width', gw + 8);
     svg.setAttribute('height', H);
     svg.setAttribute('viewBox', `0 0 ${gw + 8} ${H}`);
@@ -113,7 +124,15 @@ export function startGraph(doc = document) {
         fY: s.fork !== undefined && at[s.fork] !== undefined ? Y[at[s.fork]] : Math.max(...ys) + 34,
         top: topY,
       };
+      const col = `var(--b-${name})`;
+      s.dots.innerHTML = ys.map((y, i) => {
+        const kind = s.geo.kinds[i];
+        if (kind === 'special') return `<rect x="-5.5" y="${y - 5.5}" width="11" height="11" transform="rotate(45 0 ${y})" style="fill:${col}"/>`;
+        if (kind === 'project') return `<circle cx="0" cy="${y}" r="6.5" style="fill:var(--bg, var(--base));stroke:${col};stroke-width:2"/><circle cx="0" cy="${y}" r="2.6" style="fill:${col}"/>`;
+        return `<circle cx="0" cy="${y}" r="5" style="fill:${col}"/>`;
+      }).join('');
     }
+    for (const name in S) if (!S[name].geo) { S[name].dots.innerHTML = ''; S[name].ticks.removeAttribute('d'); }
     retarget();
     kick();
   }
@@ -134,18 +153,14 @@ export function startGraph(doc = document) {
       s.draw = s.top === 0 && s.op < 0.03 ? 0 : ease(s.draw, s.tdraw, kk === null ? null : 0.12);
       if (s.op !== s.top || s.x !== s.tx || s.draw !== s.tdraw) busy = true;
       s.g.setAttribute('opacity', s.op.toFixed(3));
-      if (!s.geo) { s.nodes.innerHTML = ''; continue; }
+      if (!s.geo) continue;
       s.p.setAttribute('d', branchPath(s.geo, s.x, X0));
       s.p.setAttribute('stroke-dashoffset', (1 - s.draw).toFixed(4));
       const vis = s.draw > 0.85 ? 1 : 0;
-      const col = `var(--b-${name})`;
-      s.nodes.innerHTML = s.geo.ys.map((y, i) => {
-        const kind = s.geo.kinds[i];
-        const tick = `<path d="M${s.x + 7} ${y}H${X0}" style="stroke:${col};stroke-width:1" opacity="${0.5 * vis}"/>`;
-        if (kind === 'special') return tick + `<rect x="${s.x - 5.5}" y="${y - 5.5}" width="11" height="11" transform="rotate(45 ${s.x} ${y})" style="fill:${col}" opacity="${vis}"/>`;
-        if (kind === 'project') return tick + `<circle cx="${s.x}" cy="${y}" r="6.5" style="fill:var(--bg, var(--base));stroke:${col};stroke-width:2" opacity="${vis}"/><circle cx="${s.x}" cy="${y}" r="2.6" style="fill:${col}" opacity="${vis}"/>`;
-        return tick + `<circle cx="${s.x}" cy="${y}" r="5" style="fill:${col}" opacity="${vis}"/>`;
-      }).join('');
+      s.ticks.setAttribute('d', s.geo.ys.map((y) => `M${s.x + 7} ${y}H${X0}`).join(''));
+      s.ticks.setAttribute('opacity', 0.5 * vis);
+      s.dots.setAttribute('transform', `translate(${s.x} 0)`);
+      s.dots.setAttribute('opacity', vis);
     }
 
     const target = { x: nodeX(idx), y: Y[idx] };
@@ -179,11 +194,16 @@ export function startGraph(doc = document) {
 
   function detect() {
     if (pinned >= 0) return;
-    const pageTop = page.getBoundingClientRect().top + win.scrollY;
-    const line = win.scrollY - pageTop + win.innerHeight * 0.6;
-    const atBottom = win.innerHeight + win.scrollY >= doc.documentElement.scrollHeight - 2;
+    const line = sy - pageTop + vh * 0.6;
+    const atBottom = sy >= scrollMax - 2;
     setCurrent(pickCurrent(Y, line, atBottom, -1));
   }
+  let detectQueued = false;
+  const queueDetect = () => {
+    if (detectQueued) return;
+    detectQueued = true;
+    win.requestAnimationFrame(() => { detectQueued = false; detect(); });
+  };
 
   function go(i) {
     const n = Math.max(0, Math.min(rows.length - 1, i));
@@ -191,8 +211,7 @@ export function startGraph(doc = document) {
     pinned = n;
     // Before scrolling: a jump must land on a row that is already visible (reveal.js listens).
     doc.dispatchEvent(new win.CustomEvent('graph:go', { detail: { el: rows[n].el } }));
-    const pageTop = page.getBoundingClientRect().top + win.scrollY;
-    win.scrollTo({ top: pageTop + Y[n] - win.innerHeight * 0.25, behavior: motion.matches ? 'instant' : 'smooth' });
+    win.scrollTo({ top: pageTop + Y[n] - vh * 0.25, behavior: motion.matches ? 'instant' : 'smooth' });
   }
 
   function onClick(e) {
@@ -212,9 +231,10 @@ export function startGraph(doc = document) {
   const relayout = () => { if (!pending) pending = win.requestAnimationFrame(() => { pending = 0; layout(); detect(); }); };
   new win.ResizeObserver(relayout).observe(page);
   doc.fonts?.ready.then(relayout);
-  win.addEventListener('scroll', () => win.requestAnimationFrame(detect), { passive: true });
+  win.addEventListener('scroll', () => { sy = win.scrollY; queueDetect(); }, { passive: true });
+  win.addEventListener('resize', relayout, { passive: true });
   win.addEventListener('pageshow', relayout);
-  const unpin = () => { if (pinned >= 0) { pinned = -1; win.requestAnimationFrame(detect); } };
+  const unpin = () => { if (pinned >= 0) { pinned = -1; queueDetect(); } };
   for (const ev of ['wheel', 'touchstart', 'mousedown']) win.addEventListener(ev, unpin, { passive: true });
   doc.addEventListener('focusin', unpin);
   doc.addEventListener('keydown', (e) => {
