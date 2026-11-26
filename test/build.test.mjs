@@ -112,3 +112,15 @@ test('a base path prefixes every site-relative URL (GitHub project pages)', asyn
   }
   assert.match(await readFile(join(out, 'index.html'), 'utf8'), /href="\/portfolio\/projects\/configurator-framework\/"/);
 });
+
+test('every page opts in to view transitions inline, before any stylesheet or script', async () => {
+  // In site.css alone the opt-in lost a race with the module graph: Chromium revealed the new page without it.
+  for (const f of ['index.html', 'work/index.html', 'about/index.html', 'help/index.html', '404.html', 'projects/configurator-framework/index.html']) {
+    const head = (await page(f)).split('</head>')[0];
+    const optIn = head.indexOf('<style>@view-transition{navigation:auto}</style>');
+    assert.ok(optIn > 0, `${f}: no inline view-transition opt-in`);
+    for (const later of ['<link rel="stylesheet"', '<script type="module"', '<script>'])
+      assert.ok(head.indexOf(later) === -1 || optIn < head.indexOf(later), `${f}: opt-in comes after ${later}`);
+  }
+  assert.doesNotMatch(await page('assets/site.css'), /@view-transition/, 'one opt-in, in the head');
+});

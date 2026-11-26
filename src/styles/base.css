@@ -1,4 +1,4 @@
-@view-transition { navigation: auto; }
+/* The view-transition opt-in is inline in every page's head (layout.mjs): here it lost a race with the module graph. */
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }

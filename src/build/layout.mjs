@@ -46,6 +46,7 @@ export function layout({ title, page, body, description = site.description, sect
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>@view-transition{navigation:auto}</style>
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <meta name="theme-color" content="#11111b">

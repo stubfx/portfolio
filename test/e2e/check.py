@@ -223,7 +223,36 @@ def attachment_click(c):
     pg.click('#configurator-framework .pc-att')
     pg.wait_for_timeout(600)
     expect(pg.url.endswith('/projects/configurator-framework/'), f'click stayed on {pg.url}')
+    no_errors(pg)
     pg.close()
+
+
+# Records, on the next document, whether it was revealed inside a cross-document view transition.
+VT_PROBE = """addEventListener('pagereveal', e => {
+  window.__vt = e.viewTransition ? 'started' : 'none';
+  if (e.viewTransition) e.viewTransition.finished.then(() => { window.__vt = 'finished' });
+})"""
+
+
+@check
+def view_transition_runs(c):
+    """Page changes run a cross-document view transition (the attachment's cover morphs into the hero):
+    the new page is revealed inside a transition that finishes, with and without reduced motion
+    (where it is an instant fade). The opt-in used to live only in site.css and lost a race with
+    the module graph, so the new page revealed without it."""
+    navs = (('/', '#configurator-framework .pc-att', '/projects/configurator-framework/'),
+            ('/about/', '#bar a[href="/work/"]', '/work/'))
+    for reduced in (False, True):
+        for start, link, dest in navs:
+            pg = c.page(start, reduced=reduced)
+            pg.add_init_script(VT_PROBE)
+            pg.click(link)
+            pg.wait_for_url(f'**{dest}')
+            pg.wait_for_timeout(1500)
+            vt = pg.evaluate('() => window.__vt')
+            expect(vt == 'finished', f"reduced={reduced} {start} -> {dest}: revealed with view transition {vt!r}, want 'finished'")
+            no_errors(pg)
+            pg.close()
 
 
 @check
@@ -233,11 +262,10 @@ def enter_opens_project(c):
     pg.keyboard.press('Shift+J')
     pg.wait_for_timeout(2500)
     slug = pg.evaluate("() => { const g = __site.graph; return g.rows[g.index].el.closest('.entry').id }")
-    # Before the navigation: headless Chromium logs an aborted cross-document view transition on any page change.
-    no_errors(pg)
     pg.keyboard.press('Enter')
     pg.wait_for_timeout(600)
     expect(pg.url.endswith(f'/projects/{slug}/'), f'Enter on {slug} ended on {pg.url}')
+    no_errors(pg)
     pg.close()
 
 
@@ -249,6 +277,7 @@ def enter_on_link(c):
     pg.keyboard.press('Enter')
     pg.wait_for_timeout(600)
     expect(pg.url.endswith('/work/'), f'Enter in normal mode on a link stayed on {pg.url}')
+    no_errors(pg)
     pg.close()
 
 
