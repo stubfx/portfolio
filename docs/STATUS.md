@@ -1,11 +1,10 @@
 # Status
 
-Read this first when resuming work. Last updated 2026-11-25.
+Read this first when resuming work. Last updated 2026-11-26.
 
 ## Where things are
 
-- **Live:** https://stubfx.github.io/portfolio/ (deployed by `.github/workflows/pages.yml` on every push to `main`).
-- **Target domain:** lucamolluso.com (not connected yet).
+- **Live:** https://lucamolluso.com (GitHub Pages with a custom domain and HTTPS, deployed by `.github/workflows/pages.yml` on every push to `main`). https://stubfx.github.io/portfolio/ redirects there.
 - **Design:** `docs/superpowers/specs/2026-11-25-portfolio-design.md` (the binding spec).
 - **Plan:** `docs/superpowers/plans/2026-11-25-portfolio-site.md` (9 tasks, all done).
 - **How to run, add a project, deploy:** `README.md`.
@@ -14,7 +13,9 @@ Read this first when resuming work. Last updated 2026-11-25.
 ## Before launch
 
 - [ ] Self-host fonts in `public/fonts/` (README has the steps). Google Fonts sends visitor IPs to Google, a GDPR exposure in the EU (LG München, 2022).
-- [ ] Settings → Pages → custom domain `lucamolluso.com`, then Enforce HTTPS. DNS per README. Verify the domain in account settings.
+- [x] Custom domain `lucamolluso.com` with HTTPS (2026-11-26). The build drops the `/portfolio` base path by itself: `actions/configure-pages` reports an empty one now.
+- [ ] DNS redundancy: the apex has one of GitHub's four A records (185.199.108.153). Add 185.199.109.153, 185.199.110.153 and 185.199.111.153, and optionally the AAAA records 2606:50c0:8000::153 to 8003::153. `www` is already a CNAME to `stubfx.github.io`.
+- [ ] Verify the domain in GitHub account settings (Pages → Verified domains), if not done yet, to stop takeovers.
 - [ ] Replace the sample copy in all four `content/projects/*.md` and add real covers under `public/media/<slug>/`.
 - [ ] Optional: CV PDF in `public/` and a link in `content/about.md`.
 
