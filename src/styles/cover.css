@@ -1,12 +1,32 @@
 /* Project covers: the project page hero, the work cards and the attachments in the log. */
 .cover {
   position: absolute; inset: 0; overflow: hidden;
+  container: cover / size;
   background: var(--p-bg); color: var(--p-fg);
 }
 
 .layer { position: absolute; inset: -6%; }
-.l-front { inset: 0; }
+.l-front, .l-planet { inset: 0; }
 .plate, .l-img img, .l-back video { width: 100%; height: 100%; object-fit: cover; }
+
+/* The planet, sized and placed in the cover's own units so it stays on screen at any aspect ratio.
+   Only left, top and margins place it: the reveal and the drift animate transforms. */
+.planet {
+  /* Landscape: exactly where the 160x90 plate drew it. The plate's layer bleeds 6% past each edge, hence 1.12. */
+  --u: calc(1.12 * max(calc(100cqw / 160), calc(100cqh / 90)));
+  --r: calc(var(--rad) * var(--u));
+  --x: min(calc(50cqw + var(--cx) * var(--u)), calc(100cqw - 1.1 * var(--r)));
+  --y: calc(50cqh + var(--cy) * var(--u));
+  position: absolute; left: var(--x); top: var(--y);
+  /* The viewBox is 4.8 sphere radii wide, centred on the sphere. */
+  width: calc(4.8 * var(--r)); height: calc(4.8 * var(--r)); max-width: none;
+  margin: calc(-2.4 * var(--r)) 0 0 calc(-2.4 * var(--r));
+}
+/* Portrait: its own seeded spot in the upper part of the cover. */
+@container cover (aspect-ratio < 1) {
+  .planet { --x: calc(var(--px) * 1cqw); --y: calc(var(--py) * 1cqh); --r: calc(var(--pr) * 1cqw); }
+}
+.orbit { fill: none; stroke: var(--p-fg); stroke-opacity: .4; rotate: var(--tilt); }
 
 /* One huge italic word: the project's accent, as texture. */
 .l-word { display: flex; align-items: flex-end; padding: 0 0 6% 5%; pointer-events: none; }
@@ -31,17 +51,18 @@
 .mini .k2, .mini .k4 { right: 14px; }
 
 .cv-copy { position: relative; max-width: 780px; }
-/* A feathered pool of the cover's own background behind the copy: the art can be anything,
-   the text always sits on --p-bg, so the build's palette check holds on screen. */
-.cv-copy::before {
-  content: ""; position: absolute; z-index: -1; pointer-events: none;
-  top: -110px; right: -160px; bottom: -48px; left: -100vw;
+/* A soft pool of the cover's own background behind the copy: the art can be anything,
+   the text always sits on --p-bg, so the build's palette check holds on screen.
+   A blurred ellipse, so no straight edge anywhere. Its centre sits left of and below the copy
+   (those sides run off the cover), so it hugs the left-aligned text and leaves the sky clear.
+   blur() takes the Gaussian's sigma: 72px fades from 95% to 5% over 3.29 sigma, about 237px.
+   Left-aligned text stays at 95% or more; even the copy box's far right corners stay above 80%. */
+.cv-pool {
+  position: absolute; z-index: -1; pointer-events: none;
+  inset: calc(-6% - 185px) calc(-2% - 160px) calc(-18% - 150px) calc(-50% - 60px);
+  border-radius: 50%;
   background: var(--p-bg);
-  /* Solid behind the copy, feathered over 150 px to the right and 100 px above. */
-  -webkit-mask: linear-gradient(to left, transparent, #000 150px), linear-gradient(to bottom, transparent, #000 100px);
-  -webkit-mask-composite: source-in;
-  mask: linear-gradient(to left, transparent, #000 150px), linear-gradient(to bottom, transparent, #000 100px);
-  mask-composite: intersect;
+  filter: blur(72px);
 }
 .l-front { isolation: isolate; }
 .cv-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 20px; color: var(--p-fg); }
@@ -69,7 +90,7 @@
 .card:hover .card-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em; }
 @media (prefers-reduced-motion: no-preference) {
   .cover.mini .layer { transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
-  .card:hover .cover.mini .l-back, .card:hover .cover.mini .l-img { transform: scale(1.04); }
+  .card:hover .cover.mini :is(.l-back, .l-planet, .l-img) { transform: scale(1.04); }
 }
 
 /* A project commit in the log carries its cover as an attachment, with a git show chip. */
@@ -81,6 +102,7 @@
 }
 .pc-att .cover.mini { position: absolute; inset: 0; aspect-ratio: auto; }
 .pc-att .k { width: 14px; height: 14px; }
+.pc-att .k3 { display: none; } /* the chip owns the bottom-left corner */
 .pc-chip {
   position: absolute; left: 16px; bottom: 14px;
   display: inline-flex; gap: 10px; align-items: center;

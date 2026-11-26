@@ -19,6 +19,8 @@ DIST = ROOT / 'dist'
 SHOTS = Path(__file__).resolve().parent / 'shots'
 CHROME = os.environ.get('CHROME', '/usr/bin/google-chrome')
 CHECKS = {}
+# Landscape and portrait phones, tablets both ways, a near-square window: every shape a cover takes.
+VIEWPORTS = ((1280, 800), (390, 844), (360, 740), (844, 390), (1024, 1366), (1366, 1024), (1000, 900))
 
 
 def check(fn):
@@ -248,13 +250,18 @@ def contrast(a, b):
     return (x + 0.05) / (y + 0.05)
 
 
+def project_slugs():
+    slugs = sorted(d.name for d in (DIST / 'projects').iterdir() if d.is_dir())
+    expect(slugs, 'no project pages in dist/')
+    return slugs
+
+
 @check
 def cover_contrast(c):
     from io import BytesIO
     from PIL import Image
-    slugs = sorted(d.name for d in (DIST / 'projects').iterdir() if d.is_dir())
-    expect(slugs, 'no project pages in dist/')
-    for w, h in ((844, 390), (1280, 800), (390, 844)):
+    slugs = project_slugs()
+    for w, h in VIEWPORTS:
         for slug in slugs:
             pg = c.page(f'/projects/{slug}/', w, h)
             pg.evaluate("() => document.querySelector('.hero .cv-copy').scrollIntoView({ block: 'center', behavior: 'instant' })")
@@ -265,17 +272,98 @@ def cover_contrast(c):
             pg.add_style_tag(content='#grain{display:none} .cv-copy, .cv-copy *{color:transparent!important;border-color:transparent!important}')
             pg.wait_for_timeout(100)
             img = Image.open(BytesIO(pg.screenshot())).convert('RGB')
+            names = [box[0] for box in boxes]
+            expect('cv-title' in names and 'cv-lede' in names, f'{w}x{h} {slug}: hero has no title or lede to measure ({names})')
             for name, l, t, r, b, color, size in boxes:
                 rgb = [int(v) for v in color[color.index('(') + 1:color.index(')')].split(',')[:3]]
                 vals = sorted(contrast(rgb, img.getpixel((x, y)))
                               for x in range(max(0, int(l)), min(w, int(r)), 3)
                               for y in range(max(0, int(t)), min(h, int(b)), 3))
-                if not vals:
-                    continue
+                # No samples means the text is off screen: that would pass without measuring anything.
+                expect(vals, f'{w}x{h} {slug} {name}: no on-screen pixels to sample')
                 p1 = vals[len(vals) // 100]
                 need = 3 if size >= 24 else 4.5
                 expect(p1 >= need, f'{w}x{h} {slug} {name}: 1st percentile contrast {p1:.2f} < {need}')
             pg.close()
+
+
+# How much of the planet's sphere lies on its own cover, and whether it has the size cover.css gives it:
+# in portrait a radius of 26-38% of the width, in landscape the radius the 160x90 plate slice gave it.
+# Measured at rest: the sphere's own animations (its reveal) finish first, for at most 2 s.
+# Null for covers without a generative plate.
+PLANET_ON_COVER = '''async cover => {
+  const s = cover.querySelector('.l-planet .sphere');
+  if (!s) return cover.querySelector('.plate') ? 'no sphere' : null;
+  await Promise.race([Promise.all(s.getAnimations().map(a => a.finished)), new Promise(r => setTimeout(r, 2000))]);
+  const a = s.getBoundingClientRect(), b = cover.getBoundingClientRect();
+  if (!(a.width * a.height)) return 'empty sphere';
+  const w = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const h = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  const plate = cover.querySelector('.plate').getBoundingClientRect();
+  const rad = parseFloat(getComputedStyle(s).getPropertyValue('--rad')) * Math.max(plate.width / 160, plate.height / 90);
+  const [lo, hi] = b.width < b.height ? [0.26 * b.width, 0.38 * b.width] : [rad - 1, rad + 1];
+  return { share: w * h / (a.width * a.height), r: a.width / 2, lo, hi };
+}'''
+
+
+@check
+def planet_on_screen(c):
+    slugs = project_slugs()
+    bad = []
+    for w, h in VIEWPORTS:
+        seen = {'hero': 0, 'card': 0, 'attachment': 0}
+
+        def measure(pg, kind, cover, label, scroll=False):
+            if scroll:
+                cover.scroll_into_view_if_needed()
+                pg.wait_for_timeout(150)
+            m = cover.evaluate(PLANET_ON_COVER)
+            if m is None:
+                return
+            seen[kind] += 1
+            if isinstance(m, str):
+                bad.append(f'{w}x{h} {kind} {label}: {m}')
+            elif m['share'] < 0.6:
+                bad.append(f'{w}x{h} {kind} {label}: {m["share"]:.0%} of the sphere on its cover')
+            elif not m['lo'] <= m['r'] <= m['hi']:
+                bad.append(f'{w}x{h} {kind} {label}: sphere radius {m["r"]:.1f}px, want {m["lo"]:.1f} to {m["hi"]:.1f}')
+
+        for slug in slugs:
+            pg = c.page(f'/projects/{slug}/', w, h)
+            measure(pg, 'hero', pg.query_selector('.hero .cover'), slug)
+            no_errors(pg)
+            pg.close()
+        pg = c.page('/work/', w, h)
+        for card in pg.query_selector_all('a.card'):
+            measure(pg, 'card', card.query_selector('.cover'), card.get_attribute('href'))
+        no_errors(pg)
+        pg.close()
+        pg = c.page('/', w, h)
+        for att in pg.query_selector_all('a.pc-att'):
+            measure(pg, 'attachment', att.query_selector('.cover'), att.get_attribute('href'), scroll=True)
+        no_errors(pg)
+        pg.close()
+        expect(all(n == len(slugs) for n in seen.values()), f'{w}x{h}: measured {seen}, want {len(slugs)} of each')
+    expect(not bad, '; '.join(bad))
+
+
+@check
+def attachment_corners(c):
+    """The git show chip owns the attachment's bottom-left corner: no crop mark is drawn there or under it."""
+    for w, h in ((1280, 800), (390, 844)):
+        pg = c.page('/', w, h)
+        found = pg.evaluate('''() => [...document.querySelectorAll('a.pc-att')].map(a => {
+          const chip = a.querySelector('.pc-chip').getBoundingClientRect();
+          const shown = [...a.querySelectorAll('.k')].filter(k => { const r = k.getBoundingClientRect(); return r.width > 0 && r.height > 0 });
+          const under = shown.filter(k => { const r = k.getBoundingClientRect();
+            return r.left < chip.right && r.right > chip.left && r.top < chip.bottom && r.bottom > chip.top });
+          return [a.getAttribute('href'), shown.map(k => k.className), under.map(k => k.className)] })''')
+        expect(found, f'{w}: no attachments on /')
+        for href, shown, under in found:
+            expect('k k3' not in shown, f'{w} {href}: bottom-left crop mark .k3 is drawn')
+            expect(not under, f'{w} {href}: crop marks under the chip: {under}')
+            expect(len(shown) == 3, f'{w} {href}: want 3 crop marks, got {shown}')
+        pg.close()
 
 
 @check

@@ -18,31 +18,56 @@ function seeded(str) {
   return () => (s = (s * 16807) % 2147483647) / 2147483647;
 }
 
-// A generative "planet" plate, seeded by the commit hash, so every project
-// gets its own sky until real art replaces it.
-function generative(p, id) {
+// The planet's landscape draws. They come first and in this order, as when the plate drew the planet,
+// so neither the planet nor the stars moved when it got a layer of its own.
+const landDraws = (r) => ({ cx: 96 + r() * 40, cy: 26 + r() * 30, rad: 14 + r() * 10, tilt: -28 + r() * 56 });
+
+/**
+ * Where a generative cover's planet sits, seeded by the commit hash.
+ * land: centre and radius in the 160x90 plate's units, ring tilt in degrees.
+ * port: centre in percent of the cover, radius in percent of its width, for portrait covers.
+ */
+export function planetGeometry(hash) {
+  const q = seeded(`${hash}:port`);
+  return { land: landDraws(seeded(hash)), port: { x: 55 + q() * 25, y: 18 + q() * 14, r: 26 + q() * 12 } };
+}
+
+// A generative starry plate, seeded by the commit hash, so every project gets its own sky until real art replaces it.
+function plate(p) {
   const r = seeded(p.hash);
-  const cx = 96 + r() * 40, cy = 26 + r() * 30, rad = 14 + r() * 10, tilt = -28 + r() * 56;
+  landDraws(r); // the planet's, see planetGeometry
   let stars = '';
   for (let i = 0; i < 46; i++) {
     stars += `<circle cx="${(r() * 160).toFixed(1)}" cy="${(r() * 90).toFixed(1)}" r="${(0.12 + r() * 0.28).toFixed(2)}" opacity="${(0.2 + r() * 0.6).toFixed(2)}"/>`;
   }
   return `<svg class="plate" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">`
+    + `<g style="fill:var(--p-fg)">${stars}</g></svg>`;
+}
+
+// The plate's planet, in a layer of its own so cover.css can keep it on screen at any aspect ratio.
+// The sphere has radius 10 at the origin of a 48-unit box: the ring (2.3 r wide) fits, and the reveal can scale it in place.
+function planet(p, id) {
+  const { land, port } = planetGeometry(p.hash);
+  const f = (n) => n.toFixed(1);
+  const vars = `--cx:${f(land.cx - 80)};--cy:${f(land.cy - 45)};--rad:${f(land.rad)};--tilt:${f(land.tilt)}deg;`
+    + `--px:${f(port.x)};--py:${f(port.y)};--pr:${f(port.r)}`;
+  return `<div class="layer l-planet" aria-hidden="true" style="${vars}">`
+    + `<svg class="planet" viewBox="-24 -24 48 48" focusable="false">`
     + `<defs><radialGradient id="${id}" cx="34%" cy="30%" r="72%">`
     + `<stop offset="0" style="stop-color:var(--p-accent);stop-opacity:.95"/>`
     + `<stop offset=".5" style="stop-color:var(--p-accent);stop-opacity:.22"/>`
     + `<stop offset="1" style="stop-color:var(--p-bg);stop-opacity:0"/></radialGradient></defs>`
-    + `<g style="fill:var(--p-fg)">${stars}</g>`
-    + `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}" fill="url(#${id})"/>`
-    + `<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(rad * 2.3).toFixed(1)}" ry="${(rad * 0.42).toFixed(1)}" transform="rotate(${tilt.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})" style="fill:none;stroke:var(--p-fg);stroke-opacity:.4;stroke-width:.14"/>`
-    + `</svg>`;
+    + `<circle class="sphere" r="10" fill="url(#${id})"/>`
+    // The ring is 0.14 plate units thick: rad plate units are the sphere's 10 here, so 1.4 / rad.
+    + `<ellipse class="orbit" pathLength="1" rx="23" ry="4.2" stroke-width="${(1.4 / land.rad).toFixed(3)}"/>`
+    + `</svg></div>`;
 }
 
 function backLayers(p, id) {
   const c = p.cover || {};
   if (c.video) return `<div class="layer l-back" style="--depth:.5"><video src="${esc(c.video)}" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video></div>`;
   const layers = c.layers || (c.image ? [c.image] : []);
-  if (!layers.length) return `<div class="layer l-back" style="--depth:.6">${generative(p, id)}</div>`;
+  if (!layers.length) return `<div class="layer l-back" style="--depth:.6">${plate(p)}</div>${planet(p, id)}`;
   return layers.map((src, i) => `<div class="layer l-img" style="--depth:${(0.7 - i * 0.25).toFixed(2)}"><img src="${esc(src)}" alt="" decoding="async"></div>`).join('');
 }
 
@@ -85,7 +110,7 @@ export function renderCover(p, { mode = 'hero', branchLabel } = {}) {
   }
 
   const front = `<div class="layer l-front" style="--depth:0">${corners}`
-    + `<div class="cv-copy">${meta(p, branchLabel)}`
+    + `<div class="cv-copy"><i class="cv-pool" aria-hidden="true"></i>${meta(p, branchLabel)}`
     + `<h1 class="cv-title" id="cv-${p.slug}">${accentTitle(p.title, p.accent)}${dagger(p)}</h1>`
     + `<p class="cv-lede">${lede(p.html)}</p></div></div>`;
   return `<header class="hero"><div class="cover" style="${vt}">${backLayers(p, id)}${word}${front}</div></header>`;
