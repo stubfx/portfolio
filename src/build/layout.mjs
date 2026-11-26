@@ -85,7 +85,7 @@ ${page === 'log' ? '' : footer()}
 <span id="pos" class="hud">${esc(pos)}</span>
 <button id="grainbtn" class="hud" type="button" aria-pressed="true" title="Film grain">grain</button>
 <a class="mail hud" href="mailto:${site.email}">mail</a>
-<span id="clk" class="hud" title="Time in Rome">--:--</span>
+<span id="clk" class="hud" title="My time in Rome"><span class="sr-only">My time in Rome: </span><span id="clkt">--:--</span></span>
 </nav>
 <div id="cmd">
 <form id="cmdf" hidden><label for="cmdi" class="sr-only">Command</label><span id="cmdp" aria-hidden="true">:</span><input id="cmdi" autocomplete="off" spellcheck="false"></form>

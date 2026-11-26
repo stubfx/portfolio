@@ -3,7 +3,7 @@
 export function startHud(doc = document) {
   const win = doc.defaultView;
   const pos = doc.getElementById('pos');
-  const clk = doc.getElementById('clk');
+  const clk = doc.getElementById('clkt'); // Luca's time in Rome, wherever you are (a small easter egg)
 
   doc.addEventListener('graph:current', (e) => {
     if (pos) pos.textContent = `${e.detail.index ? `HEAD~${e.detail.index}` : 'HEAD'} · ${e.detail.label}`;

@@ -520,6 +520,25 @@ def grain_toggle(c):
 
 
 @check
+def clock_rome(c):
+    """The status-bar clock is Luca's time in Rome, wherever the visitor is: a small easter egg that says so."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    pg = c.browser.new_page(viewport={'width': 1280, 'height': 800}, timezone_id='America/Los_Angeles')
+    pg.goto(c.base + '/')
+    pg.wait_for_timeout(300)
+    now = lambda: datetime.now(ZoneInfo('Europe/Rome')).strftime('%H:%M')  # noqa: E731
+    before = now()
+    shown = pg.inner_text('#clkt')
+    rome = {before, now()}  # a minute may turn between the two reads
+    expect(shown in rome, f'clock shows {shown!r}, Rome is {rome}')
+    expect(pg.evaluate("() => new Date().getTimezoneOffset()") != 0, 'the test browser is not in another time zone')
+    expect(pg.get_attribute('#clk', 'title') == 'My time in Rome', f"clock title {pg.get_attribute('#clk', 'title')!r}")
+    expect('My time in Rome' in pg.locator('#bar').aria_snapshot(), 'screen readers are not told whose time it is')
+    pg.close()
+
+
+@check
 def vim_keys(c):
     pg = c.page('/')
     y0 = pg.evaluate('() => scrollY')
@@ -541,7 +560,7 @@ def vim_keys(c):
     expect("can't quit" in pg.inner_text('#msg'), f"msg shows {pg.inner_text('#msg')!r}")
     pg.keyboard.press('i')
     expect(pg.text_content('#mode') != '-- NORMAL --', 'i did not leave normal mode')
-    clk = pg.inner_text('#clk')
+    clk = pg.inner_text('#clkt')
     expect(clk != '--:--' and ':' in clk, f'clock shows {clk!r}')
     no_errors(pg)
     pg.close()
