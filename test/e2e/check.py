@@ -830,6 +830,21 @@ def contact_everywhere(c):
 
 
 @check
+def fonts_self_hosted(c):
+    """Fonts come from the site itself: no request leaves the origin, and both faces are in use after load."""
+    for path in ('/', '/about/', '/projects/ba-art-direction/'):
+        pg = c.browser.new_page(viewport={'width': 1280, 'height': 800})
+        foreign = []
+        pg.on('request', lambda r: not r.url.startswith(c.base) and not r.url.startswith('data:') and foreign.append(r.url))
+        pg.goto(c.base + path, wait_until='load')
+        pg.evaluate('() => document.fonts.ready')
+        expect(not foreign, f'{path}: requests leave the site: {foreign}')
+        for face in ('16px "Atkinson Hyperlegible Next"', 'italic 400 40px "Fraunces"', '13px "Atkinson Hyperlegible Mono"'):
+            expect(pg.evaluate('f => document.fonts.check(f)', face), f'{path}: {face} not loaded')
+        pg.close()
+
+
+@check
 def base_path(c):
     import subprocess, tempfile
     root = tempfile.mkdtemp()
@@ -850,7 +865,12 @@ def base_path(c):
         pg.route('**/fonts.googleapis.com/**', lambda r: r.abort())
         pg.goto(base + '/portfolio/')
         pg.wait_for_timeout(600)
+        pg.evaluate('() => document.fonts.ready')
         expect(not missing, f'404s under /portfolio/: {missing}')
+        preloads = pg.eval_on_selector_all('link[rel="preload"][as="font"]', 'ls => ls.map(l => l.getAttribute("href"))')
+        expect(preloads and all(h.startswith('/portfolio/fonts/') for h in preloads), f'font preloads without the prefix: {preloads}')
+        loaded = pg.evaluate("() => performance.getEntriesByType('resource').filter(e => e.name.includes('/fonts/')).map(e => new URL(e.name).pathname)")
+        expect(any(u.startswith('/portfolio/fonts/') and u.endswith('.woff2') for u in loaded), f'no fonts loaded under /portfolio/fonts/: {loaded}')
         expect(pg.evaluate('() => !!window.__site && !!window.__site.graph'), 'main.js did not run under /portfolio/')
         pg.keyboard.press('Escape')
         pg.keyboard.press(':')

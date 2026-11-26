@@ -87,10 +87,17 @@ test('project pages show their commit in the status bar', async () => {
   assert.match(html, /<span id="pos" class="hud">7be2104 · accenture<\/span>/);
 });
 
-test('web fonts never block rendering or scripts', async () => {
+test('fonts are self-hosted and preloaded', async () => {
   const html = await page('index.html');
-  assert.match(html, /<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^"]+" media="print" onload="this\.media='all'">/);
-  assert.match(html, /<noscript><link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com/);
+  assert.match(html, /<link rel="preload" href="\/fonts\/atkinson-next-400\.woff2" as="font" type="font\/woff2" crossorigin>/);
+  assert.match(html, /<link rel="preload" href="\/fonts\/fraunces-italic\.woff2" as="font" type="font\/woff2" crossorigin>/);
+  assert.match(html, /<link rel="stylesheet" href="\/fonts\/fonts\.css">/);
+  assert.doesNotMatch(html, /fonts\.googleapis|fonts\.gstatic/);
+  assert.match(await page('help/index.html'), /no third-party requests/);
+  const css = await readFile(join(tmp, 'fonts/fonts.css'), 'utf8');
+  for (const fam of ['Atkinson Hyperlegible Next', 'Atkinson Hyperlegible Mono', 'Fraunces']) assert.match(css, new RegExp(`font-family:\\s*"${fam}"`));
+  assert.match(css, /font-display:\s*swap/);
+  for (const m of css.matchAll(/url\(([^)]+)\)/g)) assert.match(m[1], /^\.\/[a-z0-9-]+\.woff2$/, `relative woff2 url: ${m[1]}`);
 });
 
 test('every page but home ends with a contact footer', async () => {

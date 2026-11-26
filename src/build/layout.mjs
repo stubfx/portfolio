@@ -14,7 +14,10 @@ const GOOGLE_FONTS = 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperleg
 
 export function fontLinks(selfHosted) {
   return selfHosted
-    ? '<link rel="stylesheet" href="/fonts/fonts.css">'
+    // The body face and the accent face are on every page: fetch them with the HTML, not after the CSS.
+    ? '<link rel="preload" href="/fonts/atkinson-next-400.woff2" as="font" type="font/woff2" crossorigin>'
+      + '<link rel="preload" href="/fonts/fraunces-italic.woff2" as="font" type="font/woff2" crossorigin>'
+      + '<link rel="stylesheet" href="/fonts/fonts.css">'
     : '<link rel="preconnect" href="https://fonts.googleapis.com">'
       + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
       // Non-blocking: text renders in the fallback first, and main.js never waits on Google.

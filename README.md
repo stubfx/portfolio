@@ -79,13 +79,17 @@ Node 22 or newer.
 
 Without `cover`, the project gets a generative planet seeded by its hash. The build fails if a palette's `fg` or `accent` is below 4.5:1 on its `bg`, if a hash doesn't match, or if a branch or project name is unknown.
 
-## Self-host the fonts (recommended)
+## Fonts
 
-Until `public/fonts/fonts.css` exists, the site loads fonts from Google Fonts. In the EU that is a GDPR exposure (it sends visitor IPs to Google), so self-host:
+The fonts are self-hosted in `public/fonts/`, so the site makes no third-party requests (no Google Fonts, which would send visitor IPs to Google). `scripts/fonts.py` made them and can remake them: it downloads Atkinson Hyperlegible Next (400, 700, 400 italic), Atkinson Hyperlegible Mono (400, 700) and Fraunces italic (variable, weight 300 to 500, every optical size) from google/fonts, subsets them to `woff2`, and writes `fonts.css` and the SIL Open Font License texts.
 
-1. Download Atkinson Hyperlegible Next (400, 700, 400 italic), Atkinson Hyperlegible Mono (400, 700) and Fraunces italic (variable, opsz and wght) as `woff2`. All are under the SIL Open Font License.
-2. Put them in `public/fonts/` with a `fonts.css` of `@font-face` rules using the family names `Atkinson Hyperlegible Next`, `Atkinson Hyperlegible Mono` and `Fraunces`.
-3. Rebuild. The layout switches to the local stylesheet and the colophon says "no third-party requests". Keep the total under 120 KB (subset to Latin).
+```sh
+npm run build                                   # the script reads dist/ for the characters in use
+.venv/bin/pip install fonttools brotli
+.venv/bin/python scripts/fonts.py               # prints each file, the total, and which cut it needed
+```
+
+The fonts budget is 120 KB and never moves. The script keeps Latin basic and Latin-1 plus the symbols the pages use (such as † → –); if it ever comes out over, it pins Fraunces's optical size, then falls back to static Fraunces, and says where it stopped. Rerun it after adding copy with a new symbol, or that symbol renders in the fallback font.
 
 ## Deploy
 
