@@ -1,5 +1,8 @@
 # lucamolluso.com
 
+> [!WARNING]
+> **WIP.** This site is being rebuilt from scratch, in the open. Everything here is a draft: sample content and numbers.
+
 A portfolio where every page is a Markdown file: typeset like a bold journal page for people, read as-is by agents. One source, two readers.
 
 **Status:** rebuilding from scratch. The previous site was removed on Nov 27, 2026 (it is still in git history before that commit).

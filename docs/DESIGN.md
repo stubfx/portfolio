@@ -85,6 +85,8 @@ The page shows its own Markdown, quietly.
 
 ## 7. Components
 
+**WIP banner** (until launch): a full-width strip above the file bar, not sticky, so it scrolls away. `--ink` background, `--paper` text, mono 12 px, `role="note"`. Text: "**WIP** · This site is being rebuilt in the open, on GitHub. Sample content and numbers for now." with "on GitHub" linking to the repo. Inverted ink like a pressed button: no red, no icon.
+
 **File bar** (sticky top, `--bar` background with a light blur, 1 px `--line` bottom border): breadcrumb path in mono (`lucamolluso.com/work/direction-as-code.md`, last segment in `--ink`, the rest in `--mk`); on the right a **copy .md** button, a **day · night** switch and a **raw** link. Buttons: 1 px `--ink` border, mono 12 px; pressed or hover state inverts (`--ink` background, `--paper` text). Below 720 px the raw link hides.
 
 **Status line** (bottom, mono 12 px, `--mk`): file name in `--ink`, edit count, last edit date, a `history` link in `--ink`.

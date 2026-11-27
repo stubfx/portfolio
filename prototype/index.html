@@ -40,6 +40,9 @@ html[data-theme="night"] #grain{opacity:.05;mix-blend-mode:normal}
 .bar .path b{color:var(--ink);font-weight:400}
 .bar .right{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .bar .note{color:var(--mk);margin-right:4px}
+.wip{background:var(--ink);color:var(--paper);font:12px/1.45 var(--mono);letter-spacing:.02em;padding:9px var(--pad)}
+.wip b{font-weight:700}
+.wip a{color:inherit;text-decoration:underline;text-underline-offset:.2em}
 .btn,.seg{display:inline-flex;border:1px solid var(--ink)}
 .btn{background:none;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer;min-width:7.2em;justify-content:center}
 .btn:hover{background:var(--ink);color:var(--paper)}
@@ -127,10 +130,12 @@ pre .k{color:var(--grey)}
 <body>
 <div id="grain" aria-hidden="true"></div>
 
+<div class="wip" role="note"><b>WIP</b> · This site is being rebuilt in the open, <a href="https://github.com/stubfx/portfolio" target="_blank" rel="noopener">on GitHub</a>. Sample content and numbers for now.</div>
+
 <div class="bar">
   <div class="path" id="path"></div>
   <div class="right">
-    <span class="note">draft v13 · sample content</span>
+    <span class="note">draft v14 · sample content</span>
     <button class="btn" id="copy" title="Copy this page as Markdown, for your AI">copy .md</button>
     <div class="seg" role="group" aria-label="Theme">
       <button id="t-day" aria-pressed="true">day</button><button id="t-night" aria-pressed="false">night</button>

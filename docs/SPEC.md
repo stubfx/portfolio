@@ -73,4 +73,5 @@ A portfolio where every page is a Markdown file: typeset like a bold journal pag
 - [ ] `now.md` confirmed and dated; `cv.md` written from the profile
 - [ ] Both themes checked for contrast; no-JS check; Lighthouse 95+ on mobile; tested on a phone and a wide screen
 - [ ] lucamolluso.com connected in Pages settings, HTTPS enforced
+- [ ] WIP banner removed once the three real cases are live
 - [ ] Site on LinkedIn Featured and in the CV header; ArtStation mirror and reel for the studio route
