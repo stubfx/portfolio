@@ -24,7 +24,6 @@ html{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-te
 body{min-height:100vh}
 
 /* the only human-layer effect kept: film grain on top (ported from the previous site) */
-/* night (default): Catppuccin Mocha (official values) */
 /* night: warm near-neutral dark, faint orange tint (OKLCH hue 60, chroma under .015) */
 html[data-theme="night"]{--paper:#1c1917;--ink:#ebe5e0;--grey:#b4aca6;--mk:#726a64;--line:#312d2a;--red:#e66f62;--bar:rgba(28,25,23,.88);color-scheme:dark}
 html,body{background:var(--paper)}
@@ -598,7 +597,7 @@ $("copy").addEventListener("click",async()=>{
 });
 $("v-rendered").addEventListener("click",()=>setRaw(false));
 $("v-raw").addEventListener("click",()=>setRaw(true));
-/* ---------- day (Latte) and night (Mocha) ---------- */
+/* ---------- day (Latte, black text) and night (warm neutral) ---------- */
 function applyTheme(t){
   document.documentElement.dataset.theme=t;
   $("t-day").setAttribute("aria-pressed",String(t==="day")); $("t-night").setAttribute("aria-pressed",String(t==="night"));
