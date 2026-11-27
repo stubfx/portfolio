@@ -6,40 +6,42 @@ The visual system. Values here are the source of truth for `site/style.css`.
 
 A journal page set in README formatting. Huge, punchy headlines across the screen; large, calm body text; generous space; one soft red line of conviction per page; film grain over everything. Typography carries the page; images and live 3D carry the proof. The look alone is not the differentiator (type minimalism and monospace minimalism are common in 2026): the ideas, the live 3D and the real history are.
 
-## 2. Themes: official Catppuccin
+## 2. Themes
 
-All chrome colours come from the **official Catppuccin palette** (`@catppuccin/palette`, the values in its `css/catppuccin.css`; verified Nov 27, 2026). No hand-tuned variants. **One deliberate exception: day text is pure black.**
+Day is built on the **official Catppuccin Latte** values (`@catppuccin/palette`, its `css/catppuccin.css`; verified Nov 27, 2026), with one deliberate exception: the main text is pure black. Night is our own: a **warm, almost neutral dark** with a very faint orange tint.
 
 - **Day = Catppuccin Latte, text pure black `#000`. Default.** Latte's own Text (`#4C4F69`) reads soft and washed out as the main voice; black on Latte paper reads like printer's ink, and the Catppuccin blue-greys around it become a clear second voice (the machine) instead of faded text.
-- **Night = Catppuccin Mocha**, unchanged (Mocha Text, since black can't sit on a dark page). One switch in the file bar.
+- **Night = warm neutral dark.** Cozy: a page under a reading lamp, not a code editor. Every neutral carries the same faint orange tint (OKLCH hue 60, chroma under 0.015), so it reads as warm charcoal and warm paper-white, never brown or beige. The punch line becomes a soft coral red that sits in the same warm family. One switch in the file bar.
 
-| Token | Day: Latte (default) | Night: Mocha | Use |
+| Token | Day: Latte (default) | Night: warm neutral | Use |
 | --- | --- | --- | --- |
-| `--paper` | Base `#EFF1F5` | Base `#1E1E2E` | Background |
-| `--ink` | **Pure black `#000000`** | Text `#CDD6F4` | Text: me. Headings, body, links, table titles, code, buttons |
-| `--grey` | Subtext1 `#5C5F77` | Subtext0 `#A6ADC8` | Machine output, secondary text, captions, code keys, commit hashes |
-| `--mk` | Overlay0 `#9CA0B0` | Overlay0 `#6C7086` | Syntax markers only (decorative) |
-| `--line` | Surface0 `#CCD0DA` | Surface0 `#313244` | Hairlines, image fallback background |
-| `--red` | Maroon `#E64553` | Maroon `#EBA0AC` | The punch line only; link hover |
-| `--bar` | Base at 90% opacity | Base at 88% opacity | File bar background |
+| `--paper` | Base `#EFF1F5` | `#1C1917` | Background |
+| `--ink` | **Pure black `#000000`** | `#EBE5E0` | Text: me. Headings, body, links, table titles, code, buttons |
+| `--grey` | Subtext1 `#5C5F77` | `#B4ACA6` | Machine output, secondary text, captions, code keys, commit hashes |
+| `--mk` | Overlay0 `#9CA0B0` | `#726A64` | Syntax markers only (decorative) |
+| `--line` | Surface0 `#CCD0DA` | `#312D2A` | Hairlines, image fallback background |
+| `--red` | Maroon `#E64553` | Coral red `#E66F62` | The punch line only; link hover |
+| `--bar` | Base at 90% opacity | Paper at 88% opacity | File bar background |
+
+Night values were set in OKLCH at hue 60 (tune there, not in hex): paper L 0.215 C 0.006, ink L 0.925 C 0.010, grey L 0.75 C 0.013, markers L 0.53 C 0.013, line L 0.30 C 0.008, punch line L 0.68 C 0.15 at hue 28.
 
 **Rules**
 
 - Black is for the main text in most cases. Not black: machine output and secondary text (`--grey`), syntax markers (`--mk`), the punch line (`--red`).
-- Maroon appears only in the punch line (one per page) and on link hover. Never on buttons, borders or decoration.
+- The punch line colour (Maroon by day, coral red by night) appears only in the punch line (one per page) and on link hover. Never on buttons, borders or decoration.
 - Images and the 3D stage keep their own neutral studio grey: they are content, not chrome.
 - No other colours in the UI.
 
 ## 3. Contrast and accessibility
 
-| Pair | Day (Latte, default) | Night (Mocha) |
+| Pair | Day (Latte, default) | Night (warm neutral) |
 | --- | --- | --- |
-| Text on paper | 18.6:1 (AAA), black | 11.3:1 (AAA) |
-| Secondary on paper | 5.5:1 (AA) | 7.4:1 (AAA) |
-| Maroon punch line on paper | 3.5:1 (AA large) | 7.9:1 (AAA) |
+| Text on paper | 18.6:1 (AAA), black | 14.0:1 (AAA) |
+| Secondary on paper | 5.5:1 (AA) | 7.8:1 (AAA) |
+| Punch line on paper | 3.5:1 (AA large) | 5.7:1 (AAA large) |
 | Markers | decorative, hidden from assistive tech | decorative |
 
-Main text is AAA in both themes. By day, secondary text is AA (Latte Subtext1) and the punch line is AA large: it is never smaller than 32 px bold, so it qualifies as large text. Night is AAA throughout. **AAA fallback for day** (if it becomes a hard rule): with black as the main text, Latte Text `#4C4F69` (7.1:1) becomes the secondary grey, and Latte Red `#D20F39` (4.8:1) the punch line. The me/machine contrast survives the swap.
+Main text is AAA in both themes. By day, secondary text is AA (Latte Subtext1) and the punch line is AA large: it is never smaller than 32 px bold, so it qualifies as large text. Night is AAA throughout (the punch line counts as large text). **AAA fallback for day** (if it becomes a hard rule): with black as the main text, Latte Text `#4C4F69` (7.1:1) becomes the secondary grey, and Latte Red `#D20F39` (4.8:1) the punch line. The me/machine contrast survives the swap.
 
 Other accessibility rules: one H1 per page; real headings, lists, tables and figures; visible focus styles (2 px outline in `--ink`); every image has alt text written as a caption; `prefers-reduced-motion` stops the grain and the 3D auto-turn; nothing requires JavaScript to read.
 

@@ -32,15 +32,15 @@ A portfolio where every page is a Markdown file: typeset like a bold journal pag
 | Format | Every page is a Markdown file; the HTML is generated from it | The AI-era idea made literal: agents and people read the same words |
 | Syntax | Block-level Markdown markers stay visible in the margin; inline markers are hidden | The page shows its own source without cluttering the reading |
 | Stack | **No framework, no bundler, no `npm install`**: one zero-dependency Node script | A small fixed Markdown subset needs a few hundred lines of our own code, not hundreds of dependencies. See [BUILD.md](BUILD.md) section 1 |
-| Colour | **Official Catppuccin, with pure black text. Day (Latte paper, black text) is the default; night (Mocha) is the option** | Catppuccin was the previous site's baseline. Latte's own text colour is too soft as the main voice; black makes the journal page read like print |
-| Accent | Catppuccin Maroon, for the one punch line per page | A soft red: conviction without shouting |
+| Colour | **Day (default): official Catppuccin Latte with pure black text. Night: a warm, almost neutral dark with a faint orange tint** | Catppuccin was the previous site's baseline. Latte's own text colour is too soft as the main voice; black makes the page read like print. Mocha's blue-violet felt like a code editor; night should feel like a page under a reading lamp |
+| Accent | One red, for the one punch line per page: Catppuccin Maroon by day, a soft coral red by night | Conviction without shouting |
 | Type | Archivo Black (display), DM Sans (text), a mono for syntax; all OFL, self-hosted | Punchy, editorial, open source |
 | Texture | The previous site's film grain, ported as-is | Luca's touch, for humans only |
 | 3D | `![alt](model.glb)` becomes a live viewer; a still with alt text for agents and no-JS | Real proof of technical art, inside plain Markdown |
 | History | Status line and `log` blocks built from git, hashes verified at build | Process proven, not described |
 | Agents | Homepage is a valid llms.txt; every page also served as raw `.md`; copy .md button | Agent-readable by construction |
 
-**Tried and dropped** (in prototypes, so nobody rebuilds them): handwritten red marks, a dense review layer with kill walls and issue tables, a red "thread" drawn on scroll, a dithered sky with stars or clouds, a custom vermilion red, white paper. Each was defensible alone; together they buried the idea.
+**Tried and dropped** (in prototypes, so nobody rebuilds them): handwritten red marks, a dense review layer with kill walls and issue tables, a red "thread" drawn on scroll, a dithered sky with stars or clouds, a custom vermilion red, white paper, Latte's soft text colour, Mocha as the night theme, night as the default. Each was defensible alone; together they buried the idea.
 
 ## 5. Scope for launch
 

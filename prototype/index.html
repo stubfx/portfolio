@@ -25,7 +25,8 @@ body{min-height:100vh}
 
 /* the only human-layer effect kept: film grain on top (ported from the previous site) */
 /* night (default): Catppuccin Mocha (official values) */
-html[data-theme="night"]{--paper:#1e1e2e;--ink:#cdd6f4;--grey:#a6adc8;--mk:#6c7086;--line:#313244;--red:#eba0ac;--bar:rgba(30,30,46,.88);color-scheme:dark}
+/* night: warm near-neutral dark, faint orange tint (OKLCH hue 60, chroma under .015) */
+html[data-theme="night"]{--paper:#1c1917;--ink:#ebe5e0;--grey:#b4aca6;--mk:#726a64;--line:#312d2a;--red:#e66f62;--bar:rgba(28,25,23,.88);color-scheme:dark}
 html,body{background:var(--paper)}
 #grain{position:fixed;left:-50%;top:-50%;width:200%;height:200%;z-index:50;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-repeat:repeat}
 html[data-theme="night"] #grain{opacity:.05;mix-blend-mode:normal}
@@ -129,7 +130,7 @@ pre .k{color:var(--grey)}
 <div class="bar">
   <div class="path" id="path"></div>
   <div class="right">
-    <span class="note">draft v12 · sample content</span>
+    <span class="note">draft v13 · sample content</span>
     <button class="btn" id="copy" title="Copy this page as Markdown, for your AI">copy .md</button>
     <div class="seg" role="group" aria-label="Theme">
       <button id="t-day" aria-pressed="true">day</button><button id="t-night" aria-pressed="false">night</button>
