@@ -1,0 +1,130 @@
+/* lucamolluso.com: a Markdown file, typeset. Values: docs/DESIGN.md. Started from prototype/index.html v14. */
+:root{
+  /* day (default): Catppuccin Latte (official values), text pure black */
+  --paper:#eff1f5;--ink:#000000;--grey:#5c5f77;--mk:#9ca0b0;--line:#ccd0da;--red:#e64553;--bar:rgba(239,241,245,.9);
+  --display:"Archivo Black","Archivo Black fallback",sans-serif;
+  --sans:"DM Sans","DM Sans fallback",sans-serif;
+  --mono:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;
+  --pad:clamp(18px,7vw,120px);
+  --hw:3.6rem;
+}
+/* night: warm near-neutral dark, faint orange tint (OKLCH hue 60, chroma under .015) */
+html[data-theme="night"]{--paper:#1c1917;--ink:#ebe5e0;--grey:#b4aca6;--mk:#726a64;--line:#312d2a;--red:#e66f62;--bar:rgba(28,25,23,.88);color-scheme:dark}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
+html,body{background:var(--paper)}
+body{min-height:100vh}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.mk,pre,code,.bar,.status,figcaption,.wip,.fence,.hr,.comment,.tag,.loop-tag{font-variant-ligatures:none}
+
+/* the human layer: film grain on top (ported from the previous site) */
+#grain{position:fixed;left:-50%;top:-50%;width:200%;height:200%;z-index:50;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-repeat:repeat}
+html[data-theme="night"] #grain{opacity:.05;mix-blend-mode:normal}
+
+/* WIP banner and file bar */
+.wip{background:var(--ink);color:var(--paper);font:12px/1.45 var(--mono);letter-spacing:.02em;padding:9px var(--pad)}
+.wip b{font-weight:700}
+.wip a{color:inherit;text-decoration:underline;text-underline-offset:.2em}
+.bar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px var(--pad);
+  font:12px/1.2 var(--mono);background:var(--bar);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar .path{color:var(--mk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.bar .path a{color:var(--mk);text-decoration:none}
+.bar .path b{color:var(--ink);font-weight:400}
+.bar .right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.btn,.seg{display:inline-flex;border:1px solid var(--ink)}
+.btn{background:none;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer;min-width:7.2em;justify-content:center;text-decoration:none}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.seg button{background:none;border:0;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.rawlink{min-width:0}
+/* without JavaScript: no copy, no theme switch, a plain raw link instead of the view switch */
+html:not(.js) #copy,html:not(.js) #themeseg,html:not(.js) #viewseg{display:none}
+.js .rawlink{display:none}
+
+/* the page: a markdown file, typeset */
+.page{max-width:1560px;margin:0 auto;padding:clamp(48px,9vw,140px) var(--pad) 72px calc(var(--pad) + var(--hw))}
+.mk{font-family:var(--mono);font-weight:400;font-style:normal;color:var(--mk);font-size:.5em;letter-spacing:0}
+.mk.hang{display:inline-block;width:var(--hw);margin-left:calc(-1 * var(--hw));padding-right:1rem;text-align:right;font-size:calc(.11em + 11px)}
+
+h1{font-family:var(--display);font-weight:400;font-size:clamp(46px,11.2vw,184px);letter-spacing:-.045em;line-height:.9;margin:0 0 .34em;overflow-wrap:break-word}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(32px,5.4vw,88px);letter-spacing:-.04em;line-height:.95;margin:1.45em 0 .5em;overflow-wrap:break-word}
+h3{font-family:var(--display);font-weight:400;font-size:clamp(22px,2.8vw,44px);letter-spacing:-.03em;line-height:1;margin:1.3em 0 .45em}
+p,li{font-size:clamp(19px,2vw,30px);line-height:1.3;letter-spacing:-.008em;overflow-wrap:break-word}
+p{max-width:29em;margin:0 0 .85em}
+blockquote{font-size:clamp(24px,2.9vw,46px);line-height:1.12;letter-spacing:-.02em;max-width:20em;margin:0 0 1.1em;overflow-wrap:break-word}
+p.punch{font-family:var(--display);font-weight:400;font-size:clamp(32px,5.6vw,92px);line-height:.98;letter-spacing:-.04em;max-width:13em;margin:.6em 0 .75em}
+mark{background:none;color:var(--red)}
+strong{font-weight:700}
+ul,ol{list-style:none;margin:0 0 1.1em}
+li{max-width:31em;margin:0 0 .5em}
+a{color:inherit;text-decoration:underline;text-decoration-thickness:.07em;text-underline-offset:.14em}
+a:hover{color:var(--red)}
+code{font-family:var(--mono);font-size:.8em}
+
+/* media: the ![alt](file) line is the caption */
+figure{margin:1.3em 0 2.2em}
+figcaption{font:13px/1.45 var(--mono);color:var(--mk);margin-bottom:12px;max-width:84ch;overflow-wrap:anywhere}
+figcaption .alt{color:var(--grey)}
+figure .mk{font-size:inherit}
+img{display:block;width:100%;height:auto;background:var(--line)}
+picture{display:block}
+figure.narrow{max-width:min(440px,100%)}
+figure video{display:block;width:100%;height:auto;background:var(--line)}
+.frame{position:relative;display:block}
+.loop{cursor:pointer}
+.loop-tag,.embed .tag{position:absolute;right:12px;bottom:10px;z-index:2;font:11px/1 var(--mono);color:#f4f4f4;background:rgba(0,0,0,.55);padding:4px 6px;pointer-events:none}
+.loop-tag{visibility:hidden}
+.frame:hover .loop-tag,.loop:focus-visible+.loop-tag,.loop[data-paused]+.loop-tag{visibility:visible}
+.embed{position:relative;display:block;aspect-ratio:16/9;background:var(--line);color:#f4f4f4;text-decoration:none;overflow:hidden}
+.embed picture,.embed img{width:100%;height:100%;object-fit:cover}
+.embed .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:clamp(26px,4vw,52px)/1 var(--mono);background:rgba(0,0,0,.55);padding:.32em .38em .32em .5em}
+.embed:hover .play,.embed:focus-visible .play{background:var(--red)}
+.embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* tables; a file list is the index */
+.tbl{position:relative;margin:.3em 0 1.4em;max-width:1180px}
+.tbl > .mk.hang{position:absolute;left:calc(-1 * var(--hw));top:-.1em;margin:0;font-size:22px}
+.tbl table{width:100%;border-collapse:collapse}
+.tbl th{font:11px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mk);text-align:left;font-weight:400;padding:0 1.2em .7em 0;border-bottom:1px solid var(--ink)}
+.tbl td{padding:.6em 1.2em .6em 0;border-bottom:1px solid var(--line);vertical-align:baseline}
+.tbl .c0{font:13px/1.4 var(--mono);color:var(--mk);width:3.2em}
+.tbl td.c1{font-size:clamp(20px,2.3vw,34px);letter-spacing:-.015em}
+.tbl.index td.c1{white-space:nowrap}
+.tbl td.c2{font-size:clamp(15px,1.3vw,20px);color:var(--grey);line-height:1.35}
+.tbl td.c3{font:13px/1.4 var(--mono);color:var(--mk)}
+.tbl.index .c3{text-align:right;width:4.5em;padding-right:0}
+.planned{color:var(--grey)}
+
+/* code: fences visible; logic lanes and yaml/log keys in grey */
+.code{margin:.8em 0 1.8em}
+.fence{font:13px/1.4 var(--mono);color:var(--mk)}
+pre{font:clamp(10.5px,1.32vw,16px)/1.55 var(--mono);color:var(--ink);overflow-x:auto;padding:.55em 0;tab-size:2}
+pre .m,pre .k{color:var(--grey)}
+.hr{font:14px/1 var(--mono);color:var(--mk);margin:3.2em 0 1.4em}
+.comment{font:13px/1.5 var(--mono);color:var(--mk);max-width:70ch;margin-top:2.4em;white-space:pre-line;overflow-wrap:anywhere}
+
+/* editor-style status line: the file's real history */
+.status{max-width:1560px;margin:0 auto;padding:16px var(--pad) 72px calc(var(--pad) + var(--hw));font:12px/1.6 var(--mono);color:var(--mk);display:flex;flex-wrap:wrap;gap:4px 18px}
+.status b{font-weight:400;color:var(--ink)}
+.status a{color:var(--ink)}
+
+.raw{max-width:1560px;margin:0 auto;padding:40px var(--pad) 120px}
+.raw pre{font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+
+@media (max-width:720px){
+  :root{--hw:0px}
+  .mk.hang{width:auto;margin-left:0;padding-right:.35em;font-size:calc(.12em + 9px)}
+  .btn{min-width:0}
+  #viewseg{display:none}
+  .tbl > .mk.hang{display:none}
+  .tbl thead{display:none}
+  .tbl.index tr{display:grid;grid-template-columns:3.4em 1fr auto;border-bottom:1px solid var(--line);padding:.7em 0}
+  .tbl.index td{border:0;padding:0}
+  .tbl.index td.c1{white-space:normal}
+  .tbl.index td.c2{grid-column:2/4;margin-top:.25em}
+  .tbl.index .c3{grid-row:1;grid-column:3}
+}
+@media print{
+  #grain,.bar,.wip{display:none}
+}

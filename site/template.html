@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+{{head}}
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<div id="grain" aria-hidden="true"></div>
+{{banner}}
+<div class="bar">
+  <div class="path" id="path">{{path}}</div>
+  <div class="right">
+    <button class="btn" id="copy" type="button" title="Copy this page as Markdown, for your AI">copy .md</button>
+    <div class="seg" id="themeseg" role="group" aria-label="Theme"><button id="t-day" type="button" aria-pressed="true">day</button><button id="t-night" type="button" aria-pressed="false">night</button></div>
+    <div class="seg" id="viewseg" role="group" aria-label="View"><button id="v-rendered" type="button" aria-pressed="true">rendered</button><button id="v-raw" type="button" aria-pressed="false">raw</button></div>
+    <a class="btn rawlink" href="{{raw}}">raw</a>
+  </div>
+</div>
+<main class="page" id="page">{{main}}</main>
+<section class="raw" id="raw" hidden><pre id="raw-pre"></pre></section>
+<footer class="status" id="status">{{status}}</footer>
+{{scripts}}
+</body>
+</html>
