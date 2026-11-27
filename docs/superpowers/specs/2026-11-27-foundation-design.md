@@ -46,8 +46,9 @@ This design changes the build contract in `docs/`. Once it is approved, the plan
 
 ## 4. Constraints
 
+- **Zero dependencies, as Luca defines it (a must):** no npm packages, and nothing running live (no runtime services, no third-party code on the page). Tools on Luca's own machine are fine.
 - **Build and tests:** Node 22+, built-in modules only, `node --test`.
-- **Media and fonts:** local scripts may call system tools (`ffmpeg`/`ffprobe`, and Python fontTools through `uv run --with fonttools`). They run on Luca's machine, never in CI; their outputs are committed. The site still installs nothing.
+- **Media, fonts and browser checks:** local scripts may call system tools (`ffmpeg`/`ffprobe`, and Python through `uv run --with …` for fontTools and Playwright). They run on Luca's machine, never in CI; their outputs are committed. The site still installs nothing.
 - **GitHub Pages:** published site up to 1 GB, files up to 100 MB, soft bandwidth 100 GB/month; no custom headers.
 - **CI needs full history** (status lines come from git), so checkout uses `fetch-depth: 0`.
 - **The site's own build and tests call `git` directly** (Luca, Nov 27: exempt from the machine's `gitt` rule), on this VM and in CI. Build tests may create throwaway fixture repos with real commits. Version-control commands typed by hand still use `gitt`.
@@ -213,7 +214,7 @@ The placeholder must exercise the real pipeline, not bypass it:
 
 ## 13. Tests and checks
 
-**`node --test`** (runs in CI):
+**`node --test`** (runs locally before every merge; CI only builds and deploys, Luca, Nov 27):
 
 - Renderer: one test per grammar row, plus escaping and link rewriting.
 - Validation: one failing fixture per rule, plus "all errors in one run".
@@ -243,6 +244,7 @@ The placeholder must exercise the real pipeline, not bypass it:
 
 - Work on `feat/foundation`, merged to `main` after the browser checks and a final review.
 - **Merging to `main` deploys.** The switch from prototype to built site happens on that push. The workflow change needs Luca's push, or the Workflows permission on the token (4).
+- **The only CI change** is the deploy step: run `node build.mjs` (which validates) instead of copying the prototype. No test job.
 
 ## 16. Left to the builder
 
