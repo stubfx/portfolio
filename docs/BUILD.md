@@ -195,4 +195,6 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-**Domain:** `static/CNAME` holds `lucamolluso.com`. Connect it in the repo's Pages settings, then enforce HTTPS. Until the workflow is added, nothing deploys and the last published version of the old site stays live.
+**Interim (live now):** until `build.mjs` exists, the workflow in the repo skips Node and assembles `dist/` from `prototype/index.html` (as `index.html` and `404.html`), `static/` and `.nojekyll`. When the real build lands, replace that step with the steps above.
+
+**Domain:** `static/CNAME` holds `lucamolluso.com`. With Actions deploys, GitHub ignores the CNAME file: the domain is set in the repo's Pages settings (Source: GitHub Actions; Custom domain: lucamolluso.com), then enforce HTTPS.
