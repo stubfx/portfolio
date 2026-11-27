@@ -121,7 +121,7 @@ I work in the middle: between the **idea** and the machines that make it real. â
 
 ==The outcome is cheap now. The idea isn't.==
 
-![Prop 01 from "Direction as code", turning.](work/direction-as-code/buoy.mp4)
+![The machine makes outcomes on a beat. I keep one, and it becomes the idea.](outcomes.mp4)
 
 ## Work
 

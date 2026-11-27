@@ -6,7 +6,7 @@ I work in the middle: between the **idea** and the machines that make it real. I
 
 ==The outcome is cheap now. The idea isn't.==
 
-![Prop 01 from "Direction as code", turning. Sample footage.](work/direction-as-code/buoy.mp4)
+![The machine makes outcomes on a beat. I keep one, and it becomes the idea. Sample animation, written as code.](outcomes.mp4)
 
 ## Work
 

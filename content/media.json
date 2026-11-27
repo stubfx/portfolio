@@ -1,4 +1,36 @@
 {
+  "outcomes.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1080,
+    "duration": 10,
+    "audio": false,
+    "master": "b0abea938b9b452b106bd0e6d687fb43347a1a4f8d68d9fe65eb0490db6c2d1e",
+    "posterAt": 5.4,
+    "variants": [
+      {
+        "file": "outcomes.av1.mp4",
+        "bytes": 2423588,
+        "type": "video/mp4; codecs=\"av01.0.09M.08\""
+      },
+      {
+        "file": "outcomes.mp4",
+        "bytes": 2025260,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "outcomes.jpg",
+        "bytes": 33408
+      },
+      "avif": {
+        "file": "outcomes.avif",
+        "bytes": 4403
+      }
+    },
+    "sample": true
+  },
   "portrait.jpg": {
     "kind": "photo",
     "width": 1200,

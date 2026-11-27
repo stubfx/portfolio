@@ -27,6 +27,7 @@ How the site is built, served and deployed.
 | --- | --- | --- |
 | `media.mjs` | Photos, loops, players, embed posters, the manifest | ffmpeg and ffprobe |
 | `scripts/fonts.py` | Subsetting the fonts, fallback metrics, glyph coverage | `uv run --with fonttools --with brotli` |
+| `scripts/outcomes/` | The homepage loop: a 2D canvas animation, rendered frame by frame, then through `media.mjs` | `uv run --with playwright==1.64.1`, the Playwright server on the host, ffmpeg |
 | `test/e2e/check.py` | Browser checks | `uv run --with playwright==1.64.1` and the Playwright server on the host |
 
 ## 2. Repository
@@ -51,6 +52,7 @@ static/                   copied as-is: CNAME, favicon.svg, og.jpg
 build.mjs
 media.mjs
 scripts/fonts.py
+scripts/outcomes/         the homepage loop: index.html (the animation), render.py
 test/                     node --test files, fixtures, test/e2e/ (browser checks)
 .github/workflows/pages.yml
 docs/
@@ -65,6 +67,7 @@ node build.mjs --serve    # build, serve dist/ on :8080, rebuild and reload on c
 node --test               # every test
 node media.mjs …          # encode media (CONTENT.md section 4)
 uv run -q --with fonttools --with brotli python -I scripts/fonts.py
+uv run -q --with playwright==1.64.1 python -I scripts/outcomes/render.py   # usage in its docstring
 uv run -q --with playwright==1.64.1 python test/e2e/check.py
 ```
 

@@ -1,0 +1,268 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>outcomes: the homepage loop</title>
+<style>
+  @font-face { font-family: "Archivo Black"; src: url(../../site/fonts/archivo-black.woff2) format("woff2"); font-weight: 400; }
+  @font-face { font-family: "JetBrains Mono"; src: url(../../site/fonts/jetbrains-mono.woff2) format("woff2"); font-weight: 400; }
+  html, body { margin: 0; background: #eff1f5; }
+  canvas { display: block; max-width: 100%; height: auto; }
+</style>
+<canvas id="c"></canvas>
+<script>
+// The homepage loop, 10 s at 60 fps, seamless. The machine makes outcomes on a beat; I keep one; it floods the
+// frame and becomes the idea; then the machine starts again from it. Flat 2D, Catppuccin Latte accents (the
+// site's day palette), Archivo Black and JetBrains Mono from site/fonts. drawFrame(t) is a pure function of t.
+// Open this file through a local server to watch it live; render.py renders it frame by frame.
+const W = 1920, H = 1080, LOOP = 10, BEAT = 0.25, BEATS = LOOP / BEAT;
+const PAPER = '#eff1f5', INK = '#000000', MAROON = '#e64553', GREY = '#acb0be', LABEL = '#6c6f85';
+const COLORS = ['#d20f39', '#e64553', '#fe640b', '#df8e1d', '#40a02b', '#179299', '#04a5e5', '#1e66f5', '#7287fd', '#8839ef', '#ea76cb', '#000000'];
+const COLS = 9, ROWS = 5, CELL = 180, OX = (W - COLS * CELL) / 2 + CELL / 2, OY = (H - ROWS * CELL) / 2 + CELL / 2, R0 = 58;
+const CI = 4, CJ = 2;                         // the one that is kept: the centre cell
+const T_FREEZE = 3.0, T_BACK = 7.7;           // the machine stops; the machine starts again
+const TAU = Math.PI * 2, N = 128;
+
+// --- deterministic randomness -------------------------------------------------------------------------------
+function pcg(v) {
+  const s = (Math.imul(v >>> 0, 747796405) + 2891336453) >>> 0;
+  const w = Math.imul(((s >>> ((s >>> 28) + 4)) ^ s) >>> 0, 277803737) >>> 0;
+  return ((w >>> 22) ^ w) >>> 0;
+}
+const rnd = (i, j, n, salt) => pcg(pcg(pcg(salt * 1013 + i) + j) + n) / 4294967296;
+
+// --- easing -------------------------------------------------------------------------------------------------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ramp = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
+const easeOutBack = (x) => { x = clamp(x) - 1; return 1 + 2.70158 * x * x * x + 1.70158 * x * x; };
+const easeInBack = (x) => { x = clamp(x); return 2.70158 * x * x * x - 1.70158 * x * x; };
+const easeInCubic = (x) => clamp(x) ** 3;
+const easeOutCubic = (x) => 1 - (1 - clamp(x)) ** 3;
+const easeInOutCubic = (x) => { x = clamp(x); return x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2; };
+const spring = (dt, f = 28, d = 14) => (dt < 0 ? 0 : Math.exp(-dt * d) * Math.cos(dt * f));
+const bump = (x) => (x <= 0 || x >= 1 ? 0 : Math.sin(Math.PI * x));
+function mix(c1, c2, x) {
+  const a = parseInt(c1.slice(1), 16), b = parseInt(c2.slice(1), 16);
+  const ch = (s) => Math.round(lerp((a >> s) & 255, (b >> s) & 255, clamp(x)));
+  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
+}
+
+// --- shapes as radius functions r(θ), so any shape morphs into any other ------------------------------------
+function polyR(pts) {
+  const r = new Float32Array(N);
+  for (let k = 0; k < N; k++) {
+    const a = (k / N) * TAU, dx = Math.cos(a), dy = Math.sin(a);
+    let best = 0;
+    for (let e = 0; e < pts.length; e++) {
+      const [ax, ay] = pts[e], [bx, by] = pts[(e + 1) % pts.length];
+      const ex = bx - ax, ey = by - ay, det = ex * dy - dx * ey;
+      if (Math.abs(det) < 1e-9) continue;
+      const t = (ex * ay - ax * ey) / det, s = (dx * ay - dy * ax) / det;
+      if (t > 0 && s >= -1e-6 && s <= 1 + 1e-6) best = Math.max(best, t);
+    }
+    r[k] = best;
+  }
+  return r;
+}
+const polar = (f) => Float32Array.from({ length: N }, (_, k) => f((k / N) * TAU));
+const ngon = (n, R, rot = -Math.PI / 2) => Array.from({ length: n }, (_, k) => [R * Math.cos(rot + (k * TAU) / n), R * Math.sin(rot + (k * TAU) / n)]);
+const star = (n, R1, R2) => Array.from({ length: 2 * n }, (_, k) => { const R = k % 2 ? R2 : R1, a = -Math.PI / 2 + (k * Math.PI) / n; return [R * Math.cos(a), R * Math.sin(a)]; });
+const plus = (h, L) => [[h, -L], [h, -h], [L, -h], [L, h], [h, h], [h, L], [-h, L], [-h, h], [-L, h], [-L, -h], [-h, -h], [-h, -L]];
+const stadium = (a, b) => [...Array.from({ length: 17 }, (_, k) => { const p = -Math.PI / 2 + (k * Math.PI) / 16; return [a - b + b * Math.cos(p), b * Math.sin(p)]; }),
+  ...Array.from({ length: 17 }, (_, k) => { const p = Math.PI / 2 + (k * Math.PI) / 16; return [-(a - b) + b * Math.cos(p), b * Math.sin(p)]; })];
+const half = (R) => Array.from({ length: 33 }, (_, k) => { const p = (k * Math.PI) / 32; return [R * Math.cos(p), -R * Math.sin(p) + (4 * R) / (3 * Math.PI)]; });
+const CIRCLE = polar(() => 0.92);
+const SHAPES = [
+  CIRCLE,
+  polyR([[0.8, 0.8], [-0.8, 0.8], [-0.8, -0.8], [0.8, -0.8]]),
+  polyR(ngon(3, 1.18)),
+  polyR([[0, -1.12], [0.82, 0], [0, 1.12], [-0.82, 0]]),
+  polyR(star(5, 1.2, 0.5)),
+  polyR(plus(0.33, 1.0)),
+  polyR(ngon(6, 1.0, 0)),
+  polar((a) => 0.8 + 0.2 * Math.cos(6 * a)),
+  polyR(stadium(1.08, 0.56)),
+  polyR(half(1.08)),
+  polar((a) => 0.88 + 0.1 * Math.sin(3 * a + 1.3) + 0.07 * Math.sin(5 * a + 0.4)),
+];
+
+function shapePath(ctx, rA, rB, m, x, y, size, rot) {
+  ctx.beginPath();
+  for (let k = 0; k < N; k++) {
+    const a = (k / N) * TAU, r = lerp(rA[k], rB[k], m) * size;
+    const px = x + r * Math.cos(a + rot), py = y + r * Math.sin(a + rot);
+    k ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+  }
+  ctx.closePath();
+}
+
+// --- one cell of the machine --------------------------------------------------------------------------------
+function roll(i, j, n) {
+  return {
+    shape: SHAPES[Math.floor(rnd(i, j, n, 3) * SHAPES.length)],
+    color: COLORS[Math.floor(rnd(i, j, n, 4) * COLORS.length)],
+    rot: Math.floor(rnd(i, j, n, 5) * 8) * (TAU / 16),
+    size: 0.82 + 0.24 * rnd(i, j, n, 6),
+    stroke: rnd(i, j, n, 7) < 0.2,
+  };
+}
+
+/** The cell's outcome at time t: the previous and current roll, and how far the morph between them is. */
+function outcome(i, j, t) {
+  const p = [1, 2, 2, 4][Math.floor(rnd(i, j, 0, 1) * 4)];        // re-rolls every 1, 2 or 4 beats
+  const o = Math.floor(rnd(i, j, 0, 2) * p), k = BEATS / p;
+  const frozen = t >= T_FREEZE && t < T_BACK;
+  const x = (frozen ? T_FREEZE / BEAT - 1e-6 : t / BEAT) - o;
+  const n = Math.floor(x / p);
+  const tl = frozen ? 1 : (x - n * p) * BEAT;
+  const mod = (v) => ((v % k) + k) % k;
+  return { prev: roll(i, j, mod(n - 1)), cur: roll(i, j, mod(n)), m: easeOutBack(tl / 0.16), punch: bump(tl / 0.22) };
+}
+
+function drawCell(ctx, i, j, t) {
+  const x = OX + i * CELL, y = OY + j * CELL, d = Math.hypot(i - CI, j - CJ);
+  const { prev, cur, m, punch } = outcome(i, j, t);
+  let scale = 1 + 0.14 * punch, color = cur.color, stroke = cur.stroke;
+  if (t >= T_FREEZE && t < T_BACK) {                         // rejected: grey, then gone
+    if (t >= 3.3 + d * 0.04) { color = GREY; }
+    scale *= 1 - easeInBack(ramp(t, 3.42 + d * 0.05, 3.62 + d * 0.05));
+  } else if (t >= T_BACK) {                                  // back, outward from the kept one
+    scale *= easeOutBack(ramp(t, 7.75 + d * 0.07, 8.05 + d * 0.07));
+  }
+  if (scale <= 0.001) return;
+  shapePath(ctx, prev.shape, cur.shape, m, x, y, R0 * lerp(prev.size, cur.size, clamp(m)) * scale, lerp(prev.rot, cur.rot, m));
+  if (stroke) { ctx.lineWidth = 11 * Math.min(1, scale); ctx.lineJoin = 'round'; ctx.strokeStyle = color; ctx.stroke(); }
+  else { ctx.fillStyle = color; ctx.fill(); }
+}
+
+// --- the kept one: picked, made a dot, floods the frame, comes back ----------------------------------------
+const KX = OX + CI * CELL, KY = OY + CJ * CELL, FULL = Math.hypot(W / 2, H / 2) + 40;
+
+function drawKept(ctx, t) {
+  const { cur } = outcome(CI, CJ, T_FREEZE - 0.01);
+  if (t >= T_FREEZE && t < 3.8) {
+    const toDot = easeInOutCubic(ramp(t, 3.55, 3.8));
+    const size = lerp(R0 * cur.size, 80, toDot);
+    shapePath(ctx, cur.shape, CIRCLE, toDot, KX, KY, size / (toDot > 0 ? lerp(1, 0.92, toDot) : 1), cur.rot * (1 - toDot));
+    if (cur.stroke && toDot < 0.5) { ctx.lineWidth = 11; ctx.lineJoin = 'round'; ctx.strokeStyle = mix(cur.color, MAROON, toDot); ctx.stroke(); }
+    else { ctx.fillStyle = mix(cur.color, MAROON, toDot); ctx.fill(); }
+    // the pick: a marker ring drawn around it, then pulled into the dot
+    const draw = easeOutCubic(ramp(t, 3.05, 3.3)), pull = easeInOutCubic(ramp(t, 3.6, 3.8));
+    if (draw > 0 && pull < 1) {
+      ctx.save();
+      ctx.translate(KX, KY); ctx.rotate(-0.35); ctx.scale(1.07, 1);
+      ctx.beginPath();
+      const a0 = -Math.PI * 0.6, span = (TAU + 0.45) * draw, R = lerp(104, 80, pull);
+      for (let k = 0; k <= 96; k++) {
+        const a = a0 + (span * k) / 96, rr = R * (1 + 0.035 * Math.sin(2 * a + 0.8) + 0.02 * (k / 96));
+        k ? ctx.lineTo(rr * Math.cos(a), rr * Math.sin(a)) : ctx.moveTo(rr * Math.cos(a), rr * Math.sin(a));
+      }
+      ctx.lineWidth = lerp(9, 0, pull); ctx.lineCap = 'round'; ctx.strokeStyle = MAROON; ctx.stroke();
+      ctx.restore();
+    }
+  }
+  if (t >= T_BACK && t < 8.0) {                              // the dot becomes the machine's first outcome again
+    const o = outcome(CI, CJ, t), back = easeOutBack(ramp(t, T_BACK, 7.92));
+    shapePath(ctx, CIRCLE, o.cur.shape, back, KX, KY, lerp(75 / 0.92, R0 * o.cur.size, clamp(back)), o.cur.rot * back);
+    ctx.fillStyle = mix(MAROON, o.cur.color, ramp(t, T_BACK, 7.8)); ctx.fill();
+  }
+}
+
+/** Radius of the maroon flood around the kept one, 0 when there is none. */
+function flood(t) {
+  if (t >= 3.8 && t < 4.3) return t < 3.88 ? lerp(80, 70, easeOutCubic(ramp(t, 3.8, 3.88))) : lerp(70, FULL, easeInCubic(ramp(t, 3.88, 4.25)));
+  if (t >= 4.3 && t < 7.2) return FULL;
+  if (t >= 7.2 && t < T_BACK) return lerp(FULL, 75, easeInOutCubic(ramp(t, 7.2, T_BACK - 0.02)));
+  return 0;
+}
+
+// --- the word -----------------------------------------------------------------------------------------------
+const FONT = 420;
+let glyphs = null;                                           // per letter: x of its left edge, advance
+function layout(ctx) {
+  ctx.font = `${FONT}px "Archivo Black"`;
+  const letters = [...'idea'], adv = letters.map((ch) => ctx.measureText(ch).width);
+  const total = adv.reduce((a, b) => a + b, 0);
+  let x = W / 2 - total / 2;
+  const asc = ctx.measureText('d').actualBoundingBoxAscent, xh = ctx.measureText('x').actualBoundingBoxAscent;
+  const i = ctx.measureText('i');                          // the stem's ink: where the dot goes, and how big
+  const stem = { offset: -adv[0] / 2 + (i.actualBoundingBoxRight - i.actualBoundingBoxLeft) / 2, width: i.actualBoundingBoxRight + i.actualBoundingBoxLeft };
+  glyphs = { base: H / 2 + asc / 2 - 6, xh, stem, letters: letters.map((ch, k) => { const g = { ch, x, w: adv[k] }; x += adv[k]; return g; }) };
+}
+
+function drawWord(ctx, t) {
+  if (t < 4.0 || t >= 7.6) return;
+  const { base, xh, stem, letters } = glyphs;
+  const shake = t >= 4.55 ? 9 * Math.exp(-(t - 4.55) * 16) * Math.sin((t - 4.55) * 95) : 0;
+  ctx.font = `${FONT}px "Archivo Black"`;
+  ctx.textBaseline = 'alphabetic';
+  letters.forEach((g, k) => {
+    const land = 4.22 + 0.07 * k, fall = ramp(t, land - 0.16, land), out = 7.0 + 0.045 * k;
+    let dy = -900 * (1 - easeInCubic(fall)), sx = 1, sy = 1;
+    if (t < land) { sx = 0.86; sy = 1.22; }
+    else { const s = spring(t - land); sx = 1 + 0.22 * s; sy = 1 - 0.3 * s; }
+    dy -= 46 * bump((t - 5.9 - 0.06 * k) / 0.26);            // a wave across the word
+    if (t >= out) { const e = easeInBack(ramp(t, out, out + 0.3)); dy += 1000 * e; sy *= 1 + 0.25 * e; sx *= 1 - 0.12 * e; }
+    ctx.save();
+    ctx.translate(g.x + g.w / 2 + shake, base + dy);
+    ctx.scale(sx, sy);
+    ctx.fillStyle = PAPER;
+    if (g.ch === 'i') { ctx.beginPath(); ctx.rect(-g.w, -xh - 4, g.w * 2, xh + 40); ctx.clip(); }   // the stem only: the dot is ours
+    ctx.fillText(g.ch, -g.w / 2, 0);
+    ctx.restore();
+    if (g.ch === 'i') {                                       // the dot of the i, last, with a bounce
+      const tl = 4.6, f = ramp(t, tl - 0.18, tl);
+      let ty = -900 * (1 - easeInCubic(f)), tsx = 1, tsy = 1;
+      if (t < tl) { tsx = 0.85; tsy = 1.2; } else { const s = spring(t - tl, 30, 12); tsx = 1 + 0.3 * s; tsy = 1 - 0.35 * s; }
+      ty -= 90 * bump((t - 6.12) / 0.34);
+      if (t >= 6.95) ty += 1000 * easeInBack(ramp(t, 6.95, 7.25));
+      const r = stem.width * 0.56;
+      ctx.save();
+      ctx.translate(g.x + g.w / 2 + stem.offset + shake, base - xh - r * 0.5 + ty);
+      ctx.scale(tsx, tsy);
+      ctx.beginPath(); ctx.arc(0, -r, r, 0, TAU); ctx.fillStyle = INK; ctx.fill();
+      ctx.restore();
+    }
+  });
+}
+
+// --- the lanes from the site's logic diagrams ---------------------------------------------------------------
+function drawLabel(ctx, t, r) {
+  const me = t >= 3.05 && t < T_BACK, x = 64, y = H - 58;
+  ctx.font = '26px "JetBrains Mono"';
+  ctx.letterSpacing = '3px';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = me ? MAROON : LABEL;
+  ctx.fillText(me ? 'ME' : 'MACHINE', x, y);
+  if (me && r > 0) {                                         // over the flood, in paper
+    ctx.save(); ctx.beginPath(); ctx.arc(KX, KY, r, 0, TAU); ctx.clip();
+    ctx.fillStyle = PAPER; ctx.fillText('ME', x, y); ctx.restore();
+  }
+  ctx.letterSpacing = '0px';
+}
+
+const canvas = document.getElementById('c');
+canvas.width = W; canvas.height = H;
+const ctx = canvas.getContext('2d');
+
+function drawFrame(t) {
+  t = ((t % LOOP) + LOOP) % LOOP;
+  ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
+  const r = flood(t);
+  const machine = t < 3.9 || t >= T_BACK;
+  if (machine) for (let j = 0; j < ROWS; j++) for (let i = 0; i < COLS; i++) {
+    if (i === CI && j === CJ && t >= T_FREEZE && t < 8.0) continue;
+    drawCell(ctx, i, j, t);
+  }
+  if (t >= T_FREEZE && t < 3.8 || t >= T_BACK && t < 8.0) drawKept(ctx, t);
+  if (r > 0) { ctx.beginPath(); ctx.arc(KX, KY, r, 0, TAU); ctx.fillStyle = MAROON; ctx.fill(); }
+  drawWord(ctx, t);
+  drawLabel(ctx, t, r);
+}
+
+window.renderFrame = (t) => { drawFrame(t); return canvas.toDataURL('image/png'); };
+Promise.all([document.fonts.load(`${FONT}px "Archivo Black"`), document.fonts.load('26px "JetBrains Mono"')]).then(() => {
+  layout(ctx);
+  window.ready = true;
+  if (!navigator.webdriver) { const t0 = performance.now(); const tick = () => { drawFrame((performance.now() - t0) / 1000); requestAnimationFrame(tick); }; tick(); }
+});
+</script>
