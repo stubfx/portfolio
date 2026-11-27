@@ -77,7 +77,7 @@ Plus **agents** reading on someone's behalf: recruiter tools, AI screeners, a le
 
 ## Visual direction: the portfolio is a Markdown file
 
-**Markdown for machines, texture for humans.** Prototype: `prototype/index.html` in the repo, v14 (homepage plus the sample case "Direction as code"). The Career project keeps a copy at `claude/portfolio-md-draft.html`.
+**Markdown for machines, texture for humans.** The prototype that started the build (v14: homepage plus the sample case "Direction as code") is in git history, last at commit 8a73210; the built site replaced it. The Career project keeps a copy at `claude/portfolio-md-draft.html`.
 
 History: v1 handwritten marks (dropped: I work digitally). v2 dense review layer (dropped: too explanatory). v3 Redline, a red thread drawn on scroll (dropped: the line wasn't my hand). v4 plain Markdown typeset (kept). v5 live 3D, real history, copy as Markdown. Then the previous site's grain, dithered sky and clouds came over: the sky was dropped as too complicated, the grain stayed. Catppuccin became the colour baseline with a day/night switch, and the strong red softened to Maroon. Night as the default was tried and reverted. v12 made the main text pure black. v13 gave night its own warm neutral palette. v14 added the WIP banner. Then the live 3D viewer was dropped: the projects are photos and videos of shipped work, nothing interactive, so the site shows footage.
 
@@ -109,7 +109,7 @@ History: v1 handwritten marks (dropped: I work digitally). v2 dense review layer
 2. **Logic:** the two-lane text diagram, plus one artifact that shows the thinking (a direction file, a node graph, a script).
 3. **Proof:** a contact sheet or hero image, a loop of the work, one line of real numbers, the commit log of the redirects, credits, then links to index and the next case.
 
-**Risks to watch.** Looking like a default README or an AI-builder template: the typesetting and the footage have to be visibly deliberate. Images too weak to carry the proof. Copy creeping back into explanation. Effects creeping back in. Honesty: every number, commit and output must be real; the prototype's are samples.
+**Risks to watch.** Looking like a default README or an AI-builder template: the typesetting and the footage have to be visibly deliberate. Images too weak to carry the proof. Copy creeping back into explanation. Effects creeping back in. Honesty: every number, commit and output must be real; sample content is marked as sample until then.
 
 **Next steps**
 
@@ -121,7 +121,7 @@ History: v1 handwritten marks (dropped: I work digitally). v2 dense review layer
 
 Homepage (`index.md`), then cases in the Idea · Logic · Proof format:
 
-1. **Direction as code** (or the real equivalent): an agentic pipeline driven by a written art direction. (Sample case in the prototype.)
+1. **Direction as code** (or the real equivalent): an agentic pipeline driven by a written art direction. (Sample case on the site for now.)
 2. **Live, in the browser:** a luxury object I art-direct, running in real time, shown in footage. The point is the direction, not the product UI.
 3. **One frame:** an Unreal scene, moodboard to final light.
 4. **Procedural:** the intent first, then the graph.

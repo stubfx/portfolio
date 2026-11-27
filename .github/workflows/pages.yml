@@ -18,18 +18,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Full history (status lines come from git), without old media files.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
       - uses: actions/configure-pages@v5
-      # Interim: until build.mjs exists, the site is the prototype (one self-contained
-      # HTML file, fonts embedded, no external requests). When the real build lands,
-      # replace this step with the steps in docs/BUILD.md section 14.
-      - name: Assemble the site from the prototype
-        run: |
-          mkdir -p dist
-          cp prototype/index.html dist/index.html
-          cp prototype/index.html dist/404.html
-          cp -r static/. dist/
-          touch dist/.nojekyll
+      # Validates first: any problem in content/ stops the deploy. Tests run locally before merging.
+      - run: node build.mjs
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist

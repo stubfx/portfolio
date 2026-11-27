@@ -4,7 +4,7 @@ Local only, never in CI. Builds dist/ and the fixture site (test/fixtures/e2e: a
 which the real content doesn't have yet), serves both with build.mjs's server (Range support for video), and runs:
 
   shots     home and case, 1440x900 and 390x844, day and night, into test/e2e/shots/
-  reference the same views of prototype/index.html, into test/e2e/shots/reference/ (while the prototype exists)
+  reference the same views of prototype/index.html (restore it from commit 8a73210), into test/e2e/shots/reference/
   console   no console errors or page errors
   offsite   no request to another origin while loading and scrolling every page
   embed     no iframe before a click; after one, a single youtube-nocookie iframe (the player itself is stubbed)
@@ -90,6 +90,9 @@ def shots(r):
 
 @check
 def reference(r):
+    if not (ROOT / 'prototype').exists():
+        print('  the prototype is deleted; restore it from git history (commit 8a73210) to compare')
+        return
     out = SHOTS / 'reference'
     out.mkdir(parents=True, exist_ok=True)
     proto, url = serve(ROOT / 'prototype')

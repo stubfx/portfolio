@@ -8,6 +8,6 @@ The build contract for lucamolluso.com. Read in this order:
 3. **[CONTENT.md](CONTENT.md)**: how to write the site. The Markdown you can use, planned and sample states, media (`media.mjs`), page formats, the case format, voice.
 4. **[BUILD.md](BUILD.md)**: how it is built. No framework, repo layout, renderer, outputs, git history, agent layer, theme switch, media on the page, grain, budgets, tests, deploy, the CSP.
 
-**Reference:** `prototype/index.html` (open it in a browser, no server needed) implements the design and the renderer with sample content. Where the prototype and these docs differ, the docs win.
+**History:** the reference prototype the build started from (`prototype/index.html`, v14) is in git history, last at commit 8a73210. These docs are the contract.
 
 **Versions:** docs v2, Nov 27, 2026 (v2: no 3D viewer; photos, loops and click-to-load embeds; the full Markdown grammar; zero dependencies defined). They replace the single-file SPEC v1 to v5; the history of those decisions is in git.

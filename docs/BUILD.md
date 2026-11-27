@@ -54,7 +54,6 @@ scripts/fonts.py
 test/                     node --test files, fixtures, test/e2e/ (browser checks)
 .github/workflows/pages.yml
 docs/
-prototype/index.html      reference prototype (deleted once the built site is live)
 ```
 
 ## 3. Commands
@@ -213,8 +212,6 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4
 ```
-
-**Interim (live now):** until the built site replaces it, the workflow in the repo skips Node and assembles `dist/` from `prototype/index.html` (as `index.html` and `404.html`), `static/` and `.nojekyll`.
 
 **Domain:** `static/CNAME` holds `lucamolluso.com`. With Actions deploys, GitHub ignores the CNAME file: the domain is set in the repo's Pages settings (Source: GitHub Actions; Custom domain: lucamolluso.com), then enforce HTTPS.
 
