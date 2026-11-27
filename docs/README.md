@@ -2,6 +2,7 @@
 
 The build contract for lucamolluso.com. Read in this order:
 
+0. **[INTENTIONS.md](INTENTIONS.md)**: the north star. Who it's for, what it must prove, the visual direction and every choice so far, in plain words.
 1. **[SPEC.md](SPEC.md)**: what we are building and why. Principles, decisions, scope, open questions, launch checklist.
 2. **[DESIGN.md](DESIGN.md)**: the visual system. Themes (day by default: Catppuccin Latte with pure black text; night: warm neutral dark), type, layout, visible syntax, components, grain, motion, accessibility.
 3. **[CONTENT.md](CONTENT.md)**: how to write the site. The Markdown you can use, page formats, the case format, assets, voice.

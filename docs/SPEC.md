@@ -60,7 +60,8 @@ A portfolio where every page is a Markdown file: typeset like a bold journal pag
 4. **First real case:** which pipeline to capture first?
 5. **Mods and servers:** a supporting strip, or a case for the studio track?
 6. **Twitch dates:** "since 2019" vs "5 years"; align with the profile before launch.
-7. **AAA by day:** accept AA for secondary text and the punch line in Latte, or apply the AAA fallback in [DESIGN.md](DESIGN.md) section 3?
+7. **3D stage at night:** keep the bright studio grey, or a dim warm stage by night?
+8. **AAA by day:** accept AA for secondary text and the punch line in Latte, or apply the AAA fallback in [DESIGN.md](DESIGN.md) section 3?
 
 ## 7. Launch checklist
 
