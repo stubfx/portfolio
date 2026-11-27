@@ -1,6 +1,6 @@
 # lucamolluso.com · Portfolio spec
 
-Nov 27, 2026 · v4 · Build from scratch from this document.
+Nov 27, 2026 · v5 · Build from scratch from this document.
 
 The reference prototype is `prototype/index.html` (open it in a browser, no server needed). Draft content lives in `content/`. The reasoning behind every decision is in the Career project doc "Portfolio intentions" (v6); this file is the build contract.
 
@@ -34,7 +34,7 @@ What we use instead:
 | Build | One script, `build.mjs`, Node 22+, built-in modules only (`node:fs`, `node:path`, `node:child_process`, `node:http`) |
 | Markdown | Our own renderer, `site/render.mjs`, for the subset in section 6 |
 | Styles | One hand-written `site/style.css` with CSS custom properties |
-| Client JS | Three small plain files: `site/copy.js` (copy .md), `site/grain.js` (film grain, ported from the previous site), `site/viewer.js` (3D). Content never needs JS |
+| Client JS | Small plain files: `site/copy.js` (copy .md), `site/theme.js` (day/night), `site/grain.js` (film grain, ported from the previous site), `site/viewer.js` (3D). Content never needs JS |
 | 3D | three.js (MIT), **vendored** as plain ES module files in `site/vendor/three/`, loaded with an import map, only on pages that contain a `.glb` |
 | Dev server | `node build.mjs --serve` (node:http plus fs.watch), or `python3 -m http.server -d dist` |
 | Tests | `node --test` (built in) |
@@ -58,6 +58,7 @@ site/                     the typesetting
   style.css
   render.mjs              Markdown subset to HTML (used by build.mjs only)
   copy.js                 "copy .md" button
+  theme.js                day/night switch (applied before first paint)
   grain.js                film grain layer (ported)
   viewer.js               lazy 3D viewer
   fonts/                  self-hosted woff2 + OFL licence files
@@ -100,7 +101,7 @@ No front matter in the Markdown files. They stay pure, so the raw file reads cle
 
 Every page has three parts:
 
-1. **File bar** (sticky, top): the path as breadcrumbs (`lucamolluso.com/work/direction-as-code.md`, last segment in ink), a **copy .md** button and a **raw** link to the `.md` file. (The prototype's rendered/raw toggle is replaced by the raw link: simpler, no JS.)
+1. **File bar** (sticky, top): the path as breadcrumbs (`lucamolluso.com/work/direction-as-code.md`, last segment in ink), a **copy .md** button, a **day · night** switch and a **raw** link to the `.md` file. (The prototype's rendered/raw toggle is replaced by the raw link: simpler, no JS.)
 2. **The page:** the rendered Markdown.
 3. **Status line** (bottom, mono, grey): file name · N edits · last edit date · `history` link to `https://github.com/stubfx/portfolio/commits/main/content/<path>`. Built from git (section 10).
 
@@ -141,16 +142,18 @@ The renderer supports exactly this subset. Anything else is a build error, so co
 
 **Mood.** Bold, punchy, editorial: a journal page set in README formatting. Huge headlines across the screen, large body text, generous white space, one red line of conviction per page. Typography carries the page; images and live 3D carry the proof. The look alone is not the differentiator (type minimalism is a 2026 trend and AI site builders sell monospace templates); the ideas, the live 3D and the real history are.
 
-**One theme: the journal.** Paper, ink, one red line, grain on top. No dark mode, no sky. All text meets **WCAG AAA**.
+**The journal, in two themes, on the Catppuccin palette.** Paper, ink, one soft red line, grain on top. No sky, no effects. **Catppuccin is the colour baseline** ([palette](https://github.com/catppuccin/catppuccin)): **day = Latte** (the default), **night = Mocha** (the previous site's flavour). One switch in the file bar, remembered per browser, applied before the first paint.
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `--paper` | `#FDFDFC` | Background (cool near-white, never cream) |
-| `--ink` | `#111111` | Text: me |
-| `--grey` | `#555555` (about 7.3:1) | Machine output, secondary text, code keys, commit hashes |
-| `--mk` | `#A6A6A6` | Syntax markers only (decorative, `aria-hidden`) |
-| `--line` | `#E4E4E1` | Hairlines |
-| `--red` | `#D33A16` (about 4.8:1) | The punch line only (large text: passes AAA large-text 4.5:1). Never on buttons or links, except link hover |
+| Token | Day: Latte (default) | Night: Mocha | Use |
+| --- | --- | --- | --- |
+| `--paper` | Base `#EFF1F5` | Base `#1E1E2E` | Background |
+| `--ink` | Text `#4C4F69` (7.1:1, AAA) | Text `#CDD6F4` (11.3:1, AAA) | Text: me |
+| `--grey` | Subtext1 `#5C5F77` (5.5:1, AA) | Subtext0 `#A6ADC8` (7.4:1, AAA) | Machine output, secondary text, code keys, commit hashes |
+| `--mk` | Overlay0 `#9CA0B0` | Overlay0 `#6C7086` | Syntax markers only (decorative, `aria-hidden`) |
+| `--line` | Surface0 `#CCD0DA` | Surface0 `#313244` | Hairlines |
+| `--red` | Maroon `#E64553` (3.5:1) | Maroon `#EBA0AC` (7.9:1) | The punch line only. Softer than Catppuccin Red. Never on buttons or links, except link hover |
+
+**Accessibility, honestly.** Body text is AAA in both themes. In day, Latte has no grey that reaches 7:1 below Text, so secondary text is AA (5.5:1); the Maroon punch line is AA for large text (3.5:1, and it is never smaller than 32 px bold), not AAA. If AAA everywhere becomes a hard rule: use Text for secondary text in day and Latte Red `#D20F39` (4.8:1) for the punch line.
 
 **Type**
 
@@ -181,7 +184,7 @@ Luca's touch, kept from the previous site: "that's for humans." Film grain over 
 
 **Port, don't rewrite.** From this repo's history at commit `5ed1192`: `src/client/grain-core.mjs`, `src/client/grain.js`, the `rng` function from `src/client/sky-core.mjs`, the `#grain` rules in `src/styles/hud.css`, and their tests. `prototype/index.html` runs exactly this code.
 
-**Behaviour.** A 128 px grey noise tile on an oversized fixed layer (200% of the viewport), jumped to a random offset with transforms 8 times a second. Opacity 0.07 with multiply blending, above the content, `pointer-events: none`. Still with reduced motion, paused when the tab is hidden, hidden when printing. Optional: the old grain toggle.
+**Behaviour.** A 128 px grey noise tile on an oversized fixed layer (200% of the viewport), jumped to a random offset with transforms 8 times a second. Opacity 0.07 with multiply blending in day, 0.05 normal blending at night, above the content, `pointer-events: none`. Still with reduced motion, paused when the tab is hidden, hidden when printing. Optional: the old grain toggle.
 
 (Dithered sky, clouds, stars and a dark theme were tried in prototypes v7 and v8 and dropped: too much.)
 
@@ -243,11 +246,11 @@ The status line and the `log` blocks prove process with real data.
 | Content without JS | 100% readable, all links work |
 | HTML + CSS per page | under 40 KB uncompressed, excluding images |
 | Fonts | under 150 KB total, subset woff2 |
-| JS on pages without 3D | `copy.js` + `grain.js`, under 3 KB gzipped together |
+| JS on pages without 3D | `copy.js` + `theme.js` + `grain.js`, under 3 KB gzipped together |
 | JS on pages with 3D | `viewer.js` under 10 KB, plus three.js loaded lazily |
 | Images | JPEG/WebP, 2400 px wide max, width/height set, `loading="lazy"` below the fold |
 | Lighthouse (mobile) | 95+ in Performance, Accessibility, Best Practices, SEO |
-| Contrast | All text passes WCAG AAA; the red punch line passes AAA as large text; markers are decorative |
+| Contrast | Body text AAA in both themes; secondary text AAA at night, AA by day; punch line AA large by day, AAA at night; markers are decorative (see section 7) |
 | Motion | Respects `prefers-reduced-motion` (still grain, no auto-turn) |
 | Privacy | No trackers, no analytics, no third-party requests |
 
@@ -327,7 +330,7 @@ Ship with **three real cases** (01, one real-time piece, 05); add the rest later
 
 - [ ] `build.mjs`, `site/`, tests and the Pages workflow in place
 - [ ] Fonts subset and self-hosted with OFL files; no external requests
-- [ ] Grain and its tests ported from commit `5ed1192`; all text passes AAA
+- [ ] Grain and its tests ported from commit `5ed1192`; contrast as in section 7, checked in both themes
 - [ ] three.js vendored at a pinned version with its licence; studio HDRI added
 - [ ] Three real cases, each with a real hero image, a real `.glb` plus poster, real numbers and verified commits
 - [ ] Real portrait shot and art-directed
