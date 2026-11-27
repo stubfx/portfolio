@@ -4,7 +4,7 @@ The visual system. Values here are the source of truth for `site/style.css`.
 
 ## 1. Mood
 
-A journal page set in README formatting. Huge, punchy headlines across the screen; large, calm body text; generous space; one soft red line of conviction per page; film grain over everything. Typography carries the page; images and live 3D carry the proof. The look alone is not the differentiator (type minimalism and monospace minimalism are common in 2026): the ideas, the live 3D and the real history are.
+A journal page set in README formatting. Huge, punchy headlines across the screen; large, calm body text; generous space; one soft red line of conviction per page; film grain over everything. Typography carries the page; photos and loops carry the proof. The look alone is not the differentiator (type minimalism and monospace minimalism are common in 2026): the ideas, the footage of real work and the real history are.
 
 ## 2. Themes
 
@@ -29,7 +29,7 @@ Night values were set in OKLCH at hue 60 (tune there, not in hex): paper L 0.215
 
 - Black is for the main text in most cases. Not black: machine output and secondary text (`--grey`), syntax markers (`--mk`), the punch line (`--red`).
 - The punch line colour (Maroon by day, coral red by night) appears only in the punch line (one per page) and on link hover. Never on buttons, borders or decoration.
-- Images and the 3D stage keep their own neutral studio grey: they are content, not chrome.
+- Images and video keep their own colours: they are content, not chrome.
 - No other colours in the UI.
 
 ## 3. Contrast and accessibility
@@ -43,7 +43,7 @@ Night values were set in OKLCH at hue 60 (tune there, not in hex): paper L 0.215
 
 Main text is AAA in both themes. By day, secondary text is AA (Latte Subtext1) and the punch line is AA large: it is never smaller than 32 px bold, so it qualifies as large text. Night is AAA throughout (the punch line counts as large text). **AAA fallback for day** (if it becomes a hard rule): with black as the main text, Latte Text `#4C4F69` (7.1:1) becomes the secondary grey, and Latte Red `#D20F39` (4.8:1) the punch line. The me/machine contrast survives the swap.
 
-Other accessibility rules: one H1 per page; real headings, lists, tables and figures; visible focus styles (2 px outline in `--ink`); every image has alt text written as a caption; `prefers-reduced-motion` stops the grain and the 3D auto-turn; nothing requires JavaScript to read.
+Other accessibility rules: one H1 per page; real headings, lists, tables and figures; visible focus styles (2 px outline in `--ink`); every image has alt text written as a caption; `prefers-reduced-motion` stops the grain and keeps loops on their poster; every loop can be paused (WCAG 2.2.2); nothing requires JavaScript to read.
 
 ## 4. Type
 
@@ -51,9 +51,9 @@ Other accessibility rules: one H1 per page; real headings, lists, tables and fig
 | --- | --- | --- |
 | Display (H1, H2, punch line) | Archivo Black (OFL) | Weight 400, tracking about -0.045em |
 | Text (body, lists, blockquote, table) | DM Sans (OFL), variable | Optical sizing on; bold 700 for `**strong**` |
-| Mono (syntax markers, captions, code, file bar, status line) | System mono stack in the prototype; production picks IBM Plex Mono or JetBrains Mono (OFL) | Self-hosted |
+| Mono (syntax markers, captions, code, file bar, status line) | JetBrains Mono (OFL), weight 400 | Self-hosted. Covers the box-drawing lines and the `▲ ▶ ▼ ◀` triangles of the logic diagrams; IBM Plex Mono lacks the triangles |
 
-All fonts self-hosted as subset woff2 with their OFL files. No Google Fonts or other external requests.
+All fonts self-hosted as subset woff2 with their OFL files, preloaded, with metric-matched fallback faces so the swap doesn't move the page. No Google Fonts or other external requests.
 
 **Scale** (fluid)
 
@@ -72,7 +72,7 @@ All fonts self-hosted as subset woff2 with their OFL files. No Google Fonts or o
 
 - Page max width 1560 px, centred. Side padding `clamp(18px, 7vw, 120px)`.
 - **Hanging gutter:** 3.6 rem on the left, holding the block syntax markers, on screens wider than 720 px. Below 720 px the gutter is 0 and markers sit inline, smaller.
-- Text keeps its measure; images, the 3D viewer and the index table take the full content width.
+- Text keeps its measure; photos, video, embeds and the index take the full content width.
 - Vertical rhythm comes from the type sizes above; no cards, no boxes, no shadows.
 
 ## 6. Visible syntax
@@ -80,24 +80,31 @@ All fonts self-hosted as subset woff2 with their OFL files. No Google Fonts or o
 The page shows its own Markdown, quietly.
 
 - **Shown** (in `--mk`, mono, `aria-hidden="true"`): `#`, `##`, `###` before headings; `>` before blockquotes; `-` and `1.` before list items; `|` before tables; the code fences with their language; `---`; HTML comments; the full `![alt](file)` line above images; the `==` around the punch line.
+- **File lists** (the Work index) show a hanging `-` on each row, as in the source. The column labels and row numbers are typesetting, not syntax.
 - **Hidden:** inline markers (`**`, link brackets and URLs, backticks). At body size they read as noise.
 - Block markers **hang** in the left gutter at about `calc(0.11em + 11px)`, right-aligned, so the text edge stays clean.
 
 ## 7. Components
 
-**WIP banner** (until launch): a full-width strip above the file bar, not sticky, so it scrolls away. `--ink` background, `--paper` text, mono 12 px, `role="note"`. Text: "**WIP** · This site is being rebuilt in the open, on GitHub. Sample content and numbers for now." with "on GitHub" linking to the repo. Inverted ink like a pressed button: no red, no icon.
+**WIP banner** (shown automatically while fewer than three cases are real): a full-width strip above the file bar, not sticky, so it scrolls away. `--ink` background, `--paper` text, mono 12 px, `role="note"`. Text: "**WIP** · This site is being rebuilt in the open, on GitHub. Sample content and numbers for now." with "on GitHub" linking to the repo. Inverted ink like a pressed button: no red, no icon.
 
-**File bar** (sticky top, `--bar` background with a light blur, 1 px `--line` bottom border): breadcrumb path in mono (`lucamolluso.com/work/direction-as-code.md`, last segment in `--ink`, the rest in `--mk`); on the right a **copy .md** button, a **day · night** switch and a **raw** link. Buttons: 1 px `--ink` border, mono 12 px; pressed or hover state inverts (`--ink` background, `--paper` text). Below 720 px the raw link hides.
+**File bar** (sticky top, `--bar` background with a light blur, 1 px `--line` bottom border): breadcrumb path in mono (`lucamolluso.com/work/direction-as-code.md`, last segment in `--ink`, the rest in `--mk`); on the right a **copy .md** button, a **day · night** switch and a **rendered · raw** switch. Without JavaScript, copy and the theme switch are hidden and a plain **raw** link to the `.md` replaces the view switch. Buttons: 1 px `--ink` border, mono 12 px; pressed or hover state inverts (`--ink` background, `--paper` text). Below 720 px the view switch hides.
 
 **Status line** (bottom, mono 12 px, `--mk`): file name in `--ink`, edit count, last edit date, a `history` link in `--ink`.
 
 **Punch line:** a paragraph that is only `==text==`. Display face, Maroon, grey `==` on both sides.
 
-**Index table** (the Work list): header in 11 px mono caps `--mk` over a 1 px `--ink` rule; rows separated by `--line` hairlines. Columns: number (mono, `--mk`), case title (link, large body size), idea (`--grey`, smaller), year (mono, `--mk`, right-aligned). Below 720 px: no header; each row stacks as number, title and year on one line, the idea below.
+**Index** (the Work file list, rendered as a table): column labels `# · case · idea · year` in 11 px mono caps `--mk` over a 1 px `--ink` rule; rows separated by `--line` hairlines; a hanging `-` in `--mk` on each row. Columns: number from the row's position (mono, `--mk`), case title (link, large body size), idea (`--grey`, smaller), year (mono, `--mk`, right-aligned). **Planned** rows (no link yet): title in `--grey`, no underline, not a link. Below 720 px: no header; each row stacks as number, title and year on one line, the idea below.
 
-**Figure:** the `![alt](file)` line in 13 px mono above the image (alt in `--grey`, syntax in `--mk`), then the image at full content width. Portrait images max 440 px wide.
+**Table** (any other Markdown table): the index's look, header from the table itself, one hanging `|`.
 
-**3D viewer:** 16:9 stage, neutral studio gradient (`#EEF0EE` to `#C3C8C6`) with a soft contact shadow, a small `3D · drag to turn` tag bottom right (mono 11 px, `#555`). Grab cursor while dragging.
+**Figure:** the `![alt](file)` line in 13 px mono above the media (alt in `--grey`, syntax in `--mk`), then the photo or video at full content width. Portrait-orientation media max 440 px wide.
+
+**Loop** (a silent clip of 30 s or less): no chrome. It plays while at least half of it is on screen and pauses otherwise. It is focusable; click, Enter or Space toggles it. A small tag bottom right (`pause` or `play`, mono 11 px) shows on hover and keyboard focus and stays while paused. With reduced motion, or without JavaScript, it shows its poster with native controls.
+
+**Player** (a clip with sound, or longer than 30 s): native controls, poster, never autoplays.
+
+**Embed** (YouTube or Vimeo): my poster at 16:9, a `▶` in the centre (mono), and a tag bottom right, `YouTube · loads on play` or `Vimeo · loads on play` (mono 11 px). Pressing it swaps in the privacy-enhanced player. Without JavaScript it is a link to the video.
 
 **Code blocks:** fences visible in `--mk`; content in mono, `--ink`.
 - `logic`: two-lane diagrams. Characters left of column 28 (the Me lane) in `--ink`, the rest (the Machine lane) in `--grey`.
@@ -121,4 +128,4 @@ The only effect. Ported unchanged from the previous site (see [BUILD.md](BUILD.m
 
 ## 9. Motion
 
-Only the grain and the 3D viewer move. No page transitions, no scroll effects, no hover animations beyond colour. Both stop with `prefers-reduced-motion` (the 3D model can still be dragged).
+Only the grain and loops move. No page transitions, no scroll effects, no hover animations beyond colour. Both stop with `prefers-reduced-motion` (a loop can still be played by hand).

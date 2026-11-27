@@ -1,6 +1,6 @@
 # Portfolio intentions
 
-Nov 27, 2026 · v7
+Nov 27, 2026 · v8
 
 The north star for the portfolio site (lucamolluso.com). Every page, feature and style choice has to serve these intentions. If it doesn't, it doesn't ship.
 
@@ -38,23 +38,23 @@ Plus **agents** reading on someone's behalf: recruiter tools, AI screeners, a le
 
 - **I have the idea.** A clear "what if" that a stranger can repeat in one sentence.
 - **I design the logic.** How direction flows through agents, tools and people, and where my calls sit.
-- **I make it run.** Real-time 3D in the page itself, and years of shipping software behind it.
+- **I make it run.** Footage of real-time work I shipped, and years of shipping software behind it.
 - **I've done it for real.** Real-time 3D for global luxury fashion and automotive brands, AI adoption and training at Accenture, mods and servers with real players.
 
 ## Intentions
 
 1. **Idea first.** Every case opens with one idea, stated large, in as few words as possible.
 2. **Logic is the centerpiece.** A text diagram of the system, Me lane and Machine lane, plus one artifact that shows the thinking.
-3. **Proof, briefly.** One strong image or live piece, one line of real numbers. No fix lists, no inventories.
+3. **Proof, briefly.** One strong image or loop, one line of real numbers. No fix lists, no inventories.
 4. **Direction over retouch.** When output drifts, the direction changes (the brief, the direction file, the pipeline), never the pixels.
 5. **Say less.** A good brief makes the machine say less, and so does a good page.
-6. **Make it run, inside the file.** A Markdown image that points at a `.glb` becomes a live 3D viewer for people, and stays a still with alt text for agents and no-JS readers.
+6. **Show it running.** Footage of the work: silent loops and photos in the page, longer videos on YouTube or Vimeo that load only when pressed. A Markdown image line is all it takes; agents and no-JS readers get the caption and a still.
 7. **History, not explanation.** Process is proven by the real git history of each file, not described.
 8. **Personal, not prompted.** My ideas, my calls and my voice are the signature. Plus what only I have: eleven years of modding, Twitch, the conservatory. And one human texture on every page: my film grain.
 9. **AI credits on every project.** One line: tools, machine time versus my time, what the model did and what I decided.
 10. **One file, two readers.** Every page is a Markdown file. People read it typeset; agents read the same file. Nothing to keep in sync.
 11. **NDA-safe by design.** Name sectors, never clients.
-12. **FOSS, fast, honest.** No framework: one zero-dependency Node script builds a static site. Self-hosted OFL fonts, vendored three.js, no trackers, readable without JavaScript.
+12. **FOSS, fast, honest.** No framework: one zero-dependency Node script builds a static site. Zero dependencies: no npm packages, nothing running live. Self-hosted OFL fonts, no trackers, readable without JavaScript.
 
 ## Copy rules
 
@@ -70,7 +70,7 @@ Plus **agents** reading on someone's behalf: recruiter tools, AI screeners, a le
 - Not a configurator portfolio.
 - Not a cleanup reel or a process explainer.
 - Not a GitHub README: the format is Markdown, the typesetting is art direction.
-- Not relying on the look to stand out. Type minimalism and radical brevity are 2026 trends, and AI site builders already sell black-and-white monospace templates. The ideas, the live 3D and the real history are what make it mine.
+- Not relying on the look to stand out. Type minimalism and radical brevity are 2026 trends, and AI site builders already sell black-and-white monospace templates. The ideas, the footage of real work and the real history are what make it mine.
 - Not an effects showcase. The grain is the only effect; skies, dithering and scroll animations were tried and dropped.
 - Not a blog, and not a landing page selling a product.
 - Not an AI-search traffic play. The agent layer signals craft; it isn't a marketing channel.
@@ -79,11 +79,11 @@ Plus **agents** reading on someone's behalf: recruiter tools, AI screeners, a le
 
 **Markdown for machines, texture for humans.** Prototype: `prototype/index.html` in the repo, v14 (homepage plus the sample case "Direction as code"). The Career project keeps a copy at `claude/portfolio-md-draft.html`.
 
-History: v1 handwritten marks (dropped: I work digitally). v2 dense review layer (dropped: too explanatory). v3 Redline, a red thread drawn on scroll (dropped: the line wasn't my hand). v4 plain Markdown typeset (kept). v5 live 3D, real history, copy as Markdown. Then the previous site's grain, dithered sky and clouds came over: the sky was dropped as too complicated, the grain stayed. Catppuccin became the colour baseline with a day/night switch, and the strong red softened to Maroon. Night as the default was tried and reverted. v12 made the main text pure black. v13 gave night its own warm neutral palette. v14 added the WIP banner.
+History: v1 handwritten marks (dropped: I work digitally). v2 dense review layer (dropped: too explanatory). v3 Redline, a red thread drawn on scroll (dropped: the line wasn't my hand). v4 plain Markdown typeset (kept). v5 live 3D, real history, copy as Markdown. Then the previous site's grain, dithered sky and clouds came over: the sky was dropped as too complicated, the grain stayed. Catppuccin became the colour baseline with a day/night switch, and the strong red softened to Maroon. Night as the default was tried and reverted. v12 made the main text pure black. v13 gave night its own warm neutral palette. v14 added the WIP banner. Then the live 3D viewer was dropped: the projects are photos and videos of shipped work, nothing interactive, so the site shows footage.
 
-**Concept.** Every page is a real `.md` file, typeset like a journal page. Everyone who uses AI reads Markdown every day, people and agents alike, so the format is familiar to both. Less is more: no hero, no effects beyond the grain, just text that says something, images that prove it, and one live 3D piece that runs. The page is its own source.
+**Concept.** Every page is a real `.md` file, typeset like a journal page. Everyone who uses AI reads Markdown every day, people and agents alike, so the format is familiar to both. Less is more: no hero, no effects beyond the grain, just text that says something, and photos and loops that prove it. The page is its own source.
 
-**Mood.** Bold, punchy, editorial. A journal page set in README formatting: huge headlines across the screen, large body text, generous space, one red line of conviction per page, film grain over everything. By day it reads like ink on newsprint; by night like a page under a reading lamp. Typography carries the page; images and live 3D carry the proof.
+**Mood.** Bold, punchy, editorial. A journal page set in README formatting: huge headlines across the screen, large body text, generous space, one red line of conviction per page, film grain over everything. By day it reads like ink on newsprint; by night like a page under a reading lamp. Typography carries the page; photos and loops carry the proof.
 
 **System**
 
@@ -95,39 +95,39 @@ History: v1 handwritten marks (dropped: I work digitally). v2 dense review layer
 - **Type.** Archivo Black for display and DM Sans for text (both OFL), a mono for syntax. Helvetica was dropped: at poster size it is the most default choice there is.
 - **Scale.** H1 up to about 185 px, H2 up to about 90 px, the highlighted line up to about 90 px, body text 19 to 30 px with a measure of about 29 em. Fluid, so the same file works on a phone and a wide screen.
 - **Images.** Full content width. The `![alt](file)` line sits above each image as its caption.
-- **Images that run.** `![alt](model.glb)` renders a live viewer (three.js, vendored): drag to turn, slow auto-turn, paused off-screen, still when reduced motion is on, poster image without WebGL. The draft's buoy is generated in code; production loads the real `.glb`.
+- **Video.** `![alt](clip.mp4)` is a silent loop that plays while on screen (pausable, still when reduced motion is on); a longer clip gets controls. `![alt](https://youtu.be/…)` shows my poster and loads YouTube or Vimeo only when pressed.
 - **Logic as text.** Monospace diagrams in code blocks: the Me lane in ink, the Machine lane in grey.
 - **History.** An editor-style status line under each page: file name, number of edits, last edit, link to its history in the repo (stubfx/portfolio). Redirects appear as a `log` block of real commits to the direction file. All built from git at deploy time; the draft's numbers are samples.
 - **File bar.** Path, a **copy .md** button (copies the page as Markdown so a reader can paste it into their AI), the day/night switch, and the raw view.
-- **WIP banner** above the file bar until the three real cases are live.
+- **WIP banner** above the file bar, automatically, until three real cases are live.
 
-**Homepage = a valid llms.txt.** H1 name, a one-line summary in a blockquote, then H2 sections with link lists to each case's `.md`. The same file is served at `/`, `/index.md` and `/llms.txt`. The "How I work" section was cut: the cases show it.
+**Homepage = the llms.txt.** H1 name, a one-line summary in a blockquote, then H2 sections; Work and Contact are link lists, so they parse as llms.txt file lists. The same file is served at `/`, `/index.md` and `/llms.txt`. The "How I work" section was cut: the cases show it.
 
 **Case format: Idea · Logic · Proof**
 
 1. **Idea:** one line of context, then the "what if" as the red highlighted line.
 2. **Logic:** the two-lane text diagram, plus one artifact that shows the thinking (a direction file, a node graph, a script).
-3. **Proof:** a contact sheet or hero image, one live `.glb`, one line of real numbers, the commit log of the redirects, credits, then links to index and the next case.
+3. **Proof:** a contact sheet or hero image, a loop of the work, one line of real numbers, the commit log of the redirects, credits, then links to index and the next case.
 
-**Risks to watch.** Looking like a default README or an AI-builder template: the typesetting and the live 3D have to be visibly deliberate. Images too weak to carry the proof. Copy creeping back into explanation. Effects creeping back in. Honesty: every number, commit and output must be real; the prototype's are samples.
+**Risks to watch.** Looking like a default README or an AI-builder template: the typesetting and the footage have to be visibly deliberate. Images too weak to carry the proof. Copy creeping back into explanation. Effects creeping back in. Honesty: every number, commit and output must be real; the prototype's are samples.
 
 **Next steps**
 
 - **Build** from `docs/` on the new machine: `build.mjs` and the renderer first.
 - **Capture now, on real work:** the idea in one sentence, the direction artifacts (files, graphs, prompts), the machine output, real times, and commit every direction change.
-- **Pick the first real case** to replace the sample, with one real `.glb` and one hero image.
+- **Pick the first real case** to replace the sample, with real loops and one hero image.
 
 ## Content
 
 Homepage (`index.md`), then cases in the Idea · Logic · Proof format:
 
 1. **Direction as code** (or the real equivalent): an agentic pipeline driven by a written art direction. (Sample case in the prototype.)
-2. **Live, in the browser:** a luxury object I art-direct, running in real time. The point is the direction, not the product UI.
+2. **Live, in the browser:** a luxury object I art-direct, running in real time, shown in footage. The point is the direction, not the product UI.
 3. **One frame:** an Unreal scene, moodboard to final light.
 4. **Procedural:** the intent first, then the graph.
 5. **Before the machines:** my two strongest BA projects, pure direction work.
 
-Launch with three real cases. Mods and servers appear as supporting proof (links, player counts). Open question below.
+Launch with three real cases. Mods and servers appear as supporting proof (links, player counts). Open question in SPEC.
 
 ## Agent layer
 
@@ -144,20 +144,11 @@ Context: llms.txt reach is still low (Ahrefs, May 2026: 97% of published files g
 
 - A lead can repeat each case's idea in one sentence after ten seconds.
 - Every case shows its logic, with my decisions in the Me lane.
-- Something real-time runs on the homepage.
+- A loop of real work plays on the homepage.
 - The page reads as designed, not as a default README or a template, on a phone and on a wide screen, by day and by night.
 - No fix on the site is something a button does, and no case reads as a configurator showcase.
 - Every number and every commit is real.
 - An agent given only `/llms.txt` writes an accurate summary and finds the right contact.
 - Nothing on the site I couldn't defend live in an interview.
 
-## Open questions
-
-1. **Production fonts.** Keep Archivo Black and DM Sans? Which FOSS mono (IBM Plex Mono or JetBrains Mono)?
-2. **Rendered/raw.** A raw link, or keep the switch?
-3. **Italics.** Markdown `*emphasis*` in Fraunces italic, once per page, for the human word?
-4. **3D stage at night.** Keep the bright studio grey, or a dim warm stage by night?
-5. **First real case.** Which pipeline do I capture first?
-6. **Mods.** A supporting strip, or a sixth case for the studio track?
-7. **AAA by day.** Accept AA for secondary text and the line, or apply the fallback in DESIGN?
-8. **MCP server** that agents can query about my work: out of scope for launch, possible v2.
+**Open questions** are kept in one list, in [SPEC.md](SPEC.md) section 6.

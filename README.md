@@ -11,4 +11,4 @@ A portfolio where every page is a Markdown file: typeset like a bold journal pag
 - **Prototype:** [`prototype/index.html`](prototype/index.html). Open it in a browser. Sample content and numbers.
 - **Draft content:** [`content/`](content/). The Markdown files the site will be built from (samples marked in each file).
 
-No framework, no bundler, no `npm install`: a single zero-dependency Node script builds the site (see `docs/BUILD.md`, section 1).
+Zero dependencies: no npm packages, nothing running live. No framework, no bundler, no `npm install`: a single Node script builds the site (see `docs/BUILD.md`, section 1). Media goes through `media.mjs`, run locally with ffmpeg; its outputs are committed.
