@@ -1,6 +1,6 @@
 # lucamolluso.com · Portfolio spec
 
-Nov 27, 2026 · v2 · Build from scratch from this document.
+Nov 27, 2026 · v3 · Build from scratch from this document.
 
 The reference prototype is `prototype/index.html` (open it in a browser, no server needed). Draft content lives in `content/`. The reasoning behind every decision is in the Career project doc "Portfolio intentions" (v6); this file is the build contract.
 
@@ -13,7 +13,7 @@ A personal portfolio where **every page is a Markdown file**. People read it typ
 - **Who:** Luca Molluso, Technical Artist, AI and real-time 3D. Presented as the figure in the middle: an art director who can build what he directs.
 - **For:** AI Technical Artist, real-time 3D Technical Artist and Creative Technologist roles, plus the agents that read on their behalf.
 - **Message:** the idea and the logic are the work; the outcome is proof. AI is a tool, not a goal.
-- **Principle: Markdown for machines, texture for humans.** The words are a plain `.md` file that any agent reads. On top, only for people: Luca's night sky, ordered dithering and film grain from the previous site. Agents never see it and never need to.
+- **Principle: Markdown for machines, texture for humans.** The words are a plain `.md` file that any agent reads. On top, only for people: Luca's dithered sky (clouds by day, stars by night) and film grain from the previous site. Agents never see it and never need to.
 - **Not:** a configurator showcase, a cleanup reel ("I fixed this"), a one-prompt pretty site, or a default GitHub README.
 
 ## 2. Decision: no framework
@@ -144,16 +144,19 @@ The renderer supports exactly this subset. Anything else is a build error, so co
 
 **Mood.** Bold, punchy, editorial: a journal page set in README formatting. Huge headlines across the screen, large body text, generous white space, one red line of conviction per page. Typography carries the page; images and live 3D carry the proof. The look alone is not the differentiator (type minimalism is a 2026 trend and AI site builders sell monospace templates); the ideas, the live 3D and the real history are.
 
-**Themes.** Two themes, one switch in the file bar, remembered per browser and applied before the first paint. **Night is the default**: it carries the human layer (section 8). Day is the paper version, with grain only. Both meet **WCAG AAA** for text.
+**Themes.** Two themes, one switch in the file bar, remembered per browser and applied before the first paint. **Day is the default**: paper, ink and a dithered sky of clouds in the margins. Night is the alternative: the previous site's starry sky. Both carry the human layer (section 8) and both meet **WCAG AAA** for text.
 
-| Token | Night (default) | Day | Use |
+**Palette idea (day):** paper and blue-black ink, a pale dithered sky, and one buoy-red line. Blue sky and vermilion are complementary, so the punch line is the hottest thing on a cool page.
+
+| Token | Day (default) | Night | Use |
 | --- | --- | --- | --- |
-| `--paper` | `#1A1A24` | `#FDFDFC` | Background |
-| `--ink` | `#E7E7EC` | `#111111` | Text: me |
-| `--grey` | `#A9A9B3` (about 7.2:1) | `#555555` (about 7.3:1) | Machine output, secondary text, code keys, commit hashes |
-| `--mk` | `#5F5F6E` | `#A6A6A6` | Syntax markers only (decorative, `aria-hidden`) |
-| `--line` | `#2C2C3A` | `#E4E4E1` | Hairlines |
-| `--red` | `#FF6B3D` (about 5.9:1) | `#D33A16` (about 4.8:1) | The punch line only (large text: passes AAA large-text 4.5:1). Never on buttons or links, except link hover |
+| `--paper` | `#FCFCFA` | `#1A1A24` | Background (and the sky's flat level behind the text) |
+| `--ink` | `#11161C` blue-black (17.7:1) | `#E7E7EC` | Text: me |
+| `--grey` | `#4E5560` (7.3:1) | `#A9A9B3` (about 7.2:1) | Machine output, secondary text, code keys, commit hashes |
+| `--mk` | `#A2A9B2` | `#5F5F6E` | Syntax markers only (decorative, `aria-hidden`) |
+| `--line` | `#E2E6EA` | `#2C2C3A` | Hairlines |
+| `--red` | `#C2330C` buoy red (5.4:1 on paper, 4.5:1 on the deepest sky) | `#FF6B3D` (about 5.9:1) | The punch line only (large text: passes AAA large-text 4.5:1). Never on buttons or links, except link hover |
+| Day sky levels | `#E6EAEE` cloud shade · `#FCFCFA` paper · `#E8F1F6` pale sky · `#DCEAF3` sky | (night: the previous site's ramp from `#1A1A24` lifting toward `#B4BEFE`) | The dithered sky only; never behind body text |
 
 **Type**
 
@@ -176,15 +179,17 @@ The renderer supports exactly this subset. Anything else is a build error, so co
 
 **Layout.** Max width 1560 px. Side padding `clamp(18px, 7vw, 120px)`. A left gutter of 3.6 rem holds the hanging markers on screens wider than 720 px; below that, markers sit inline and small. Images and the 3D viewer take the full content width; text keeps its measure.
 
-**Motion.** The 3D viewer, and at night the sky (twinkle, a breathing dither, a rare shooting star, a scroll parallax done in CSS). No page transitions, no scroll-triggered effects. Everything stops with `prefers-reduced-motion`.
+**Motion.** The 3D viewer and the sky (a breathing dither and a scroll parallax done in CSS; at night also twinkle and a rare shooting star). No page transitions, no scroll-triggered effects. Everything stops with `prefers-reduced-motion`.
 
 ## 8. The human layer: sky, dither, grain
 
-Luca's touch, kept from the previous site. It is pure texture: it never carries information, agents never see it, and the raw `.md` is untouched.
+Luca's touch, kept from the previous site: "that's for humans." It is pure texture: it never carries information, agents never see it, and the raw `.md` is untouched.
 
-**Port, don't rewrite.** The code is in this repo's history at commit `5ed1192` (`git show 5ed1192:src/client/sky-core.mjs`, `sky.js`, `grain-core.mjs`, `grain.js`, `src/styles/sky.css`, the grain rules in `src/styles/hud.css`, and the tests `test/sky.test.mjs`). Port it as-is into `site/`, with its tests. The prototype already runs it unchanged.
+**Port, don't rewrite.** The code is in this repo's history at commit `5ed1192` (`git show 5ed1192:src/client/sky-core.mjs`, `sky.js`, `grain-core.mjs`, `grain.js`, `src/styles/sky.css`, the grain rules in `src/styles/hud.css`, and the tests `test/sky.test.mjs`). Port it into `site/` with its tests. The only change is the day mode below; `prototype/index.html` contains the exact modified `startSky` to copy.
 
-**The sky (night only)**
+**Day mode: clouds (default).** `startSky(canvas, { lane, colours, mode: 'day' })`. Same engine, same dither, same calm lane, but no stars and no shooting stars. The value field is stretched cumulus: `fbm(sky, x/52, y/20)` through a smoothstep (0.42 to 0.64) gives cloud cover; open sky maps to the two sky levels, cloud bodies to paper with a light shade from a second noise. The palette is the four day sky levels in section 7, with paper as the base level so the lane stays flat paper behind the text. The pointer lens parts the clouds a little. `setMode('day' | 'night')` rebakes the sky when the switch changes.
+
+**Night mode: stars**
 
 - An indexed-colour framebuffer a third of the screen's size, scaled up with hard pixels (`image-rendering: pixelated`), fixed behind the page.
 - Value-noise galaxy band, ordered-dithered (Bayer 4x4) into 4 palette levels from the page base (`#1A1A24`) with a faint lift toward `#B4BEFE`.
@@ -196,7 +201,7 @@ Luca's touch, kept from the previous site. It is pure texture: it never carries 
 - 10 ticks a second at rest, 30 while something moves, none when the tab is hidden. Rows are baked lazily, on-screen rows first.
 - Reduced motion: a still sky. Print: hidden. Without JavaScript: the plain base colour.
 
-**The grain (both themes).** A 128 px grey noise tile on an oversized fixed layer, jumped with transforms 8 times a second. Opacity 0.05 at night; 0.08 with multiply blending by day. Still with reduced motion. Optional: the old site's grain toggle.
+**The grain (both themes).** A 128 px grey noise tile on an oversized fixed layer, jumped with transforms 8 times a second. Opacity 0.07 with multiply blending by day; 0.05 at night. Still with reduced motion. Optional: the old site's grain toggle.
 
 **The 3D viewer at night** has a transparent stage: the model floats over the sky, with no contact shadow. By day it keeps the grey studio backdrop and shadow.
 
@@ -342,7 +347,7 @@ Ship with **three real cases** (01, one real-time piece, 05); add the rest later
 
 - [ ] `build.mjs`, `site/`, tests and the Pages workflow in place
 - [ ] Fonts subset and self-hosted with OFL files; no external requests
-- [ ] Sky, grain and their tests ported from commit `5ed1192`; night and day both pass AAA
+- [ ] Sky, grain and their tests ported from commit `5ed1192`, plus the day (clouds) mode; day and night both pass AAA
 - [ ] three.js vendored at a pinned version with its licence; studio HDRI added
 - [ ] Three real cases, each with a real hero image, a real `.glb` plus poster, real numbers and verified commits
 - [ ] Real portrait shot and art-directed
