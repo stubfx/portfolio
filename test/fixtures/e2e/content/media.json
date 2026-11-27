@@ -1,0 +1,94 @@
+{
+  "loop.mp4": {
+    "kind": "video",
+    "width": 640,
+    "height": 360,
+    "duration": 3,
+    "audio": false,
+    "master": "6df75806f0fbed46f6a40d2367950fe19b7e3cbc751993447e0b85b853f67e8b",
+    "variants": [
+      {
+        "file": "loop.av1.mp4",
+        "bytes": 16341,
+        "type": "video/mp4; codecs=\"av01.0.01M.08\""
+      },
+      {
+        "file": "loop.mp4",
+        "bytes": 22479,
+        "type": "video/mp4; codecs=\"avc1.64001e\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "loop.jpg",
+        "bytes": 11628
+      },
+      "avif": {
+        "file": "loop.avif",
+        "bytes": 2474
+      }
+    }
+  },
+  "player.mp4": {
+    "kind": "video",
+    "width": 640,
+    "height": 360,
+    "duration": 3,
+    "audio": true,
+    "master": "8a38feb85c02c4ea9955e7f017c6ed9872d5ab06687dc2c1db7401642dd6eaa5",
+    "variants": [
+      {
+        "file": "player.av1.mp4",
+        "bytes": 304632,
+        "type": "video/mp4; codecs=\"av01.0.01M.08\""
+      },
+      {
+        "file": "player.mp4",
+        "bytes": 339441,
+        "type": "video/mp4; codecs=\"avc1.64001e\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "player.jpg",
+        "bytes": 19502
+      },
+      "avif": {
+        "file": "player.avif",
+        "bytes": 4203
+      }
+    }
+  },
+  "youtube-e2etest01.jpg": {
+    "kind": "photo",
+    "width": 1280,
+    "height": 720,
+    "master": "61744cbbb21b3771f47ee7e2e9dc0378813451c6c213f513ce93c2414e9218ad",
+    "variants": [
+      {
+        "file": "youtube-e2etest01.800.avif",
+        "width": 800,
+        "bytes": 982,
+        "type": "image/avif"
+      },
+      {
+        "file": "youtube-e2etest01.1280.avif",
+        "width": 1280,
+        "bytes": 1160,
+        "type": "image/avif"
+      },
+      {
+        "file": "youtube-e2etest01.800.jpg",
+        "width": 800,
+        "bytes": 11122,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "youtube-e2etest01.jpg",
+        "width": 1280,
+        "bytes": 11666,
+        "type": "image/jpeg"
+      }
+    ]
+  }
+}
