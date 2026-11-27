@@ -113,9 +113,9 @@ Every page's `<head>`: `<title>` from the H1; `<meta name="description">` from t
 ## 9. Theme switch
 
 - `theme.js` sets `data-theme="night"` or `"day"` on `<html>`; all colours are CSS custom properties per theme ([DESIGN.md](DESIGN.md) section 2).
-- **Default: night.** The choice is stored in `localStorage` under `theme` (wrapped in try/catch).
+- **Default: day.** The choice is stored in `localStorage` under `theme` (wrapped in try/catch).
 - A tiny inline script in `<head>` applies the stored theme before the first paint, so there is no flash.
-- Without JavaScript the page renders in night.
+- Without JavaScript the page renders in day.
 
 ## 10. 3D viewer
 

@@ -8,37 +8,38 @@ A journal page set in README formatting. Huge, punchy headlines across the scree
 
 ## 2. Themes: official Catppuccin
 
-All chrome colours come from the **official Catppuccin palette** (`@catppuccin/palette`, the values in its `css/catppuccin.css`; verified Nov 27, 2026). No hand-tuned variants.
+All chrome colours come from the **official Catppuccin palette** (`@catppuccin/palette`, the values in its `css/catppuccin.css`; verified Nov 27, 2026). No hand-tuned variants. **One deliberate exception: day text is pure black.**
 
-- **Night = Catppuccin Mocha. Default.**
-- **Day = Catppuccin Latte.** One switch in the file bar.
+- **Day = Catppuccin Latte, text pure black `#000`. Default.** Latte's own Text (`#4C4F69`) reads soft and washed out as the main voice; black on Latte paper reads like printer's ink, and the Catppuccin blue-greys around it become a clear second voice (the machine) instead of faded text.
+- **Night = Catppuccin Mocha**, unchanged (Mocha Text, since black can't sit on a dark page). One switch in the file bar.
 
-| Token | Night: Mocha (default) | Day: Latte | Use |
+| Token | Day: Latte (default) | Night: Mocha | Use |
 | --- | --- | --- | --- |
-| `--paper` | Base `#1E1E2E` | Base `#EFF1F5` | Background |
-| `--ink` | Text `#CDD6F4` | Text `#4C4F69` | Text: me |
-| `--grey` | Subtext0 `#A6ADC8` | Subtext1 `#5C5F77` | Machine output, secondary text, captions, code keys, commit hashes |
-| `--mk` | Overlay0 `#6C7086` | Overlay0 `#9CA0B0` | Syntax markers only (decorative) |
-| `--line` | Surface0 `#313244` | Surface0 `#CCD0DA` | Hairlines, image fallback background |
-| `--red` | Maroon `#EBA0AC` | Maroon `#E64553` | The punch line only; link hover |
-| `--bar` | Base at 88% opacity | Base at 90% opacity | File bar background |
+| `--paper` | Base `#EFF1F5` | Base `#1E1E2E` | Background |
+| `--ink` | **Pure black `#000000`** | Text `#CDD6F4` | Text: me. Headings, body, links, table titles, code, buttons |
+| `--grey` | Subtext1 `#5C5F77` | Subtext0 `#A6ADC8` | Machine output, secondary text, captions, code keys, commit hashes |
+| `--mk` | Overlay0 `#9CA0B0` | Overlay0 `#6C7086` | Syntax markers only (decorative) |
+| `--line` | Surface0 `#CCD0DA` | Surface0 `#313244` | Hairlines, image fallback background |
+| `--red` | Maroon `#E64553` | Maroon `#EBA0AC` | The punch line only; link hover |
+| `--bar` | Base at 90% opacity | Base at 88% opacity | File bar background |
 
 **Rules**
 
+- Black is for the main text in most cases. Not black: machine output and secondary text (`--grey`), syntax markers (`--mk`), the punch line (`--red`).
 - Maroon appears only in the punch line (one per page) and on link hover. Never on buttons, borders or decoration.
 - Images and the 3D stage keep their own neutral studio grey: they are content, not chrome.
 - No other colours in the UI.
 
 ## 3. Contrast and accessibility
 
-| Pair | Night (Mocha) | Day (Latte) |
+| Pair | Day (Latte, default) | Night (Mocha) |
 | --- | --- | --- |
-| Text on paper | 11.3:1 (AAA) | 7.1:1 (AAA) |
-| Secondary on paper | 7.4:1 (AAA) | 5.5:1 (AA) |
-| Maroon punch line on paper | 7.9:1 (AAA) | 3.5:1 (AA large) |
+| Text on paper | 18.6:1 (AAA), black | 11.3:1 (AAA) |
+| Secondary on paper | 5.5:1 (AA) | 7.4:1 (AAA) |
+| Maroon punch line on paper | 3.5:1 (AA large) | 7.9:1 (AAA) |
 | Markers | decorative, hidden from assistive tech | decorative |
 
-Night, the default, is AAA throughout. Latte has no grey that reaches 7:1 below its Text colour, so by day secondary text is AA. The punch line is never smaller than 32 px bold, so it qualifies as large text. **AAA fallback for day** (if it becomes a hard rule): use Text `#4C4F69` for secondary text and Latte Red `#D20F39` (4.8:1) for the punch line.
+Main text is AAA in both themes. By day, secondary text is AA (Latte Subtext1) and the punch line is AA large: it is never smaller than 32 px bold, so it qualifies as large text. Night is AAA throughout. **AAA fallback for day** (if it becomes a hard rule): with black as the main text, Latte Text `#4C4F69` (7.1:1) becomes the secondary grey, and Latte Red `#D20F39` (4.8:1) the punch line. The me/machine contrast survives the swap.
 
 Other accessibility rules: one H1 per page; real headings, lists, tables and figures; visible focus styles (2 px outline in `--ink`); every image has alt text written as a caption; `prefers-reduced-motion` stops the grain and the 3D auto-turn; nothing requires JavaScript to read.
 

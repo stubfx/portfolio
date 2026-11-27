@@ -32,7 +32,7 @@ A portfolio where every page is a Markdown file: typeset like a bold journal pag
 | Format | Every page is a Markdown file; the HTML is generated from it | The AI-era idea made literal: agents and people read the same words |
 | Syntax | Block-level Markdown markers stay visible in the margin; inline markers are hidden | The page shows its own source without cluttering the reading |
 | Stack | **No framework, no bundler, no `npm install`**: one zero-dependency Node script | A small fixed Markdown subset needs a few hundred lines of our own code, not hundreds of dependencies. See [BUILD.md](BUILD.md) section 1 |
-| Colour | **Official Catppuccin. Mocha is the default (night); Latte is the option (day)** | Catppuccin was the previous site's baseline; Mocha carries the identity, Latte is weaker as a default |
+| Colour | **Official Catppuccin, with pure black text. Day (Latte paper, black text) is the default; night (Mocha) is the option** | Catppuccin was the previous site's baseline. Latte's own text colour is too soft as the main voice; black makes the journal page read like print |
 | Accent | Catppuccin Maroon, for the one punch line per page | A soft red: conviction without shouting |
 | Type | Archivo Black (display), DM Sans (text), a mono for syntax; all OFL, self-hosted | Punchy, editorial, open source |
 | Texture | The previous site's film grain, ported as-is | Luca's touch, for humans only |
@@ -46,7 +46,7 @@ A portfolio where every page is a Markdown file: typeset like a bold journal pag
 
 - `index.md` (homepage = llms.txt), `now.md`, `cv.md`, a 404 page.
 - **Three real cases** in the Idea · Logic · Proof format: one agentic pipeline, one real-time 3D piece, one pure art direction piece. More cases later.
-- Night and day themes, grain, live 3D on the homepage and in cases, history line on every page.
+- Day and night themes, grain, live 3D on the homepage and in cases, history line on every page.
 - Agent files: `/llms.txt`, `/llms-full.txt`, raw `.md` for every page, sitemap, robots.
 - Deploy to GitHub Pages at lucamolluso.com.
 
