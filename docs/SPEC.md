@@ -1,6 +1,6 @@
 # lucamolluso.com · Portfolio spec
 
-Nov 27, 2026 · v3 · Build from scratch from this document.
+Nov 27, 2026 · v4 · Build from scratch from this document.
 
 The reference prototype is `prototype/index.html` (open it in a browser, no server needed). Draft content lives in `content/`. The reasoning behind every decision is in the Career project doc "Portfolio intentions" (v6); this file is the build contract.
 
@@ -13,7 +13,7 @@ A personal portfolio where **every page is a Markdown file**. People read it typ
 - **Who:** Luca Molluso, Technical Artist, AI and real-time 3D. Presented as the figure in the middle: an art director who can build what he directs.
 - **For:** AI Technical Artist, real-time 3D Technical Artist and Creative Technologist roles, plus the agents that read on their behalf.
 - **Message:** the idea and the logic are the work; the outcome is proof. AI is a tool, not a goal.
-- **Principle: Markdown for machines, texture for humans.** The words are a plain `.md` file that any agent reads. On top, only for people: Luca's dithered sky (clouds by day, stars by night) and film grain from the previous site. Agents never see it and never need to.
+- **Principle: Markdown for machines, texture for humans.** The words are a plain `.md` file that any agent reads. On top, only for people: the film grain from the previous site. Agents never see it and never need to. Nothing else: less is more.
 - **Not:** a configurator showcase, a cleanup reel ("I fixed this"), a one-prompt pretty site, or a default GitHub README.
 
 ## 2. Decision: no framework
@@ -34,7 +34,7 @@ What we use instead:
 | Build | One script, `build.mjs`, Node 22+, built-in modules only (`node:fs`, `node:path`, `node:child_process`, `node:http`) |
 | Markdown | Our own renderer, `site/render.mjs`, for the subset in section 6 |
 | Styles | One hand-written `site/style.css` with CSS custom properties |
-| Client JS | Small plain files: `site/copy.js` (copy .md), `site/theme.js` (day/night), `site/sky.js` + `site/sky-core.mjs` + `site/grain.js` (the human layer, ported from the previous site), `site/viewer.js` (3D). Content never needs JS |
+| Client JS | Three small plain files: `site/copy.js` (copy .md), `site/grain.js` (film grain, ported from the previous site), `site/viewer.js` (3D). Content never needs JS |
 | 3D | three.js (MIT), **vendored** as plain ES module files in `site/vendor/three/`, loaded with an import map, only on pages that contain a `.glb` |
 | Dev server | `node build.mjs --serve` (node:http plus fs.watch), or `python3 -m http.server -d dist` |
 | Tests | `node --test` (built in) |
@@ -58,9 +58,6 @@ site/                     the typesetting
   style.css
   render.mjs              Markdown subset to HTML (used by build.mjs only)
   copy.js                 "copy .md" button
-  theme.js                day/night switch (applied before first paint)
-  sky-core.mjs            sky maths: Bayer dither, value noise, palette ramp, stars, meteors (ported)
-  sky.js                  the night sky renderer (ported)
   grain.js                film grain layer (ported)
   viewer.js               lazy 3D viewer
   fonts/                  self-hosted woff2 + OFL licence files
@@ -103,7 +100,7 @@ No front matter in the Markdown files. They stay pure, so the raw file reads cle
 
 Every page has three parts:
 
-1. **File bar** (sticky, top): the path as breadcrumbs (`lucamolluso.com/work/direction-as-code.md`, last segment in ink), a **copy .md** button, a **day · night** switch and a **raw** link to the `.md` file. (The prototype's rendered/raw toggle is replaced by the raw link: simpler, no JS.)
+1. **File bar** (sticky, top): the path as breadcrumbs (`lucamolluso.com/work/direction-as-code.md`, last segment in ink), a **copy .md** button and a **raw** link to the `.md` file. (The prototype's rendered/raw toggle is replaced by the raw link: simpler, no JS.)
 2. **The page:** the rendered Markdown.
 3. **Status line** (bottom, mono, grey): file name · N edits · last edit date · `history` link to `https://github.com/stubfx/portfolio/commits/main/content/<path>`. Built from git (section 10).
 
@@ -144,19 +141,16 @@ The renderer supports exactly this subset. Anything else is a build error, so co
 
 **Mood.** Bold, punchy, editorial: a journal page set in README formatting. Huge headlines across the screen, large body text, generous white space, one red line of conviction per page. Typography carries the page; images and live 3D carry the proof. The look alone is not the differentiator (type minimalism is a 2026 trend and AI site builders sell monospace templates); the ideas, the live 3D and the real history are.
 
-**Themes.** Two themes, one switch in the file bar, remembered per browser and applied before the first paint. **Day is the default**: paper, ink and a dithered sky of clouds in the margins. Night is the alternative: the previous site's starry sky. Both carry the human layer (section 8) and both meet **WCAG AAA** for text.
+**One theme: the journal.** Paper, ink, one red line, grain on top. No dark mode, no sky. All text meets **WCAG AAA**.
 
-**Palette idea (day):** paper and blue-black ink, a pale dithered sky, and one buoy-red line. Blue sky and vermilion are complementary, so the punch line is the hottest thing on a cool page.
-
-| Token | Day (default) | Night | Use |
-| --- | --- | --- | --- |
-| `--paper` | `#FCFCFA` | `#1A1A24` | Background (and the sky's flat level behind the text) |
-| `--ink` | `#11161C` blue-black (17.7:1) | `#E7E7EC` | Text: me |
-| `--grey` | `#4E5560` (7.3:1) | `#A9A9B3` (about 7.2:1) | Machine output, secondary text, code keys, commit hashes |
-| `--mk` | `#A2A9B2` | `#5F5F6E` | Syntax markers only (decorative, `aria-hidden`) |
-| `--line` | `#E2E6EA` | `#2C2C3A` | Hairlines |
-| `--red` | `#C2330C` buoy red (5.4:1 on paper, 4.5:1 on the deepest sky) | `#FF6B3D` (about 5.9:1) | The punch line only (large text: passes AAA large-text 4.5:1). Never on buttons or links, except link hover |
-| Day sky levels | `#E6EAEE` cloud shade · `#FCFCFA` paper · `#E8F1F6` pale sky · `#DCEAF3` sky | (night: the previous site's ramp from `#1A1A24` lifting toward `#B4BEFE`) | The dithered sky only; never behind body text |
+| Token | Value | Use |
+| --- | --- | --- |
+| `--paper` | `#FDFDFC` | Background (cool near-white, never cream) |
+| `--ink` | `#111111` | Text: me |
+| `--grey` | `#555555` (about 7.3:1) | Machine output, secondary text, code keys, commit hashes |
+| `--mk` | `#A6A6A6` | Syntax markers only (decorative, `aria-hidden`) |
+| `--line` | `#E4E4E1` | Hairlines |
+| `--red` | `#D33A16` (about 4.8:1) | The punch line only (large text: passes AAA large-text 4.5:1). Never on buttons or links, except link hover |
 
 **Type**
 
@@ -179,31 +173,17 @@ The renderer supports exactly this subset. Anything else is a build error, so co
 
 **Layout.** Max width 1560 px. Side padding `clamp(18px, 7vw, 120px)`. A left gutter of 3.6 rem holds the hanging markers on screens wider than 720 px; below that, markers sit inline and small. Images and the 3D viewer take the full content width; text keeps its measure.
 
-**Motion.** The 3D viewer and the sky (a breathing dither and a scroll parallax done in CSS; at night also twinkle and a rare shooting star). No page transitions, no scroll-triggered effects. Everything stops with `prefers-reduced-motion`.
+**Motion.** Only the 3D viewer and the grain move. No page transitions, no scroll effects. Both stop with `prefers-reduced-motion`.
 
-## 8. The human layer: sky, dither, grain
+## 8. The human layer: grain
 
-Luca's touch, kept from the previous site: "that's for humans." It is pure texture: it never carries information, agents never see it, and the raw `.md` is untouched.
+Luca's touch, kept from the previous site: "that's for humans." Film grain over the whole page. It is pure texture: it never carries information, agents never see it, and the raw `.md` is untouched. It is the only effect on the page.
 
-**Port, don't rewrite.** The code is in this repo's history at commit `5ed1192` (`git show 5ed1192:src/client/sky-core.mjs`, `sky.js`, `grain-core.mjs`, `grain.js`, `src/styles/sky.css`, the grain rules in `src/styles/hud.css`, and the tests `test/sky.test.mjs`). Port it into `site/` with its tests. The only change is the day mode below; `prototype/index.html` contains the exact modified `startSky` to copy.
+**Port, don't rewrite.** From this repo's history at commit `5ed1192`: `src/client/grain-core.mjs`, `src/client/grain.js`, the `rng` function from `src/client/sky-core.mjs`, the `#grain` rules in `src/styles/hud.css`, and their tests. `prototype/index.html` runs exactly this code.
 
-**Day mode: clouds (default).** `startSky(canvas, { lane, colours, mode: 'day' })`. Same engine, same dither, same calm lane, but no stars and no shooting stars. The value field is stretched cumulus: `fbm(sky, x/52, y/20)` through a smoothstep (0.42 to 0.64) gives cloud cover; open sky maps to the two sky levels, cloud bodies to paper with a light shade from a second noise. The palette is the four day sky levels in section 7, with paper as the base level so the lane stays flat paper behind the text. The pointer lens parts the clouds a little. `setMode('day' | 'night')` rebakes the sky when the switch changes.
+**Behaviour.** A 128 px grey noise tile on an oversized fixed layer (200% of the viewport), jumped to a random offset with transforms 8 times a second. Opacity 0.07 with multiply blending, above the content, `pointer-events: none`. Still with reduced motion, paused when the tab is hidden, hidden when printing. Optional: the old grain toggle.
 
-**Night mode: stars**
-
-- An indexed-colour framebuffer a third of the screen's size, scaled up with hard pixels (`image-rendering: pixelated`), fixed behind the page.
-- Value-noise galaxy band, ordered-dithered (Bayer 4x4) into 4 palette levels from the page base (`#1A1A24`) with a faint lift toward `#B4BEFE`.
-- Stars hashed per row, twinkling by palette cycling; a breathing dither (two dither phases alternate).
-- Shooting stars every 7 to 16 seconds that burn out with an ordered-dither dissolve.
-- A faint dither lens around a fine pointer.
-- **Calm lane:** behind the reading column (the text measure, plus 28 px each side) the sky goes flat with no stars, so text always sits on the plain base. The lane is recomputed on every page (the renderer exposes `relayout()`).
-- Scrolling is CSS: a scroll-driven animation moves the canvas a twentieth of the scroll in whole-pixel steps. No script runs on scroll.
-- 10 ticks a second at rest, 30 while something moves, none when the tab is hidden. Rows are baked lazily, on-screen rows first.
-- Reduced motion: a still sky. Print: hidden. Without JavaScript: the plain base colour.
-
-**The grain (both themes).** A 128 px grey noise tile on an oversized fixed layer, jumped with transforms 8 times a second. Opacity 0.07 with multiply blending by day; 0.05 at night. Still with reduced motion. Optional: the old site's grain toggle.
-
-**The 3D viewer at night** has a transparent stage: the model floats over the sky, with no contact shadow. By day it keeps the grey studio backdrop and shadow.
+(Dithered sky, clouds, stars and a dark theme were tried in prototypes v7 and v8 and dropped: too much.)
 
 ## 9. Live 3D: images that run
 
@@ -263,12 +243,12 @@ The status line and the `log` blocks prove process with real data.
 | Content without JS | 100% readable, all links work |
 | HTML + CSS per page | under 40 KB uncompressed, excluding images |
 | Fonts | under 150 KB total, subset woff2 |
-| JS on pages without 3D | `copy.js` + `theme.js` + the human layer (sky, grain), under 12 KB gzipped together |
+| JS on pages without 3D | `copy.js` + `grain.js`, under 3 KB gzipped together |
 | JS on pages with 3D | `viewer.js` under 10 KB, plus three.js loaded lazily |
 | Images | JPEG/WebP, 2400 px wide max, width/height set, `loading="lazy"` below the fold |
 | Lighthouse (mobile) | 95+ in Performance, Accessibility, Best Practices, SEO |
-| Contrast | All text passes WCAG AAA in both themes; the red punch line passes AAA as large text; markers are decorative |
-| Motion | Respects `prefers-reduced-motion` (still sky, still grain, no auto-turn) |
+| Contrast | All text passes WCAG AAA; the red punch line passes AAA as large text; markers are decorative |
+| Motion | Respects `prefers-reduced-motion` (still grain, no auto-turn) |
 | Privacy | No trackers, no analytics, no third-party requests |
 
 ## 13. Build, run, deploy
@@ -288,7 +268,7 @@ node --test               # renderer and build tests
 5. Copy `site/` assets (CSS, JS, fonts, vendor, env), content images and models, and `static/`.
 6. Write `.nojekyll`.
 
-**Tests** (`node --test`): every row of the table in section 6 has a renderer test; the ported sky tests run unchanged; one build test runs against a fixture folder and checks the outputs in section 4.
+**Tests** (`node --test`): every row of the table in section 6 has a renderer test; the ported grain tests run unchanged; one build test runs against a fixture folder and checks the outputs in section 4.
 
 **Deploy** (`.github/workflows/pages.yml`): on push to `main`, checkout with `fetch-depth: 0`, setup Node 22, `node --test`, `node build.mjs`, upload `dist/`, deploy to Pages. No `npm install` step.
 
@@ -347,7 +327,7 @@ Ship with **three real cases** (01, one real-time piece, 05); add the rest later
 
 - [ ] `build.mjs`, `site/`, tests and the Pages workflow in place
 - [ ] Fonts subset and self-hosted with OFL files; no external requests
-- [ ] Sky, grain and their tests ported from commit `5ed1192`, plus the day (clouds) mode; day and night both pass AAA
+- [ ] Grain and its tests ported from commit `5ed1192`; all text passes AAA
 - [ ] three.js vendored at a pinned version with its licence; studio HDRI added
 - [ ] Three real cases, each with a real hero image, a real `.glb` plus poster, real numbers and verified commits
 - [ ] Real portrait shot and art-directed
