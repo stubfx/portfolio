@@ -6,17 +6,15 @@ I work in the middle: between the **idea** and the machines that make it real. I
 
 ==The outcome is cheap now. The idea isn't.==
 
-![The buoy from "Direction as code". Real-time, in the page. Drag to turn it.](work/direction-as-code/buoy.glb)
+![Prop 01 from "Direction as code", turning. Sample footage.](work/direction-as-code/buoy.mp4)
 
 ## Work
 
-| # | Case | Idea | Year |
-|---|---|---|---|
-| 01 | [Direction as code](work/direction-as-code.md) | What if the art direction were the input, not the review? | 2026 |
-| 02 | [Live, in the browser](work/live.md) | A luxury object, directed and running in real time. | 2026 |
-| 03 | [One frame](work/one-frame.md) | An Unreal scene, from moodboard to final light. | 2026 |
-| 04 | [Procedural](work/procedural.md) | The intent first, then the graph. | 2026 |
-| 05 | [Before the machines](work/art-direction.md) | Brand, campaign, type. | 2025 |
+- [Direction as code](work/direction-as-code.md): What if the art direction were the input, not the review? (2026)
+- Live, in the browser: A luxury object, directed and running in real time. (2026)
+- One frame: An Unreal scene, from moodboard to final light. (2026)
+- Procedural: The intent first, then the graph. (2026)
+- Before the machines: Brand, campaign, type. (2025)
 
 ## Now
 

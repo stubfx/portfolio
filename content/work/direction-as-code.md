@@ -44,7 +44,7 @@ check: silhouette reads at 64 px
 
 ![Contact sheet: 16 of the 40 props kept, out of 160 candidates.](direction-as-code/sheet.jpg)
 
-![Prop 01, the buoy. Real-time, in the page. Drag to turn it.](direction-as-code/buoy.glb)
+![Prop 01, the buoy, turning. Sample footage.](direction-as-code/buoy.mp4)
 
 **40** kept of 160. **1** direction file. **2** redirects. Machine 46 min, me 5 h.
 
@@ -63,6 +63,6 @@ a3f9c21  redirect: heavier bases, silhouette check at 64 px   Nov 21
 
 ---
 
-[index](../index.md) · [next: Live, in the browser](live.md)
+[index](../index.md)
 
 <!-- Sample case. The numbers and commits are placeholders for the draft. -->

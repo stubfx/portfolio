@@ -1,0 +1,156 @@
+{
+  "portrait.jpg": {
+    "kind": "photo",
+    "width": 1200,
+    "height": 1500,
+    "master": "bbc8c90f0b3ad52663f03956d1e487cc5c6d36a79b692eafb74f5b40c2ebc216",
+    "variants": [
+      {
+        "file": "portrait.800.avif",
+        "width": 800,
+        "bytes": 1643,
+        "type": "image/avif"
+      },
+      {
+        "file": "portrait.1200.avif",
+        "width": 1200,
+        "bytes": 2034,
+        "type": "image/avif"
+      },
+      {
+        "file": "portrait.800.jpg",
+        "width": 800,
+        "bytes": 10147,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "portrait.jpg",
+        "width": 1200,
+        "bytes": 19098,
+        "type": "image/jpeg"
+      }
+    ],
+    "sample": true
+  },
+  "work/direction-as-code/buoy.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1080,
+    "duration": 12,
+    "audio": false,
+    "master": "ceffed16565ae664b417f243d1146f3c2ed7c4b278df5d0a3e4719291cc921c4",
+    "variants": [
+      {
+        "file": "work/direction-as-code/buoy.av1.mp4",
+        "bytes": 96560,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/direction-as-code/buoy.mp4",
+        "bytes": 361387,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/direction-as-code/buoy.jpg",
+        "bytes": 26153
+      },
+      "avif": {
+        "file": "work/direction-as-code/buoy.avif",
+        "bytes": 3540
+      }
+    },
+    "sample": true
+  },
+  "work/direction-as-code/hero.jpg": {
+    "kind": "photo",
+    "width": 2400,
+    "height": 930,
+    "master": "389048f961a7262bf450cb733f61682f93d26888e7a3d146b63353e230e24cf1",
+    "variants": [
+      {
+        "file": "work/direction-as-code/hero.800.avif",
+        "width": 800,
+        "bytes": 2821,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/direction-as-code/hero.1600.avif",
+        "width": 1600,
+        "bytes": 4652,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/direction-as-code/hero.2400.avif",
+        "width": 2400,
+        "bytes": 6427,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/direction-as-code/hero.800.jpg",
+        "width": 800,
+        "bytes": 12698,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/direction-as-code/hero.1600.jpg",
+        "width": 1600,
+        "bytes": 29865,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/direction-as-code/hero.jpg",
+        "width": 2400,
+        "bytes": 52230,
+        "type": "image/jpeg"
+      }
+    ],
+    "sample": true
+  },
+  "work/direction-as-code/sheet.jpg": {
+    "kind": "photo",
+    "width": 2400,
+    "height": 2400,
+    "master": "e642a3fa96ef1b90f51bf989c7f00901b23b9ad90bca7f68927000258153571e",
+    "variants": [
+      {
+        "file": "work/direction-as-code/sheet.800.avif",
+        "width": 800,
+        "bytes": 6320,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/direction-as-code/sheet.1600.avif",
+        "width": 1600,
+        "bytes": 11173,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/direction-as-code/sheet.2400.avif",
+        "width": 2400,
+        "bytes": 16020,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/direction-as-code/sheet.800.jpg",
+        "width": 800,
+        "bytes": 38273,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/direction-as-code/sheet.1600.jpg",
+        "width": 1600,
+        "bytes": 79809,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/direction-as-code/sheet.jpg",
+        "width": 2400,
+        "bytes": 145876,
+        "type": "image/jpeg"
+      }
+    ],
+    "sample": true
+  }
+}
