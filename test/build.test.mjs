@@ -142,3 +142,29 @@ test('a problem stops the build and leaves dist alone', async () => {
   assert.deepEqual({ file: r.problems[0].file, line: r.problems[0].line }, { file: 'content/now.md', line: 5 });
   assert.ok(fs.existsSync(path.join(bad, 'dist/keep.txt')));
 });
+
+test('linked files are published', async () => {
+  const site = fixture({ 'cv.pdf': Buffer.from('%PDF-1.4'), 'work/a/direction.yaml': 'world: x\n', 'now.md': PAGE('Now', '[CV](cv.pdf) and [the direction file](work/a/direction.yaml)') });
+  const r = await run(site);
+  assert.equal(r.ok, true, JSON.stringify(r.problems));
+  assert.equal(read(site, 'cv.pdf'), '%PDF-1.4');
+  assert.equal(read(site, 'work/a/direction.yaml'), 'world: x\n');
+  assert.match(read(site, 'now/index.html'), /href="\/cv\.pdf"/);
+});
+
+test('a missing homepage stops the build with a problem', async () => {
+  const site = fixture();
+  fs.rmSync(path.join(site, 'content/index.md'));
+  const r = await run(site);
+  assert.equal(r.ok, false);
+  assert.equal(r.problems[0].file, 'content/index.md');
+});
+
+test('the banner calls the content sample only while a page is sample', async () => {
+  assert.match(read(root, 'index.html'), /Sample content and numbers for now\./);
+  const real = fixture({ 'work/a.md': PAGE('A.') });
+  assert.equal((await run(real)).ok, true);
+  const html = read(real, 'index.html');
+  assert.match(html, /<div class="wip" role="note">/);
+  assert.ok(!html.includes('Sample content'), 'no page is sample');
+});

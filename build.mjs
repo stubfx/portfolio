@@ -4,8 +4,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
+import os from 'node:os';
 import { pathToFileURL } from 'node:url';
-import { loadSite } from './lib/site.mjs';
+import { loadSite, pageLinks, resolveHref } from './lib/site.mjs';
 import { validate, formatProblems, mediaWarnings } from './lib/validate.mjs';
 import { renderPage } from './lib/page.mjs';
 import { llmsFull, sitemap, robots } from './lib/outputs.mjs';
@@ -28,7 +29,8 @@ function copyDir(from, to) {
 export async function build({ contentDir = 'content', siteDir = 'site', staticDir = 'static', outDir = 'dist', repoDir = '.', dev = false } = {}) {
   const site = loadSite({ contentDir, repoDir });
   const problems = validate(site);
-  const warnings = mediaWarnings(site);
+  if (!site.loadProblems.length && !site.byPath.has('index.md')) problems.unshift({ file: `${site.contentRel}/index.md`, line: 0, message: 'the homepage is missing' });
+  const warnings = site.loadProblems.length ? [] : mediaWarnings(site);
   if (problems.length) return { ok: false, problems, warnings, pages: 0 };
 
   fs.rmSync(outDir, { recursive: true, force: true });
@@ -52,6 +54,12 @@ export async function build({ contentDir = 'content', siteDir = 'site', staticDi
     const files = [...e.variants.map((v) => v.file), ...(e.poster ? [e.poster.jpg.file, e.poster.avif.file] : [])];
     for (const f of files) write(path.join(outDir, f), fs.readFileSync(path.join(contentDir, f)));
   }
+  for (const page of site.pages) {
+    for (const { href } of pageLinks(page)) {
+      const r = resolveHref(site, page, href);
+      if (r.file) write(path.join(outDir, r.file), fs.readFileSync(path.join(contentDir, r.file)));
+    }
+  }
   copyDir(staticDir, outDir);
   return { ok: true, problems: [], warnings, pages: site.pages.length };
 }
@@ -63,8 +71,12 @@ const TYPES = {
 };
 const RELOAD_JS = "new EventSource('/__reload').onmessage = () => location.reload();\n";
 
-/** A static server for dist/ with Range support (video), the 404 page, and live reload for --serve. */
-export function serve({ outDir = 'dist', port = 8080 } = {}) {
+/** This machine's IPv4 addresses other than loopback: what another machine (the VM's host) opens. */
+const lanAddresses = () => Object.values(os.networkInterfaces()).flat().filter((a) => a && a.family === 'IPv4' && !a.internal).map((a) => a.address);
+
+/** A static server for dist/ with Range support (video), the 404 page, and live reload for --serve.
+ *  host 0.0.0.0 makes it reachable from other machines; `urls` lists the addresses to open. */
+export function serve({ outDir = 'dist', port = 8080, host = '127.0.0.1' } = {}) {
   const clients = new Set();
   const root = path.resolve(outDir);
   const server = http.createServer((req, res) => {
@@ -100,32 +112,41 @@ export function serve({ outDir = 'dist', port = 8080 } = {}) {
     res.writeHead(200, { 'content-type': type, 'content-length': size, 'accept-ranges': 'bytes', 'cache-control': 'no-store' });
     fs.createReadStream(file).pipe(res);
   });
-  return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve({
+  return new Promise((resolve) => server.listen(port, host, () => resolve({
     url: `http://127.0.0.1:${server.address().port}`,
+    urls: (host === '0.0.0.0' ? ['127.0.0.1', ...lanAddresses()] : [host]).map((h) => `http://${h}:${server.address().port}`),
     reload: () => { for (const c of clients) c.write('data: reload\n\n'); },
     close: () => new Promise((done) => { for (const c of clients) c.end(); server.close(done); }),
   })));
 }
 
-async function main(args) {
-  const report = (r, ms) => {
-    for (const w of r.warnings) console.warn(`warning: ${formatProblems([w])}`);
-    if (r.ok) console.log(`built ${r.pages} pages in ${ms} ms`);
-    else console.error(`${formatProblems(r.problems)}\n\n${r.problems.length} problem${r.problems.length === 1 ? '' : 's'}: nothing was built`);
+/** Builds and reports; never throws, so a failing rebuild can't take the dev server down. */
+export async function rebuild(opts = {}, io = console) {
+  const t = Date.now();
+  try {
+    const r = await build(opts);
+    for (const w of r.warnings) io.warn(`warning: ${formatProblems([w])}`);
+    if (r.ok) io.log(`built ${r.pages} pages in ${Date.now() - t} ms`);
+    else io.error(`${formatProblems(r.problems)}\n\n${r.problems.length} problem${r.problems.length === 1 ? '' : 's'}: nothing was built`);
     return r.ok;
-  };
-  const timed = async (opts) => { const t = Date.now(); const r = await build(opts); return report(r, Date.now() - t); };
-  if (!args.includes('--serve')) { process.exitCode = (await timed()) ? 0 : 1; return; }
-  const port = Number(args[args.indexOf('--port') + 1]) || 8080;
-  await timed({ dev: true });
-  const s = await serve({ port });
-  console.log(`serving ${s.url}`);
+  } catch (e) {
+    io.error(`build failed: ${e.stack ?? e}`);
+    return false;
+  }
+}
+
+async function main(args) {
+  const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
+  if (!args.includes('--serve')) { process.exitCode = (await rebuild()) ? 0 : 1; return; }
+  await rebuild({ dev: true });
+  const s = await serve({ port: Number(opt('--port')) || 8080, host: opt('--host') ?? '127.0.0.1' });
+  console.log(`serving ${s.urls.join('  ')}`);
   let timer = null;
   for (const dir of ['content', 'site', 'static']) {
     if (!fs.existsSync(dir)) continue;
     fs.watch(dir, { recursive: true }, () => {
       clearTimeout(timer);
-      timer = setTimeout(async () => { if (await timed({ dev: true })) s.reload(); }, 100);
+      timer = setTimeout(async () => { if (await rebuild({ dev: true })) s.reload(); }, 100);
     });
   }
 }

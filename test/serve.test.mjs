@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { serve } from '../build.mjs';
+import { serve, rebuild } from '../build.mjs';
 
 function dist() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dist-'));
@@ -33,4 +33,22 @@ test('range requests, types, directories, 404', async () => {
   } finally {
     await s.close();
   }
+});
+
+test('serve on all interfaces lists the addresses to open', async () => {
+  const s = await serve({ outDir: dist(), port: 0, host: '0.0.0.0' });
+  try {
+    const { port } = new URL(s.url);
+    assert.equal((await fetch(`http://127.0.0.1:${port}/x.md`)).status, 200);
+    assert.ok(Array.isArray(s.urls) && s.urls.length >= 1);
+  } finally {
+    await s.close();
+  }
+});
+
+test('rebuild reports a crashing build instead of throwing', async () => {
+  const errors = [];
+  const ok = await rebuild({ siteDir: path.join(os.tmpdir(), 'no-such-site-dir'), outDir: fs.mkdtempSync(path.join(os.tmpdir(), 'out-')) }, { log() {}, warn() {}, error: (m) => errors.push(String(m)) });
+  assert.equal(ok, false);
+  assert.ok(errors.some((m) => /template\.html/.test(m)), errors.join('\n'));
 });

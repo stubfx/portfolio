@@ -67,3 +67,14 @@ test('formatProblems', () => {
   assert.equal(formatProblems([{ file: 'content/a.md', line: 3, message: 'm' }, { file: 'content/p.jpg', line: 0, message: 'n' }]),
     'content/a.md:3: m\ncontent/p.jpg: n');
 });
+
+test('dotfiles in content/ are ignored', () => {
+  assert.deepEqual(problems({ 'x.md': '# A\n\n> d\n', '.DS_Store': Buffer.alloc(3), 'work/.x.md.swp': Buffer.alloc(3), '.hidden.md': 'junk' }), []);
+});
+
+test('a broken media.json is one clear problem, not a crash', () => {
+  const ps = problems({ 'x.md': '# A\n\n> d\n\n![p](p.jpg)\n', 'p.jpg': Buffer.alloc(3), 'media.json': '{\n<<<<<<< HEAD\n' });
+  assert.equal(ps.length, 1, formatProblems(ps));
+  assert.equal(ps[0].file, 'content/media.json');
+  assert.match(ps[0].message, /not valid JSON/);
+});

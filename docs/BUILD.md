@@ -61,6 +61,7 @@ docs/
 ```sh
 node build.mjs            # content/ + site/ + static/ → dist/ (validates first)
 node build.mjs --serve    # build, serve dist/ on :8080, rebuild and reload on change
+                          # --host 0.0.0.0 to open it from another machine; --port N
 node --test               # every test
 node media.mjs …          # encode media (CONTENT.md section 4)
 uv run -q --with fonttools --with brotli python -I scripts/fonts.py

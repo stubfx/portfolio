@@ -88,7 +88,7 @@ It renders as the index: the row number comes from the position, then the title,
 Photos and clips go through `media.mjs`, on your machine (it needs ffmpeg). Masters (your original exports) stay wherever you keep them: they never enter the repo. The script writes the web files next to the page and records them in `content/media.json`. The build refuses media that skipped it.
 
 ```sh
-node media.mjs <master> <content path> [--poster <seconds>] [--sample]
+node media.mjs <master> <content path> [--poster <seconds>] [--sample] [--force]
 node media.mjs ~/exports/hero.tif work/direction-as-code/hero.jpg
 node media.mjs ~/exports/turntable.mov work/direction-as-code/buoy.mp4 --poster 2
 node media.mjs --embed https://youtu.be/ID work/direction-as-code [--from <still>]
@@ -96,9 +96,11 @@ node media.mjs --embed https://youtu.be/ID work/direction-as-code [--from <still
 
 | You write | `media.mjs` makes | On the page |
 | --- | --- | --- |
-| `hero.jpg` (from any photo master) | `hero.jpg` (up to 2400 px, the canonical file), plus AVIF and JPEG at 800, 1600, 2400 px; never upscaled; no metadata | A `<picture>` with the right size for the screen |
+| `hero.jpg` (from any photo master) | `hero.jpg`, the canonical file: 2400 px wide (1200 px for portrait orientation), never upscaled. Plus `hero.800.jpg`, `hero.1600.jpg` and AVIF at every width (`hero.800.avif` … `hero.2400.avif`). Turned upright if the camera says so; no metadata (no GPS) | A `<picture>` with the right size for the screen |
 | `clip.mp4` (from any video master) | `clip.mp4` (H.264, plays everywhere), `clip.av1.mp4` (smaller, where supported), poster `clip.jpg` + `clip.avif`; up to 1920 px wide | **Loop** if silent and 30 s or less: plays while on screen, pausable. Otherwise a **player** with controls |
 | A YouTube or Vimeo link | `youtube-ID.jpg` or `vimeo-ID.jpg`: the poster, from the service's thumbnail (fetched once, now) or from `--from` | Your poster with a play mark; YouTube or Vimeo loads only when pressed |
+
+A master that hasn't changed is skipped (same file, same `--poster` time): re-encoding is explicit, with `--force`.
 
 **Budgets** (the build fails above them): a loop file 10 MB (warning above 6 MB), a player file 60 MB, a photo file 600 KB, all media 700 MB. Long videos belong on YouTube or Vimeo.
 
@@ -209,7 +211,7 @@ Monospace drawings in a ```` ```logic ```` block. Column 28 is the lane line: ev
 Optional, and they must be real. Commit every direction file, brief and prompt set as it evolves, then copy the commits:
 
 ```sh
-gitt log --format='%h  %s' -- content/work/<case>/direction.yaml
+gitt log --format='%h  %s  %cd' --date=format:'%b %-d' -- content/work/<case>/direction.yaml
 ```
 
 Format each line as `hash  message  date` (two or more spaces between parts). On pages that aren't sample, the build fails if a hash doesn't exist in the repo.

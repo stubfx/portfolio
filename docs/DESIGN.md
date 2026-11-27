@@ -96,7 +96,7 @@ The page shows its own Markdown, quietly.
 
 **Index** (the Work file list, rendered as a table): column labels `# · case · idea · year` in 11 px mono caps `--mk` over a 1 px `--ink` rule; rows separated by `--line` hairlines; a hanging `-` in `--mk` on each row. Columns: number from the row's position (mono, `--mk`), case title (link, large body size), idea (`--grey`, smaller), year (mono, `--mk`, right-aligned). **Planned** rows (no link yet): title in `--grey`, no underline, not a link. Below 720 px: no header; each row stacks as number, title and year on one line, the idea below.
 
-**Table** (any other Markdown table): the index's look, header from the table itself, one hanging `|`.
+**Table** (any other Markdown table): content, so it reads as text. Header from the table itself in 11 px mono caps `--grey` over a 1 px `--ink` rule; cells in body text, `--ink`, separated by `--line` hairlines; one hanging `|`. Long words and URLs wrap anywhere, in every table, so nothing widens the page.
 
 **Figure:** the `![alt](file)` line in 13 px mono above the media (alt in `--grey`, syntax in `--mk`), then the photo or video at full content width. Portrait-orientation media max 440 px wide.
 

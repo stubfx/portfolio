@@ -98,3 +98,20 @@ test('CRLF, BOM and trailing spaces parse like the clean file', () => {
   const clean = '# T\n\n> d\n\n- a\n';
   assert.deepEqual(parse('﻿# T  \r\n\r\n> d\r\n\r\n- a \r\n'), parse(clean));
 });
+
+test('wrapped list and quote lines continue the item', () => {
+  assert.deepEqual(parse('- a\n  continued\n- b\n').blocks[0].items.map((i) => i.text), ['a continued', 'b']);
+  assert.deepEqual(parse('1. a\nmore\n').blocks[0].items.map((i) => i.text), ['a more']);
+  assert.equal(parse('> a\ncontinued\n').blocks[0].text, 'a continued');
+  assert.equal(parse('- [A](a.md): Idea\n  goes on. (2026)\n').blocks[0].items[0].note, 'Idea goes on.');
+});
+
+test('an index list with an item that is not an index row fails', () => {
+  const { errors } = parse('- [A](a.md): Idea. (2026)\n- just text\n');
+  assert.equal(errors[0]?.line, 2);
+  assert.match(errors[0].message, /index/i);
+});
+
+test('nothing may follow --> on its line', () => {
+  assert.match(parse('<!-- a --> b\n').errors[0]?.message ?? '', /-->/);
+});

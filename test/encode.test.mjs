@@ -94,3 +94,45 @@ test('embed poster from a local still', { skip: !hasFfmpeg, timeout: 120000 }, a
   assert.deepEqual(Object.keys(loadManifest(dir)), ['work/t/youtube-abc.jpg']);
   await assert.rejects(embedPoster('https://example.com/v', 'work/t', { contentDir: dir, from: still }), /YouTube or Vimeo/);
 });
+
+/** The same JPEG with an EXIF orientation tag, as phones write it (6 = shown turned 90° clockwise). */
+function withOrientation(jpeg, o) {
+  const tiff = Buffer.from([0x49, 0x49, 0x2a, 0, 8, 0, 0, 0, 1, 0, 0x12, 0x01, 3, 0, 1, 0, 0, 0, o, 0, 0, 0, 0, 0, 0, 0]);
+  const payload = Buffer.concat([Buffer.from('Exif\0\0', 'binary'), tiff]);
+  const len = Buffer.alloc(2);
+  len.writeUInt16BE(payload.length + 2);
+  return Buffer.concat([jpeg.subarray(0, 2), Buffer.from([0xff, 0xe1]), len, payload, jpeg.subarray(2)]);
+}
+const widthOf = (file) => Number(spawnSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width', '-of', 'csv=p=0', file], { encoding: 'utf8' }).stdout.trim());
+
+test('a phone photo turned by EXIF is measured the way it shows', { skip: !hasFfmpeg, timeout: 120000 }, async () => {
+  const dir = tmp();
+  const work = tmp();
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=1600x1200', '-frames:v', '1', path.join(work, 'coded.jpg'));
+  fs.writeFileSync(path.join(work, 'phone.jpg'), withOrientation(fs.readFileSync(path.join(work, 'coded.jpg')), 6));
+  const e = await encode(path.join(work, 'phone.jpg'), 'p.jpg', { contentDir: dir });
+  assert.deepEqual([e.width, e.height], [1200, 1600]);
+  assert.deepEqual(e.variants.filter((v) => v.type === 'image/avif').map((v) => v.width), [800, 1200]);
+  assert.equal(widthOf(path.join(dir, 'p.1200.avif')), 1200);
+  assert.equal(widthOf(path.join(dir, 'p.jpg')), 1200);
+});
+
+test('re-encoding is explicit: a new poster time or force encodes again, otherwise it says so', { skip: !hasFfmpeg, timeout: 180000 }, async () => {
+  const dir = tmp();
+  const master = path.join(tmp(), 'm.mkv');
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=320x180:rate=30', '-t', '3', '-c:v', 'ffv1', master);
+  const said = [];
+  const log = (m) => said.push(m);
+  const poster = () => fs.statSync(path.join(dir, 'c.jpg')).mtimeMs;
+  await encode(master, 'c.mp4', { contentDir: dir, poster: 0, log });
+  const first = poster();
+  await encode(master, 'c.mp4', { contentDir: dir, poster: 0, log });
+  assert.equal(poster(), first);
+  assert.match(said.join('\n'), /unchanged/);
+  const moved = await encode(master, 'c.mp4', { contentDir: dir, poster: 1, log });
+  assert.equal(moved.posterAt, 1);
+  assert.notEqual(poster(), first);
+  const second = poster();
+  await encode(master, 'c.mp4', { contentDir: dir, poster: 1, force: true, log });
+  assert.notEqual(poster(), second);
+});

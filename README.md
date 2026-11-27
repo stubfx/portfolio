@@ -9,6 +9,6 @@ A portfolio where every page is a Markdown file: typeset like a bold journal pag
 
 - **Docs:** [`docs/`](docs/README.md). Start there: spec, design, content and build. It is the build contract.
 - **Content:** [`content/`](content/). The Markdown files the site is built from (samples marked in each file).
-- **Run it:** `node build.mjs --serve`, then open http://127.0.0.1:8080. Tests: `node --test`.
+- **Run it:** `node build.mjs --serve`, then open http://127.0.0.1:8080 (from another machine, such as the VM's host: `node build.mjs --serve --host 0.0.0.0`, and open the address it prints). Tests: `node --test`.
 
 Zero dependencies: no npm packages, nothing running live. No framework, no bundler, no `npm install`: a single Node script builds the site (see `docs/BUILD.md`, section 1). Media goes through `media.mjs`, run locally with ffmpeg; its outputs are committed.

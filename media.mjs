@@ -2,8 +2,8 @@
 // embed posters, next to the page that uses them, recorded in content/media.json. The build refuses media that
 // skipped this script. Masters (original exports) never enter the repo.
 //
-//   node media.mjs <master> <content path> [--poster <seconds>] [--sample]
-//   node media.mjs --embed <url> <page dir> [--from <still>] [--sample]
+//   node media.mjs <master> <content path> [--poster <seconds>] [--sample] [--force]
+//   node media.mjs --embed <url> <page dir> [--from <still>] [--sample] [--force]
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -65,6 +65,19 @@ async function probe(file) {
   return { video: v, width: v.width, height: v.height, duration: Number(j.format.duration ?? 0), audio: j.streams.some((s) => s.codec_type === 'audio') };
 }
 
+/** The size a picture shows at. ffprobe reports the coded size, but ffmpeg turns phone photos upright
+ *  (EXIF orientation) when it encodes, so measure a tiny trial encode's shape. */
+async function displaySize(master) {
+  const coded = await probe(master);
+  const tiny = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'probe-')), 'tiny.png');
+  await run('ffmpeg', [...BASE, '-i', master, '-frames:v', '1', '-vf', 'scale=-2:64', tiny]);
+  const t = await probe(tiny);
+  fs.rmSync(path.dirname(tiny), { recursive: true, force: true });
+  const r = t.width / t.height;
+  const upright = Math.abs(r - coded.width / coded.height) <= Math.abs(r - coded.height / coded.width);
+  return upright ? { width: coded.width, height: coded.height } : { width: coded.height, height: coded.width };
+}
+
 const sha256 = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const bytes = (file) => fs.statSync(file).size;
 
@@ -77,7 +90,7 @@ export function writeManifestEntry(contentDir, key, entry) {
 const entryFiles = (e) => [...e.variants.map((v) => v.file), ...(e.poster ? [e.poster.jpg.file, e.poster.avif.file] : [])];
 
 async function encodePhoto(master, key, contentDir) {
-  const { width, height } = await probe(master);
+  const { width, height } = await displaySize(master);
   const base = key.replace(/\.jpg$/, '');
   const canonical = Math.min(height > width ? PORTRAIT_MAX : PHOTO_WIDTHS.at(-1), width);
   const widths = [...PHOTO_WIDTHS.filter((w) => w < canonical), canonical];
@@ -114,7 +127,7 @@ async function encodeVideo(master, key, contentDir, posterAt) {
   const av1 = await probe(at(files.av1));
   const h264 = await probe(at(files.h264));
   return {
-    kind: 'video', width: h264.width, height: h264.height, duration: Math.round(h264.duration * 100) / 100, audio: src.audio, master: sha256(master),
+    kind: 'video', width: h264.width, height: h264.height, duration: Math.round(h264.duration * 100) / 100, audio: src.audio, master: sha256(master), posterAt,
     variants: [
       { file: files.av1, bytes: bytes(at(files.av1)), type: `video/mp4; codecs="${codecString(av1.video)}"` },
       { file: files.h264, bytes: bytes(at(files.h264)), type: `video/mp4; codecs="${codecString(h264.video)}"` },
@@ -123,8 +136,9 @@ async function encodeVideo(master, key, contentDir, posterAt) {
   };
 }
 
-/** Encodes one master to the web files for `contentPath` (a .jpg photo or an .mp4 clip) and records it. */
-export async function encode(master, contentPath, { contentDir = 'content', poster = 0, sample = false } = {}) {
+/** Encodes one master to the web files for `contentPath` (a .jpg photo or an .mp4 clip) and records it.
+ *  An unchanged master (same file, same poster time) is skipped unless `force`: re-encoding is explicit. */
+export async function encode(master, contentPath, { contentDir = 'content', poster = 0, sample = false, force = false, log = () => {} } = {}) {
   const bad = contentPath.split('/').find((seg) => !NAME_RE.test(seg));
   if (bad) throw new Error(`content path "${contentPath}": file names use lowercase letters, digits, dots and dashes only ("${bad}")`);
   const kind = /\.jpg$/.test(contentPath) ? 'photo' : /\.mp4$/.test(contentPath) ? 'video' : null;
@@ -133,7 +147,9 @@ export async function encode(master, contentPath, { contentDir = 'content', post
   fs.mkdirSync(path.join(contentDir, path.posix.dirname(contentPath)), { recursive: true });
   const old = loadManifest(contentDir)[contentPath];
   let entry;
-  if (old && old.master === sha256(master) && entryFiles(old).every((f) => fs.existsSync(path.join(contentDir, f)))) entry = { ...old };
+  const same = old && old.master === sha256(master) && (old.kind !== 'video' || (old.posterAt ?? 0) === poster)
+    && entryFiles(old).every((f) => fs.existsSync(path.join(contentDir, f)));
+  if (same && !force) { entry = { ...old }; log(`${contentPath}: unchanged, skipped (use --force to encode it again)`); }
   else entry = kind === 'photo' ? await encodePhoto(master, contentPath, contentDir) : await encodeVideo(master, contentPath, contentDir, poster);
   if (sample) entry.sample = true;
   else delete entry.sample;
@@ -149,7 +165,7 @@ async function download(url, to) {
 }
 
 /** The local poster an embed needs: from `from`, or the service's thumbnail, fetched once now. */
-export async function embedPoster(url, pageDir, { contentDir = 'content', from = null, sample = false } = {}) {
+export async function embedPoster(url, pageDir, { contentDir = 'content', from = null, sample = false, force = false, log = () => {} } = {}) {
   const e = parseEmbed(url);
   if (!e) throw new Error(`${url}: embeds must be YouTube or Vimeo links`);
   let master = from;
@@ -165,13 +181,14 @@ export async function embedPoster(url, pageDir, { contentDir = 'content', from =
       if (!thumb || !(await download(thumb, master))) throw new Error(`no thumbnail for ${url}: pass --from <still>`);
     }
   }
-  return encode(master, embedPosterKey(pageDir, e), { contentDir, sample });
+  return encode(master, embedPosterKey(pageDir, e), { contentDir, sample, force, log });
 }
 
 async function main(args) {
   const flag = (name) => { const i = args.indexOf(name); return i >= 0 ? args.splice(i, 2)[1] : null; };
-  const sample = args.includes('--sample');
-  if (sample) args.splice(args.indexOf('--sample'), 1);
+  const bool = (name) => { const i = args.indexOf(name); if (i >= 0) args.splice(i, 1); return i >= 0; };
+  const sample = bool('--sample');
+  const force = bool('--force');
   const embed = flag('--embed');
   const from = flag('--from');
   const poster = Number(flag('--poster') ?? 0);
@@ -179,12 +196,12 @@ async function main(args) {
   let entry;
   if (embed) {
     if (args.length !== 1) throw new Error('usage: node media.mjs --embed <url> <page dir> [--from <still>] [--sample]');
-    entry = await embedPoster(embed, args[0], { from, sample });
+    entry = await embedPoster(embed, args[0], { from, sample, force, log: console.log });
     key = embedPosterKey(args[0], parseEmbed(embed));
   } else {
-    if (args.length !== 2) throw new Error('usage: node media.mjs <master> <content path> [--poster <seconds>] [--sample]');
+    if (args.length !== 2) throw new Error('usage: node media.mjs <master> <content path> [--poster <seconds>] [--sample] [--force]');
     [, key] = args;
-    entry = await encode(args[0], key, { poster, sample });
+    entry = await encode(args[0], key, { poster, sample, force, log: console.log });
   }
   const total = entryFiles(entry).reduce((s, f) => s + bytes(path.join('content', f)), 0);
   const kind = entry.kind === 'video' ? videoKind(entry) : 'photo';

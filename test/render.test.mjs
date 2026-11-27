@@ -122,3 +122,7 @@ test('special characters are escaped in text and attributes', () => {
   assert.match(embed, /aria-label="Play: &quot;&lt;&amp;&gt;&#39; 🙂 \(YouTube\)"/);
   assert.match(r('- [<A&>](a.md): "Q" & <R>. (2026)\n'), /<a href="a\/">&lt;A&amp;&gt;<\/a><\/td><td class="c2">&quot;Q&quot; &amp; &lt;R&gt;\.<\/td>/);
 });
+
+test('heading ids never collide with the page shell', () => {
+  assert.deepEqual(anchors(parse('## Raw\n\n## Status\n\n## Page\n\n## Work\n').blocks), ['raw-2', 'status-2', 'page-2', 'work']);
+});

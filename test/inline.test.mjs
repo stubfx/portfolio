@@ -49,3 +49,20 @@ test('renderInline escapes quotes inside hrefs', () => {
   const html = renderInline([{ t: 'link', text: 'q', href: 'a"b.md' }], plain);
   assert.match(html, /href="a&quot;b\.md"/);
 });
+
+test('URLs keep their underscores, == and parentheses', () => {
+  for (const href of ['https://a.b/x_y_z', 'https://a.b/?q==1', 'https://en.wikipedia.org/wiki/Art_direction_(film)', 'https://a.b/*x*']) {
+    const { nodes, errors } = parseInline(`[x](${href})`);
+    assert.deepEqual(errors, [], href);
+    assert.equal(nodes[0].href, href);
+  }
+});
+
+test('a code span may end in a backslash', () => {
+  assert.deepEqual(parseInline('`C:\\`').errors, []);
+});
+
+test('no link inside bold, no bold inside link text', () => {
+  assert.match(parseInline('**[x](a.md)**').errors.join(' '), /link/i);
+  assert.match(parseInline('[**y**](b.md)').errors.join(' '), /bold/i);
+});
