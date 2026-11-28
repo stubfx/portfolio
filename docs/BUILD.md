@@ -16,7 +16,7 @@ How the site is built, served and deployed.
 | Build | `build.mjs`, Node 22+, built-in modules only |
 | Markdown | `lib/parse.mjs`, `lib/inline.mjs`, `lib/render.mjs`: our parser and renderer for the subset |
 | Styles | One hand-written `site/style.css` (the frame), CSS custom properties and cascade layers; a project page may add its own `world.css` (CONTENT.md section 11) |
-| Client JS | `site/main.js` (theme, copy and raw, grain) and `site/media.js` (loops and embeds, only on pages with video). Content never needs JS |
+| Client JS | `site/main.js` (theme, copy and raw, grain), `site/media.js` (loops and embeds, only on pages with video), `site/rows.js` (row arrows) and `site/graph.js` (plays logic graphs, only on pages with one). Content never needs JS |
 | Dev server | `node build.mjs --serve` |
 | Tests | `node --test`, run locally before every merge |
 | Deploy | GitHub Actions to GitHub Pages: build and deploy only |
@@ -43,6 +43,7 @@ lib/                      build-time modules
   site.mjs                the site model: pages, links, media, states
   validate.mjs            every problem, file and line
   world.mjs               a page's world: its stylesheet, fonts and script
+  graph.mjs               a logic diagram read as a timed graph, and its SVG
   page.mjs  csp.mjs  outputs.mjs  contrast.mjs
 site/
   template.html           page shell
@@ -101,7 +102,7 @@ Every URL is root-relative; absolute URLs use `https://lucamolluso.com`.
 | `![a](f.mp4)`, loop | `<video class="loop" muted loop playsinline preload="metadata" controls poster width height aria-label>` with the AV1 `<source>` first, then H.264 |
 | `![a](f.mp4)`, player | `<video class="player" preload="none" controls poster width height aria-label>`, same sources |
 | `![a](YouTube or Vimeo URL)` | `<a class="embed" href="<url>" data-embed="<player URL>" data-title="a" aria-label="Play: a (YouTube)">` holding the poster `<picture>`, a `▶` and the tag |
-| Fenced code | `<div class="code">` with visible fences and `<pre>`; `logic`, `yaml`, `log` get their colouring spans |
+| Fenced code | `<div class="code">` with visible fences and `<pre>`; `yaml` and `log` get their colouring spans. `logic`: `<div class="code logic">` holding `<svg class="graph" role="img" aria-label="Diagram. …">` (`lib/graph.mjs`): one `<path class="s">` per straight line (`pathLength="1"`), one `<path class="h">` per arrowhead, one `<text class="t">` per label (`textLength` fits it to its cells), each with `data-t` (its moment, ms) and lines with `data-l` (how long they draw) |
 | `---` | `<div class="hr" aria-hidden="true">---</div>` |
 | `<!-- c -->` | `<p class="comment">` with the escaped comment |
 
@@ -165,6 +166,7 @@ Port, don't rewrite. From this repo's history at commit `5ed1192`: `src/client/g
 | A world's `world.js` | under 2 KB gzipped |
 | JS on pages without video or embeds | under 3 KB gzipped |
 | `rows.js` (pages with a row of cards) | under 1 KB gzipped |
+| `graph.js` (pages with a logic graph) | under 1 KB gzipped |
 | Media (MB = 1024 × 1024 bytes) | a loop file 10 MB (warning above 6 MB), a player file 60 MB, a photo file 600 KB, all media 700 MB |
 | Layout shift | under 0.05 while fonts load, at 1440 and 390 px |
 | Lighthouse (mobile) | 95+ in all four categories, checked by hand before launch |

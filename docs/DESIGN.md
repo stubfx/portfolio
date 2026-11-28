@@ -111,7 +111,9 @@ The page shows its own Markdown, quietly.
 **Embed** (YouTube or Vimeo): my poster at 16:9, a `▶` in the centre (mono), and a tag bottom right, `YouTube · loads on play` or `Vimeo · loads on play` (mono 11 px). Pressing it swaps in the privacy-enhanced player. Without JavaScript it is a link to the video.
 
 **Code blocks:** fences visible in `--mk`; content in mono, `--ink`.
-- `logic`: two-lane diagrams. Characters left of column 28 (the Me lane) in `--ink`, the rest (the Machine lane) in `--grey`.
+- `logic`: a two-lane diagram, drawn as a **logic graph** (below).
+
+**Logic graph** (a ```logic block; Luca: "animated graphs [...] with the artistic direction of the animation videos"): the diagram redrawn as SVG on its own character grid, so it looks like the text, then animated in the homepage loop's style: flat, quick and punchy. When it comes into view, each line draws toward its arrow in an accent colour (Latte peach, blue, green, mauve, maroon, teal, cycled), each arrowhead lands with an overshoot, each label pops in in its accent and settles to its lane's colour (Me lane `--ink`, Machine lane `--grey`, lane names `--mk`). The flow sets the order: top to bottom, each label after the arrow that reaches it, a redirect last. The whole graph plays in about 2 to 3 s, so it needs no pause control; it plays again each time it comes back into view. The engine is CSS keyframes plus `site/graph.js`, which hands each piece its moment and arms the graph. With reduced motion or without JavaScript the graph is simply there, finished. Screen readers get one line: "Diagram. ME: … MACHINE: …". A world re-skins it with `--g-me`, `--g-m`, `--g-lane`, `--g-w` (line width) and `--g-a0` to `--g-a5` (the accents).
 - `yaml`: keys in `--grey`, values in `--ink`.
 - `log`: hash and date in `--grey`, message in `--ink`.
 
@@ -132,7 +134,7 @@ The only effect. Ported unchanged from the previous site (see [BUILD.md](BUILD.m
 
 ## 9. Motion
 
-Only the grain and loops move. No page transitions, no scroll effects, no hover animations beyond colour. Both stop with `prefers-reduced-motion` (a loop can still be played by hand).
+Only the grain, loops and logic graphs move. No page transitions, no scroll effects, no hover animations beyond colour. Both stop with `prefers-reduced-motion` (a loop can still be played by hand).
 
 ## 10. Worlds: each project page is its own site
 

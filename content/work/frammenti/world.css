@@ -195,3 +195,6 @@ figure[data-m="turntable"]{margin-bottom:clamp(40px,5vw,72px)}
 /* Headings in a side column: their column stops growing at 1040 px × .42 and 1280 px × .3, so their type stops too.
    Above that the longest word ("ALEXANDER", "MOSAIC'S") no longer fits and would break mid-word (Luca, 2026-11-28). */
 [data-s="the-machine-s-alexander"] h2,[data-s="the-mosaic-s-journey"] h2,[data-s="on-air"] h2{font-size:clamp(52px,8.2vw,112px);overflow-wrap:normal}
+
+/* the logic graph (site/graph.js) draws in the world's own dust and gold */
+.graph{--g-m:var(--stone);--g-lane:var(--mk);--g-a0:var(--dust);--g-a1:var(--flesh);--g-a2:#ffffff;--g-a3:var(--dust);--g-a4:var(--flesh);--g-a5:#ffffff}

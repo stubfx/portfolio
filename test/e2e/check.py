@@ -13,6 +13,7 @@ which the real content doesn't have yet), serves both with build.mjs's server (R
   cls       layout shift under 0.05 while fonts load (fonts delayed 800 ms), 1440 and 390 wide
   overflow  no horizontal scrolling at 360 px
   focus     every Tab stop shows an outline of at least 2 px
+  graph     logic graphs: hidden until in view, then drawn in full; finished at once with reduced motion or without JavaScript
   header    the file bar is the same on a world page (a hostile one in the fixture) as on the homepage: type, size, layout, on top
   words     no word splits across two lines (Luca: "alexand - er") in any heading, punch line, quote or text, at 360 to 1920 px;
             breaking at a hyphen, dash or slash is fine
@@ -346,6 +347,40 @@ def words(r):
             ctx.close()
             if split:
                 r.fail('words', f'{url.replace(r.dist, "")} at {w}: {", ".join(split[:6])}')
+
+
+GRAPH_STATE = """(() => { const g = document.querySelector('svg.graph'); if (!g) return null;
+  const op = [...g.querySelectorAll('.t, .h')].map((e) => +getComputedStyle(e).opacity);
+  const off = [...g.querySelectorAll('.s')].map((e) => parseFloat(getComputedStyle(e).strokeDashoffset) || 0);
+  return { cls: g.getAttribute('class'), hidden: op.filter((o) => o < 0.99).length, undrawn: off.filter((o) => Math.abs(o) > 0.001).length, n: op.length + off.length };
+})()"""
+
+
+@check
+def graph(r):
+    url = r.dist + '/work/direction-as-code/'
+    ctx, pg = r.page()
+    pg.goto(url, wait_until='networkidle')
+    before = pg.evaluate(GRAPH_STATE)
+    if before is None:
+        r.fail('graph', 'no logic graph on /work/direction-as-code/')
+        ctx.close()
+        return
+    if 'armed' not in before['cls'] or 'play' in before['cls'] or before['hidden'] == 0:
+        r.fail('graph', f'off screen it should wait, armed and hidden: {before}')
+    pg.evaluate("document.querySelector('svg.graph').scrollIntoView({block: 'center'})")
+    pg.wait_for_timeout(4500)
+    after = pg.evaluate(GRAPH_STATE)
+    if 'play' not in after['cls'] or after['hidden'] or after['undrawn']:
+        r.fail('graph', f'in view it should end fully drawn: {after}')
+    ctx.close()
+    for name, opts in (('reduced motion', {'reduced_motion': 'reduce'}), ('no JavaScript', {'java_script_enabled': False})):
+        ctx, pg = r.page(**opts)
+        pg.goto(url, wait_until='networkidle')
+        st = pg.evaluate(GRAPH_STATE)
+        if st['hidden'] or st['undrawn']:
+            r.fail('graph', f'{name}: it should be there, finished, without playing: {st}')
+        ctx.close()
 
 
 HEADER_PROBE = """(() => {

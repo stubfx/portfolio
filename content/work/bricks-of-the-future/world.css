@@ -239,3 +239,4 @@ figure:is([data-m=keys],[data-m=portal])::before{left:8px}
 .s{background:#fff;--on:#000;--label:#4d4d4d}
 }
 .s video[controls]{mask-image:none} /* a loop showing its own controls (reduced motion, no JS) is a plain, usable video */
+.s .graph{--g-me:#fff;--g-m:var(--yellow);--g-lane:#ffffffa0;--g-a0:var(--red);--g-a1:var(--yellow);--g-a2:var(--blue);--g-a3:var(--white);--g-a4:var(--red);--g-a5:var(--yellow)}

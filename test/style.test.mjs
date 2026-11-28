@@ -55,3 +55,14 @@ test('a video box has no placeholder colour: at fractional widths a GPU-drawn vi
   assert.doesNotMatch(rule('figure video'), /background:var\(--line\)/);
   assert.match(rule('figure video'), /background:none/);
 });
+
+test('logic graphs: hidden before they play only with JavaScript and motion; reduced motion and no-JS show them drawn', () => {
+  const src = fs.readFileSync('site/style.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const motion = /@media \(prefers-reduced-motion:no-preference\)\{((?:[^{}]|\{[^{}]*\})*)\}/g;
+  const inside = [...src.matchAll(motion)].map((m) => m[1]).join('');
+  assert.match(inside, /\.graph\.armed:not\(\.play\) \.t/); // armed by graph.js: if it never runs, nothing stays hidden
+  assert.match(inside, /\.graph\.play \.s\{animation:/);
+  const outside = src.replace(motion, '');
+  assert.doesNotMatch(outside, /\.graph\.armed|\.graph\.play/);
+  assert.match(rule('.graph'), /max-width:100%/);
+});

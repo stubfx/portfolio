@@ -223,3 +223,13 @@ test('a page with a world: its stylesheet in the world layer, its fonts preloade
   assert.match(now, /archivo-black\.woff2/);
   assert.match(now, /<meta name="theme-color" content="#eff1f5">/);
 });
+
+test('graph.js only on pages with a logic graph', async () => {
+  const lg = fixture({ 'work/a.md': PAGE('A.', '```logic\nME                          MACHINE\n\nbrief\n│\n▼\nthe eye\n```') });
+  const res = await run(lg);
+  assert.equal(res.ok, true, JSON.stringify(res.problems));
+  assert.match(read(lg, 'work/a/index.html'), /<script type="module" src="\/assets\/graph\.js"><\/script>/);
+  assert.match(read(lg, 'work/a/index.html'), /<svg class="graph"/);
+  assert.ok(!read(lg, 'now/index.html').includes('graph.js'));
+  assert.ok(fs.existsSync(path.join(lg, 'dist/assets/graph.js')));
+});

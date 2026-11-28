@@ -67,9 +67,11 @@ test('table with hanging bar', () => {
     + '<tbody><tr><td class="c0">1</td><td class="c1"><strong>2</strong></td></tr></tbody></table></div>');
 });
 
-test('code blocks: fences visible, lanes and keys coloured', () => {
-  const logic = r('```logic\nME                          MACHINE\n```\n');
-  assert.equal(logic, '<div class="code"><div class="fence" aria-hidden="true">```logic</div><pre>ME                          <span class="m">MACHINE</span></pre><div class="fence" aria-hidden="true">```</div></div>');
+test('code blocks: fences visible; a logic diagram becomes a timed graph, yaml and log keys coloured', () => {
+  const logic = r('```logic\nME                          MACHINE\n\nbrief\n│\n▼\nthe eye\n```\n');
+  assert.match(logic, /^<div class="code logic"><div class="fence" aria-hidden="true">```logic<\/div><svg class="graph" role="img" aria-label="Diagram\. ME: brief, the eye\."[^>]*>.*<\/svg><div class="fence" aria-hidden="true">```<\/div><\/div>$/);
+  assert.match(logic, /<text class="t me a\d" [^>]*data-t="\d+">brief<\/text>/);
+  assert.doesNotMatch(logic, /<pre>/);
   assert.match(r('```yaml\nkey: <v>\n```\n'), /<pre><span class="k">key:<\/span> &lt;v&gt;<\/pre>/);
   assert.match(r('```log\na3f9c21  msg here  Nov 21\n```\n'), /<pre><span class="k">a3f9c21<\/span>  msg here  <span class="k">Nov 21<\/span><\/pre>/);
 });

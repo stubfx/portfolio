@@ -56,7 +56,8 @@ test('JS under 3 KB gzipped on pages without video or embeds', () => {
   for (const p of without) {
     const scripts = [...fs.readFileSync(path.join(out, p), 'utf8').matchAll(/<script type="module" src="\/assets\/([^"]+)"/g)].map((m) => m[1]);
     const row = fs.readFileSync(path.join(out, p), 'utf8').includes('class="row"');
-    assert.deepEqual(scripts, row ? ['main.js', 'rows.js'] : ['main.js'], p); // a world's own script is counted in its own budget
+    const graph = fs.readFileSync(path.join(out, p), 'utf8').includes('class="graph"');
+    assert.deepEqual(scripts, ['main.js', ...(row ? ['rows.js'] : []), ...(graph ? ['graph.js'] : [])], p); // a world's own script is counted in its own budget
   }
 });
 
@@ -68,6 +69,11 @@ test('fonts under 150 KB', () => {
 test('media within its caps', () => {
   const own = worldAssets(loadSite({ contentDir: 'content', repoDir: '.' }).pages.filter((p) => p.world).map((p) => p.world));
   assert.deepEqual(checkManifest(loadManifest('content'), 'content').errors.filter((e) => !own.has(e.file)), []);
+});
+
+test('graph.js under 1 KB gzipped', () => {
+  const gz = zlib.gzipSync(fs.readFileSync(path.join(out, 'assets/graph.js'))).length;
+  assert.ok(gz < KB, `${gz} bytes`);
 });
 
 test('rows.js under 1 KB gzipped', () => {

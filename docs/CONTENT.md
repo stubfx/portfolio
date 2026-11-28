@@ -233,7 +233,9 @@ A brief set on a real brand says so ("An academy brief: …"), so it never reads
 
 ## 6. Logic diagrams
 
-Monospace drawings in a ```` ```logic ```` block. Column 28 is the lane line: everything to its left is the Me lane (rendered in ink), everything from column 28 is the Machine lane (rendered grey). Use box-drawing characters (`│ ▼ ▲ ─ ▶ ◀ └ ┘`). Keep lines under 60 characters so they fit a phone.
+Monospace drawings in a ```` ```logic ```` block. Column 28 is the lane line: everything to its left is the Me lane (rendered in ink), everything from column 28 is the Machine lane (rendered grey). Use box-drawing characters (`│ ▼ ▲ ─ ▶ ◀ └ ┘ ┌ ┐ ├ ┤ ┬ ┴ ┼`). Keep lines under 60 characters so they fit a phone.
+
+On the page the diagram is drawn as an animated graph ([DESIGN.md](DESIGN.md) section 7, Logic graph): the build reads its labels (text runs, split at two spaces or a box character), its lines and its arrowheads, and times them by the flow, top to bottom, each label after the arrow that reaches it. The first row names the lanes. A line that loops back up (a redirect) is drawn last and never delays what it points at. The text stays the source: agents, the raw view and `copy .md` get the drawing as written.
 
 ## 7. Log blocks
 

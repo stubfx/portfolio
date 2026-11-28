@@ -127,6 +127,31 @@ html:not(.js) .row-btn{display:none}
 .fence{font:13px/1.4 var(--mono);color:var(--mk)}
 pre{font:clamp(10.5px,1.32vw,16px)/1.55 var(--mono);color:var(--ink);overflow-x:auto;padding:.55em 0;tab-size:2}
 pre .m,pre .k{color:var(--grey)}
+
+/* logic graphs (lib/graph.mjs, site/graph.js): a ```logic diagram, drawn as it plays: strokes run toward their arrows in a
+   punchy accent, labels pop in and settle to the lane's ink. A world re-skins it through the --g tokens. Static without motion. */
+.graph{display:block;max-width:100%;height:auto;overflow:visible;margin:.55em 0;--g-me:var(--ink);--g-m:var(--grey);--g-lane:var(--mk);--g-w:1.3;
+  --g-a0:#fe640b;--g-a1:#1e66f5;--g-a2:#40a02b;--g-a3:#8839ef;--g-a4:#e64553;--g-a5:#179299}
+.graph text{font:16px var(--mono);fill:var(--g-me);font-variant-ligatures:none}
+.graph text.m{fill:var(--g-m)}
+.graph text.lane{fill:var(--g-lane)}
+.graph .s{fill:none;stroke:var(--g-me);stroke-width:var(--g-w);stroke-linecap:square}
+.graph .s.m{stroke:var(--g-m)}
+.graph .h{fill:var(--g-me)}
+.graph .h.m{fill:var(--g-m)}
+.graph .a0{--acc:var(--g-a0)}.graph .a1{--acc:var(--g-a1)}.graph .a2{--acc:var(--g-a2)}.graph .a3{--acc:var(--g-a3)}.graph .a4{--acc:var(--g-a4)}.graph .a5{--acc:var(--g-a5)}
+@media (prefers-reduced-motion:no-preference){
+  .graph .s{stroke-dasharray:1 2}
+  .graph.armed:not(.play) .t,.graph.armed:not(.play) .h{opacity:0}
+  .graph.armed:not(.play) .s{stroke-dashoffset:1}
+  .graph.play .s{animation:g-draw calc(var(--l) * 1ms) linear calc(var(--t) * 1ms) both,g-stroke .7s ease-out calc((var(--t) + var(--l)) * 1ms) both}
+  .graph.play .h{transform-box:fill-box;transform-origin:center;animation:g-pop .34s cubic-bezier(.34,1.9,.64,1) calc(var(--t) * 1ms) both,g-fill .7s ease-out calc(var(--t) * 1ms + 180ms) both}
+  .graph.play .t{transform-box:fill-box;transform-origin:0 60%;animation:g-pop .42s cubic-bezier(.34,1.56,.64,1) calc(var(--t) * 1ms) both,g-fill .8s ease-out calc(var(--t) * 1ms + 260ms) both}
+}
+@keyframes g-draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes g-stroke{from{stroke:var(--acc)}}
+@keyframes g-fill{from{fill:var(--acc)}}
+@keyframes g-pop{from{opacity:0;transform:scale(.3)}}
 .hr{font:14px/1 var(--mono);color:var(--mk);margin:3.2em 0 1.4em}
 .comment{font:13px/1.5 var(--mono);color:var(--mk);max-width:70ch;margin-top:2.4em;white-space:pre-line;overflow-wrap:anywhere}
 
