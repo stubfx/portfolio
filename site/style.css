@@ -71,6 +71,7 @@ figure .mk{font-size:inherit}
 img{display:block;width:100%;height:auto;background:var(--line)}
 picture{display:block}
 figure.narrow{max-width:min(440px,100%)}
+.cutout img{background:none} /* transparent images: the page shows through, no placeholder box */
 figure video{display:block;width:100%;height:auto;background:var(--line)}
 .frame{position:relative;display:block}
 .loop{cursor:pointer}

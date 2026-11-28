@@ -199,7 +199,8 @@ async function encodeTransparent(master, key, base, widths, contentDir) {
   const out = path.join(contentDir, key);
   const canonical = widths.at(-1);
   let pngWidth = canonical;
-  for (const w of [...new Set([canonical, 1600, 1200, 800].filter((x) => x <= canonical))].sort((a, b) => b - a)) {
+  // Browsers load the WebP; the PNG is the fallback (and the file someone saves), so it may get small.
+  for (const w of [...new Set([canonical, 1600, 1200, 800, 640, 480, 320].filter((x) => x <= canonical))].sort((a, b) => b - a)) {
     pngWidth = w;
     await run('ffmpeg', photoArgs(master, out, w, 'png'));
     tag(out, withPngText);

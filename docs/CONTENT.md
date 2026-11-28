@@ -95,14 +95,14 @@ Photos and clips go through `media.mjs`, on your machine (it needs ffmpeg). Mast
 node media.mjs <master> <content path> [--poster <seconds>] [--bg <hex>] [--sample] [--force]
 node media.mjs ~/exports/hero.tif work/direction-as-code/hero.jpg
 node media.mjs ~/exports/turntable.mov work/direction-as-code/buoy.mp4 --poster 2
-node media.mjs --embed https://youtu.be/ID work/direction-as-code [--from <still>]
+node media.mjs --embed https://youtu.be/ID work [--from <still>]   # the folder of the page that embeds it
 ```
 
 | You write | `media.mjs` makes | On the page |
 | --- | --- | --- |
 | `hero.jpg` (from any photo master) | `hero.jpg`, the canonical file: 2400 px wide (1200 px for portrait orientation), never upscaled. Plus `hero.800.jpg`, `hero.1600.jpg` and AVIF at every width (`hero.800.avif` … `hero.2400.avif`). Turned upright if the camera says so; no metadata (no GPS) | A `<picture>` with the right size for the screen |
 | `clip.mp4` (from any video master) | `clip.mp4` (H.264, plays everywhere), `clip.av1.mp4` (smaller, where supported), poster `clip.jpg` + `clip.avif`; up to 1920 px wide | **Loop** if silent and 30 s or less: plays while on screen, pausable. Otherwise a **player** with controls |
-| A YouTube or Vimeo link | `youtube-ID.jpg` or `vimeo-ID.jpg`: the poster, from the service's thumbnail (fetched once, now) or from `--from` | Your poster with a play mark; YouTube or Vimeo loads only when pressed |
+| A YouTube or Vimeo link | `youtube-ID.jpg` or `vimeo-ID.jpg` in the folder of the page that embeds it (`content/work/` for a case): the poster, from the service's thumbnail (fetched once, now) or from `--from` | Your poster with a play mark; YouTube or Vimeo loads only when pressed |
 
 | `cutout.png` (from a master with transparency) | `cutout.png`, the fallback, as wide as fits 600 KB, plus WebP with transparency at every width (`cutout.800.webp` …) | A `<picture>` that shows whatever is under it, in day and night |
 

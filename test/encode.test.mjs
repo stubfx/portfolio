@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { codecString, videoArgs, photoArgs, encode, embedPoster, withExif, AUTHOR, COPYRIGHT } from '../media.mjs';
-import { loadManifest, checkManifest, videoKind } from '../lib/media.mjs';
+import { loadManifest, checkManifest, videoKind, LIMITS } from '../lib/media.mjs';
 
 const hasFfmpeg = spawnSync('ffprobe', ['-version']).status === 0 && spawnSync('ffmpeg', ['-version']).status === 0;
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'media-'));
@@ -198,4 +198,15 @@ test('an opaque master as .png is refused: photos are .jpg', { skip: !hasFfmpeg,
   const m = path.join(tmp(), 'o.png');
   ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=320x200', '-frames:v', '1', m);
   await assert.rejects(encode(m, 'o.png', { contentDir: tmp() }), /no transparency.*\.jpg/);
+});
+
+test('a transparent PNG too heavy at 800 px steps further down until it fits the photo budget', { skip: !hasFfmpeg, timeout: 180000 }, async () => {
+  const dir = tmp();
+  const m = path.join(tmp(), 'noise.png');
+  ffmpeg('-f', 'lavfi', '-i', "nullsrc=s=1000x1000,format=rgba,geq=r='random(1)*255':g='random(2)*255':b='random(3)*255':a='if(lt(X\\,500)\\,255\\,0)'", '-frames:v', '1', m);
+  const e = await encode(m, 'n.png', { contentDir: dir });
+  const png = e.variants.find((v) => v.type === 'image/png');
+  assert.ok(png.width < 800, `png width ${png.width}`);
+  assert.ok(png.bytes <= LIMITS.photo, `png ${png.bytes} bytes`);
+  assert.deepEqual(checkManifest(loadManifest(dir), dir).errors, []);
 });

@@ -25,3 +25,7 @@ test('rows bleed edge to edge, snap, and never scroll the page', () => {
   assert.match(rule('body'), /overflow-x:clip/);
   assert.match(rule('html:not(.js) .row-btn'), /display:none/);
 });
+
+test('transparent images get no placeholder background, so the page shows through', () => {
+  assert.match(rule('.cutout img'), /background:none/);
+});

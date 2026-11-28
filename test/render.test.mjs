@@ -9,7 +9,7 @@ const photo = (name, width = 2400, height = 1200) => ({
   fallback: [800, 1600].map((w) => ({ src: `/${name}.${w}.jpg`, w })).concat({ src: `/${name}.jpg`, w: 2400 }),
 });
 const cutout = (name) => ({
-  kind: 'photo', src: `/${name}.png`, width: 1600, height: 800, narrow: false,
+  kind: 'photo', src: `/${name}.png`, width: 1600, height: 800, narrow: false, transparent: true,
   modern: [{ type: 'image/webp', set: [{ src: `/${name}.800.webp`, w: 800 }, { src: `/${name}.1600.webp`, w: 1600 }] }],
   fallback: [{ src: `/${name}.png`, w: 1600 }],
 });
@@ -91,6 +91,7 @@ test('transparent photo: a webp source and a png img, nothing flattened', () => 
   assert.match(html, /<source type="image\/webp" srcset="\/cut\.800\.webp 800w, \/cut\.1600\.webp 1600w" sizes="[^"]+">/);
   assert.doesNotMatch(html, /image\/avif/);
   assert.match(html, /<img src="\/cut\.png" srcset="\/cut\.png 1600w"/);
+  assert.match(html, /^<figure class="cutout">/, 'no placeholder box behind what should show through');
 });
 
 test('portrait-orientation photo is narrow', () => {

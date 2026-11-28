@@ -128,9 +128,10 @@ test('mediaRef encodes and orders', () => {
   assert.match(v.sources[0].type, /av01/);
   assert.deepEqual(v.poster, { jpg: '/work/x/clip.jpg', avif: '/work/x/clip.avif' });
   const p = mediaRef(manifest, 'tall.jpg');
-  assert.deepEqual(p, { kind: 'photo', src: '/tall.jpg', width: 800, height: 1200, narrow: true, modern: [{ type: 'image/avif', set: [{ src: '/tall.800.avif', w: 800 }] }], fallback: [{ src: '/tall.jpg', w: 800 }] });
+  assert.deepEqual(p, { kind: 'photo', src: '/tall.jpg', width: 800, height: 1200, narrow: true, transparent: false, modern: [{ type: 'image/avif', set: [{ src: '/tall.800.avif', w: 800 }] }], fallback: [{ src: '/tall.jpg', w: 800 }] });
   const t = mediaRef(manifest, 'cut.png');
   assert.deepEqual(t.modern, [{ type: 'image/webp', set: [{ src: '/cut.800.webp', w: 800 }, { src: '/cut.1600.webp', w: 1600 }] }]);
   assert.deepEqual(t.fallback, [{ src: '/cut.png', w: 1600 }]);
+  assert.equal(t.transparent, true);
   assert.equal(mediaRef(manifest, 'nope.jpg'), null);
 });
