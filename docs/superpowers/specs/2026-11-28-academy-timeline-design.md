@@ -172,7 +172,7 @@ The academy-brief line goes in the intro or context for brand briefs, for exampl
   - **AVIF:** the same, if ffmpeg's AVIF muxer can write it. If it can't, AVIF stays bare and the JPEG and MP4 carry the name. Builder's call, tested either way.
 - Every existing media file (hero, sheet, portrait, buoy, outcomes) is re-encoded with `--force` so they carry it too. Their masters are in Claude's scratch folder today, matched by checksum to `media.json`. They move to `~/porcofolio/masters/` first, so a cleared scratch folder can't lose them.
 - `site/template.html` gets `<meta name="author" content="Luca Molluso">`.
-- **Transparency.** PNG masters with transparency are flattened onto a background, not onto black: `#eff1f5` (the paper) by default, or `--bg <hex>`, since many Readymag images were designed on black.
+- **Transparency is kept** (Luca, 2026-11-28: "keep the png transparency as is… they should show anything visible under them"). A transparent master goes in as `name.png` in Markdown. `media.mjs` writes WebP with alpha at each width (`name.800.webp` …) and one canonical `name.png` fallback, stepped down in width until it fits 600 KB, with `Author` and `Copyright` text chunks. The page shows whatever is underneath, so the image follows the day and night themes. JPEG can't hold transparency, so a transparent master saved as `.jpg` is refused unless `--bg <hex>` asks to flatten it onto a colour on purpose (for an image drawn for a black page, for example). An opaque master saved as `.png` is refused: use `.jpg`. AVIF and WebP carry no author tags (ffmpeg's AVIF muxer drops them; WebP metadata needs a container rewrite). The PNG, JPEG and MP4 carry them. When writing pages, each transparent image is checked on both themes; one that only reads on black gets flattened onto black.
 
 ### Docs to update
 
@@ -194,5 +194,5 @@ The academy-brief line goes in the intro or context for brand briefs, for exampl
 2. The timeline text above, condensed from the old career log (dropping its "This site" and the planned "agentic texture pipeline" entries).
 3. The order of the academy cards, and the first three pages.
 4. The closing line and the academy-brief line on each page.
-5. Transparent PNGs are flattened onto the paper colour by default.
+5. Transparent images: WebP with alpha plus a PNG fallback. No AVIF for them, since ffmpeg can't read back the alpha of the AVIF it writes, so it can't be checked here.
 6. The cover is the linked page's first media. There's no separate cover syntax.
