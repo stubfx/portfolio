@@ -31,12 +31,14 @@ Anything not on this list fails the build, so content can't drift. The build rep
 | `> line` | The intro line under the title | Required, directly after the H1; it becomes the page description. Later blockquotes are allowed |
 | `## Section` | Section heading | |
 | `### Sub` | Small heading | Use sparingly. `####` and deeper fail |
+| `### YYYY: Title` inside `## Timeline` | A timeline entry | YYYY, YYYY–YYYY or YYYY– (an en dash). Every `###` inside the Timeline must be one; the year sits in its own column |
 | A paragraph | Body text | Short. Lines join with a space: no hard line breaks |
 | `==One line.==` alone in a paragraph | The punch line, large, in Maroon | **At most one per page.** Not allowed inside a sentence |
 | `- item` / `1. item` | Lists | One level, no nesting. `*` and `+` bullets fail. No "**Label:** text" bullets: they read like a chat answer |
-| A file list (below) | The index | The Work list on the homepage |
+| A file list (below) | The index, or a row of cards | Inside `## Timeline`: a row of cards; anywhere else: the index table |
 | A table | A table in the index's look | Every row has the header's number of columns |
 | `![alt](photo.jpg)` alone on a line | A full-width photo with its line as caption | Alt text required, written as a caption |
+| `![alt](image.png)` alone on a line | An image with transparency, kept | Only for masters with transparency (section 4) |
 | `![alt](clip.mp4)` alone on a line | A loop or a player (section 4) | Alt text required |
 | `![alt](https://youtu.be/ID)` alone on a line | A YouTube or Vimeo video that loads on click | Alt text required; a local poster is required (section 4). Other hosts fail |
 | ```` ```logic ```` | A two-lane diagram | Me lane left of column 28, Machine lane right |
@@ -77,6 +79,8 @@ A list where every item is a link to a page with a note, optionally ending with 
 
 It renders as the index: the row number comes from the position, then the title, the note as the idea, and the year. At least one item must be a link; otherwise it's an ordinary list. It also parses as an llms.txt file list, so agents get the cases with their ideas.
 
+**Inside `## Timeline`** the same list renders as a **row of cards** that runs edge to edge, wider than the text. A linked card's cover is the linked page's first media (a photo, a clip's poster, an embed's poster); a page with no media gets a card without a cover. Planned items are grey cards with no cover and no link. The year in brackets isn't shown on cards.
+
 ## 3. Honest by construction: planned and sample
 
 - **Planned:** an index item without a link (`- Title: note (YYYY)`) is a case that isn't written yet. It renders in grey, as a row that isn't a link, and needs no file.
@@ -88,7 +92,7 @@ It renders as the index: the row number comes from the position, then the title,
 Photos and clips go through `media.mjs`, on your machine (it needs ffmpeg). Masters (your original exports) stay wherever you keep them: they never enter the repo. The script writes the web files next to the page and records them in `content/media.json`. The build refuses media that skipped it.
 
 ```sh
-node media.mjs <master> <content path> [--poster <seconds>] [--sample] [--force]
+node media.mjs <master> <content path> [--poster <seconds>] [--bg <hex>] [--sample] [--force]
 node media.mjs ~/exports/hero.tif work/direction-as-code/hero.jpg
 node media.mjs ~/exports/turntable.mov work/direction-as-code/buoy.mp4 --poster 2
 node media.mjs --embed https://youtu.be/ID work/direction-as-code [--from <still>]
@@ -100,7 +104,13 @@ node media.mjs --embed https://youtu.be/ID work/direction-as-code [--from <still
 | `clip.mp4` (from any video master) | `clip.mp4` (H.264, plays everywhere), `clip.av1.mp4` (smaller, where supported), poster `clip.jpg` + `clip.avif`; up to 1920 px wide | **Loop** if silent and 30 s or less: plays while on screen, pausable. Otherwise a **player** with controls |
 | A YouTube or Vimeo link | `youtube-ID.jpg` or `vimeo-ID.jpg`: the poster, from the service's thumbnail (fetched once, now) or from `--from` | Your poster with a play mark; YouTube or Vimeo loads only when pressed |
 
-A master that hasn't changed is skipped (same file, same `--poster` time): re-encoding is explicit, with `--force`.
+| `cutout.png` (from a master with transparency) | `cutout.png`, the fallback, as wide as fits 600 KB, plus WebP with transparency at every width (`cutout.800.webp` …) | A `<picture>` that shows whatever is under it, in day and night |
+
+A master that hasn't changed is skipped (same file, same `--poster` time, same `--bg`): re-encoding is explicit, with `--force`.
+
+**Transparency is kept.** JPEG can't hold it, so a master with transparency goes in as `.png`. As `.jpg` it is refused, unless `--bg <hex>` asks to flatten it onto that colour on purpose (an image drawn for a black page, which would vanish on the white day paper). An opaque master as `.png` is refused: photos are `.jpg`. Check transparent images in both themes.
+
+**Author.** Every JPEG, PNG and MP4 `media.mjs` writes carries `Luca Molluso` as author (EXIF, PNG text, MP4 tags), in case a file travels without its page. AVIF and WebP don't carry it.
 
 **Budgets** (the build fails above them): a loop file 10 MB (warning above 6 MB), a player file 60 MB, a photo file 600 KB, all media 700 MB. Long videos belong on YouTube or Vimeo.
 
@@ -123,10 +133,18 @@ I work in the middle: between the **idea** and the machines that make it real. �
 
 ![The machine makes outcomes on a beat. I keep one, and it becomes the idea.](outcomes.mp4)
 
-## Work
+## Timeline
 
-- [Direction as code](work/direction-as-code.md): What if the art direction were the input, not the review? (2026)
-- One frame: An Unreal scene, from moodboard to final light. (2026)
+### 2022–2025: AANT, BA in Art Direction.
+
+110/110 cum laude, earned alongside the day job.
+
+- [Frammenti](work/frammenti.md): The true face of Alexander the Great, rebuilt with AI for RAI Cultura.
+- Bilbo: An audiobook app for a break from reality.
+
+### 2017: Hired at IBM.
+
+Mods got me in.
 
 ## Now
 
@@ -202,6 +220,16 @@ a3f9c21  redirect: what changed and why          Nov 21
 
 The `log` block is optional: past projects have no direction history.
 
+**Academy pages** (the AANT work, 2022 to 2025, recovered from the old Readymag site in `~/porcofolio/readymag-archive/`): each page follows its own content (brief, idea, solution, the pieces), not the Idea · Logic · Proof template. Fixed parts: the H1, the intro blockquote, at most one punch line, and the closing line:
+
+```markdown
+---
+
+Academy project, AANT, BA in Art Direction. [index](../index.md)
+```
+
+A brief set on a real brand says so ("An academy brief: …"), so it never reads as client work. Group work says "we", without naming anyone. Translated from the Italian into the voice below.
+
 ## 6. Logic diagrams
 
 Monospace drawings in a ```` ```logic ```` block. Column 28 is the lane line: everything to its left is the Me lane (rendered in ink), everything from column 28 is the Machine lane (rendered grey). Use box-drawing characters (`│ ▼ ▲ ─ ▶ ◀ └ ┘`). Keep lines under 60 characters so they fit a phone.
@@ -238,6 +266,6 @@ From the Career project's profile doc (the source of truth): modder since 2015; 
 | 02 | Live, in the browser | A luxury object, directed and running in real time | To capture |
 | 03 | One frame | An Unreal scene, from moodboard to final light | To capture |
 | 04 | Procedural | The intent first, then the graph | To capture |
-| 05 | Before the machines | Brand, campaign, type (BA work) | To select |
+| 05 | The academy (2022–2025 in the timeline) | Fifteen projects, one page each | Frammenti, WAYLAY and Bricks of the Future written; the rest one by one |
 
-Launch with three real cases (01, one real-time piece, 05).
+Three real cases retire the WIP banner: the first three academy pages do it.

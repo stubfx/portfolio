@@ -8,13 +8,56 @@ I work in the middle: between the **idea** and the machines that make it real. I
 
 ![The machine makes outcomes on a beat. I keep one, and it becomes the idea. Sample animation, written as code.](outcomes.mp4)
 
-## Work
+## Timeline
 
-- [Direction as code](work/direction-as-code.md): What if the art direction were the input, not the review? (2026)
-- Live, in the browser: A luxury object, directed and running in real time. (2026)
-- One frame: An Unreal scene, from moodboard to final light. (2026)
-- Procedural: The intent first, then the graph. (2026)
-- Before the machines: Brand, campaign, type. (2025)
+### 2026: Beyond the brief.
+
+Accenture Song. GenAI trainer for classes of about 50. Weekly "AI Way of Work" sessions. I founded the gaming and streaming corner.
+
+- [Direction as code](work/direction-as-code.md): What if the art direction were the input, not the review?
+- Live, in the browser: A luxury object, directed and running in real time.
+- One frame: An Unreal scene, from moodboard to final light.
+- Procedural: The intent first, then the graph.
+
+### 2022–2025: AANT, BA in Art Direction.
+
+110/110 cum laude, earned alongside the day job. Days at work, nights at school.
+
+- Frammenti: The true face of Alexander the Great, rebuilt with AI for RAI Cultura.
+- WAYLAY: A live Black Mirror episode you can die in.
+- Bricks of the Future: LEGO and OpenAI build a museum where ideas become bricks.
+- Bilbo: An audiobook app for a break from reality.
+- Interstellar credits: What if Kubrick had shot Interstellar in 1968?
+- Philadelphia: From invisible to indispensable, on street-food menus.
+- Yahoo, all you can eat: A brand everyone uses and nobody sees.
+- Sguardi: A magazine about Rome's smallest gestures.
+- Pieux Établissements: An identity for five churches and thirteen palaces in Rome.
+- Vessel: Twenty One Pilots' obsession, through repetition.
+- TAPE: Run the loop, break the loop.
+- Roma Game Jam: The identity of a game jam.
+- 3D: Renders and loops.
+- AI gallery: One look, held across a whole project.
+- Photoshop: Before and after.
+
+### 2021: Accenture.
+
+From IBM to Accenture. Same lane, new colour. Real-time 3D for global luxury fashion and automotive brands.
+
+### 2019–2024: Going live.
+
+Five years streaming on Twitch, including Minecraft games my chat played live.
+
+### 2017–2021: Two Android apps.
+
+Native apps for a major Italian transport company, from first commit to production.
+
+### 2017: Hired at IBM.
+
+Mods got me in. No joke.
+
+### 2015: First Arma 3 mod.
+
+High school, side projects, pocket money. It compiled.
 
 ## Now
 
@@ -36,6 +79,6 @@ AI is a tool, not a goal. It makes me faster. It doesn't decide what's good.
 
 ---
 
-<!-- Draft: only case 01 is written, as a sample. -->
+<!-- Draft: the academy pages are being written, one by one. Case 01 is a sample. -->
 
 <!-- This page is a markdown file. People read it here. Agents read the same words at /index.md and /llms.txt. -->
