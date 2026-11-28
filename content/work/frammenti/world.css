@@ -86,8 +86,7 @@ figure[data-m="face"] img{box-shadow:0 0 0 1px rgba(238,234,229,.1),0 30px 80px 
 [data-s="the-marble-speaks"] h2,[data-s="the-marble-speaks"] ~ .s h2{color:var(--flesh)} /* from here on the face has skin */
 figure[data-m="remap"]{grid-column:full;width:min(100%,1920px);justify-self:center}
 figure[data-m="remap"] video{-webkit-mask:linear-gradient(#000 82%,transparent);mask:linear-gradient(#000 82%,transparent)}
-figure[data-m="remap"] figcaption,figure[data-m="act-one"] figcaption,figure[data-m="vimeo-1095364041"] figcaption{align-self:center;align-items:center;text-align:center}
-figure[data-m="act-one"]{grid-column:wide}
+figure[data-m="remap"] figcaption,figure[data-m="vimeo-1095364041"] figcaption{align-self:center;align-items:center;text-align:center}
 
 /* ---------- FROM THE MOSAIC TO THE FACE ---------- */
 figure[data-m="vimeo-1095364041"]{grid-column:wide}
@@ -152,15 +151,15 @@ pre .m{color:var(--stone)}
   h2{text-align:left}
   .s p,.s li{text-align:left;margin-left:0}
   [data-s="the-machine-s-alexander"] blockquote{text-align:left;margin-left:0}
-  figure[data-m="act-one"],figure[data-m="vimeo-1095364041"],figure[data-m="vimeo-1095388475"]{grid-column:full}
-  figure[data-m="act-one"] figcaption,figure[data-m="vimeo-1095364041"] figcaption,figure[data-m="vimeo-1095388475"] figcaption{padding:0 var(--g)}
+  figure[data-m="vimeo-1095364041"],figure[data-m="vimeo-1095388475"]{grid-column:full}
+  figure[data-m="vimeo-1095364041"] figcaption,figure[data-m="vimeo-1095388475"] figcaption{padding:0 var(--g)}
   p.punch{justify-self:start;margin-left:var(--g);font-size:min(15.6vw,120px)}
   figure[data-m="model"]{grid-row:auto}
   figure[data-m="turntable"]{grid-row:auto;width:min(62vw,340px);margin:24px auto 40px;justify-self:center}
   figure[data-m="guided"] figcaption{position:static;order:0;margin:0 0 12px;padding:0 var(--g);max-width:none}
   figure[data-m="face"]{width:58vw;margin-top:-9vw}
   figure[data-m="remap"] video{aspect-ratio:4/3;object-fit:cover}
-  figure[data-m="remap"] figcaption,figure[data-m="act-one"] figcaption,figure[data-m="vimeo-1095364041"] figcaption{align-self:stretch;align-items:flex-start;text-align:left;padding:0 var(--g)}
+  figure[data-m="remap"] figcaption,figure[data-m="vimeo-1095364041"] figcaption{align-self:stretch;align-items:flex-start;text-align:left;padding:0 var(--g)}
   figure[data-m="remap"] figcaption{padding:0 var(--g)}
   [data-s="credits"] ul{margin-left:0}
   .hr{justify-self:start}

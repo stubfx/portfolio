@@ -52,8 +52,6 @@ I remapped the face onto the 3D model in Blender.
 
 That gave me a reliable base for video with RunwayML Act-One.
 
-![The textured head, animated with RunwayML Act-One from a human performance. With sound.](frammenti/act-one.mp4)
-
 ## From the mosaic to the face
 
 We made the final clips with RunwayML and cut them together.

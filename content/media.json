@@ -722,37 +722,6 @@
     ],
     "sample": true
   },
-  "work/frammenti/act-one.mp4": {
-    "kind": "video",
-    "width": 1920,
-    "height": 1080,
-    "duration": 19.29,
-    "audio": true,
-    "master": "7197728ea3ab85231206510585f7861ce60874d17154894322e7aabde48b91f2",
-    "posterAt": 1,
-    "variants": [
-      {
-        "file": "work/frammenti/act-one.av1.mp4",
-        "bytes": 944438,
-        "type": "video/mp4; codecs=\"av01.0.08M.08\""
-      },
-      {
-        "file": "work/frammenti/act-one.mp4",
-        "bytes": 2454335,
-        "type": "video/mp4; codecs=\"avc1.640032\""
-      }
-    ],
-    "poster": {
-      "jpg": {
-        "file": "work/frammenti/act-one.jpg",
-        "bytes": 49518
-      },
-      "avif": {
-        "file": "work/frammenti/act-one.avif",
-        "bytes": 9678
-      }
-    }
-  },
   "work/frammenti/broadcast.jpg": {
     "kind": "photo",
     "width": 840,
