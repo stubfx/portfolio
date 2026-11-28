@@ -113,6 +113,7 @@ All text and every attribute is HTML-escaped. Headings get `id`s from their text
 | --- | --- | --- |
 | `content/index.md` | `/` | `/index.md`, `/llms.txt` (byte for byte) |
 | `content/now.md` | `/now/` | `/now.md` |
+| `content/about.md` | `/about/` | `/about.md` |
 | `content/cv.md` | `/cv/` | `/cv.md` |
 | `content/404.md` | `/404.html` | `/404.md` |
 | `content/work/<case>.md` | `/work/<case>/` | `/work/<case>.md` |

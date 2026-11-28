@@ -34,35 +34,65 @@
   "portrait.jpg": {
     "kind": "photo",
     "width": 1200,
-    "height": 1500,
-    "master": "bbc8c90f0b3ad52663f03956d1e487cc5c6d36a79b692eafb74f5b40c2ebc216",
+    "height": 1572,
+    "master": "a9f5e1d4a422e71ee5879bd91680a185bc2af89402498c424f5bdaf043a23627",
     "variants": [
       {
         "file": "portrait.800.avif",
         "width": 800,
-        "bytes": 1643,
+        "bytes": 13007,
         "type": "image/avif"
       },
       {
         "file": "portrait.1200.avif",
         "width": 1200,
-        "bytes": 2034,
+        "bytes": 50992,
         "type": "image/avif"
       },
       {
         "file": "portrait.800.jpg",
         "width": 800,
-        "bytes": 10238,
+        "bytes": 66035,
         "type": "image/jpeg"
       },
       {
         "file": "portrait.jpg",
         "width": 1200,
-        "bytes": 19189,
+        "bytes": 196275,
         "type": "image/jpeg"
       }
+    ]
+  },
+  "suzanne.mp4": {
+    "kind": "video",
+    "width": 660,
+    "height": 826,
+    "duration": 4.52,
+    "audio": false,
+    "master": "de25f7894fed47824cca86919512991330c44c9d482df83805a47a451b8b943d",
+    "posterAt": 1.2,
+    "variants": [
+      {
+        "file": "suzanne.av1.mp4",
+        "bytes": 2653753,
+        "type": "video/mp4; codecs=\"av01.0.04M.08\""
+      },
+      {
+        "file": "suzanne.mp4",
+        "bytes": 2267265,
+        "type": "video/mp4; codecs=\"avc1.64001f\""
+      }
     ],
-    "sample": true
+    "poster": {
+      "jpg": {
+        "file": "suzanne.jpg",
+        "bytes": 66696
+      },
+      "avif": {
+        "file": "suzanne.avif",
+        "bytes": 26120
+      }
+    }
   },
   "work/bricks-of-the-future/banner.jpg": {
     "kind": "photo",
