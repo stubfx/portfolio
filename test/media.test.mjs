@@ -117,6 +117,10 @@ test('mediaRef encodes and orders', () => {
       kind: 'photo', width: 800, height: 1200, master: 'x',
       variants: [{ file: 'tall.jpg', width: 800, bytes: 1, type: 'image/jpeg' }, { file: 'tall.800.avif', width: 800, bytes: 1, type: 'image/avif' }],
     },
+    'cut.png': {
+      kind: 'photo', width: 1600, height: 800, master: 'x',
+      variants: [{ file: 'cut.1600.webp', width: 1600, bytes: 1, type: 'image/webp' }, { file: 'cut.800.webp', width: 800, bytes: 1, type: 'image/webp' }, { file: 'cut.png', width: 1600, bytes: 1, type: 'image/png' }],
+    },
   };
   const v = mediaRef(manifest, 'work/x/clip.mp4');
   assert.equal(v.kind, 'loop');
@@ -124,6 +128,9 @@ test('mediaRef encodes and orders', () => {
   assert.match(v.sources[0].type, /av01/);
   assert.deepEqual(v.poster, { jpg: '/work/x/clip.jpg', avif: '/work/x/clip.avif' });
   const p = mediaRef(manifest, 'tall.jpg');
-  assert.deepEqual(p, { kind: 'photo', src: '/tall.jpg', width: 800, height: 1200, narrow: true, avif: [{ src: '/tall.800.avif', w: 800 }], jpg: [{ src: '/tall.jpg', w: 800 }] });
+  assert.deepEqual(p, { kind: 'photo', src: '/tall.jpg', width: 800, height: 1200, narrow: true, modern: [{ type: 'image/avif', set: [{ src: '/tall.800.avif', w: 800 }] }], fallback: [{ src: '/tall.jpg', w: 800 }] });
+  const t = mediaRef(manifest, 'cut.png');
+  assert.deepEqual(t.modern, [{ type: 'image/webp', set: [{ src: '/cut.800.webp', w: 800 }, { src: '/cut.1600.webp', w: 1600 }] }]);
+  assert.deepEqual(t.fallback, [{ src: '/cut.png', w: 1600 }]);
   assert.equal(mediaRef(manifest, 'nope.jpg'), null);
 });

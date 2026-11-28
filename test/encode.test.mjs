@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { codecString, videoArgs, photoArgs, encode, embedPoster } from '../media.mjs';
+import { codecString, videoArgs, photoArgs, encode, embedPoster, withExif, AUTHOR, COPYRIGHT } from '../media.mjs';
 import { loadManifest, checkManifest, videoKind } from '../lib/media.mjs';
 
 const hasFfmpeg = spawnSync('ffprobe', ['-version']).status === 0 && spawnSync('ffmpeg', ['-version']).status === 0;
@@ -34,7 +34,7 @@ test('args: no upscaling, no metadata, silent loops have no audio', () => {
 
 test('rejects bad names and unknown kinds', async () => {
   await assert.rejects(encode('m.png', 'work/x/My Hero.jpg', { contentDir: tmp() }), /lowercase/);
-  await assert.rejects(encode('m.png', 'work/x/hero.png', { contentDir: tmp() }), /\.jpg or \.mp4/);
+  await assert.rejects(encode('m.png', 'work/x/hero.gif', { contentDir: tmp() }), /\.jpg, \.png or \.mp4/);
 });
 
 test('encodes a silent clip into a loop entry', { skip: !hasFfmpeg, timeout: 180000 }, async () => {
@@ -135,4 +135,67 @@ test('re-encoding is explicit: a new poster time or force encodes again, otherwi
   const second = poster();
   await encode(master, 'c.mp4', { contentDir: dir, poster: 1, force: true, log });
   assert.notEqual(poster(), second);
+});
+
+/** A 200×100 master: transparent red outside, opaque blue at x 50..149, y 25..74. */
+function alphaMaster() {
+  const f = path.join(tmp(), 'alpha.png');
+  const inside = 'between(X\\,50\\,149)*between(Y\\,25\\,74)';
+  ffmpeg('-f', 'lavfi', '-i', `color=c=red:s=200x100,format=rgba,geq=r='if(${inside}\\,0\\,255)':g='0':b='if(${inside}\\,255\\,0)':a='if(${inside}\\,255\\,0)'`, '-frames:v', '1', f);
+  return f;
+}
+const px = (file, x, y) => [...spawnSync('ffmpeg', ['-v', 'error', '-i', file, '-vf', `format=rgba,crop=1:1:${x}:${y}`, '-f', 'rawvideo', '-pix_fmt', 'rgba', '-']).stdout];
+const tags = (file) => JSON.parse(spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format_tags=artist,copyright', '-of', 'json', file], { encoding: 'utf8' }).stdout).format.tags;
+
+test('photos carry the author in EXIF; clips in their tags', { skip: !hasFfmpeg, timeout: 180000 }, async () => {
+  const dir = tmp();
+  const m = path.join(tmp(), 'm.png');
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=1000x700', '-frames:v', '1', m);
+  const e = await encode(m, 'p.jpg', { contentDir: dir });
+  for (const v of e.variants.filter((x) => x.type === 'image/jpeg')) assert.ok(fs.readFileSync(path.join(dir, v.file)).includes(AUTHOR), v.file);
+  const clip = path.join(tmp(), 'c.mkv');
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=320x180:rate=30', '-t', '1', '-c:v', 'ffv1', clip);
+  const v = await encode(clip, 'c.mp4', { contentDir: dir });
+  for (const f of v.variants) assert.deepEqual(tags(path.join(dir, f.file)), { artist: AUTHOR, copyright: COPYRIGHT }, f.file);
+  assert.ok(fs.readFileSync(path.join(dir, 'c.jpg')).includes(AUTHOR), 'poster');
+});
+
+test('withExif writes Artist and Copyright right after SOI, and the JPEG still decodes', { skip: !hasFfmpeg }, () => {
+  const d = tmp();
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=64x48', '-frames:v', '1', path.join(d, 'a.jpg'));
+  const out = withExif(fs.readFileSync(path.join(d, 'a.jpg')));
+  assert.deepEqual([...out.subarray(0, 4)], [0xff, 0xd8, 0xff, 0xe1]);
+  for (const s of ['Exif\0\0', AUTHOR, 'lucamolluso.com']) assert.ok(out.includes(s), s);
+  fs.writeFileSync(path.join(d, 'b.jpg'), out);
+  assert.equal(spawnSync('ffmpeg', ['-v', 'error', '-i', path.join(d, 'b.jpg'), '-f', 'null', '-']).status, 0);
+});
+
+test('a transparent master keeps its transparency as .png: webp widths and a png, never flattened', { skip: !hasFfmpeg, timeout: 120000 }, async () => {
+  const dir = tmp();
+  const e = await encode(alphaMaster(), 'p.png', { contentDir: dir });
+  assert.deepEqual(e.variants.map((v) => [v.file, v.type]), [['p.200.webp', 'image/webp'], ['p.png', 'image/png']]);
+  assert.ok(!fs.existsSync(path.join(dir, 'p.800.webp')), 'never upscaled');
+  for (const f of ['p.200.webp', 'p.png']) {
+    assert.equal(px(path.join(dir, f), 5, 5)[3], 0, `${f}: transparent stays transparent`);
+    const [r, , b, a] = px(path.join(dir, f), 100, 50);
+    assert.ok(a === 255 && b > 230 && r < 20, `${f}: opaque keeps its colour (${[r, b, a]})`);
+  }
+  assert.ok(fs.readFileSync(path.join(dir, 'p.png')).includes(AUTHOR), 'png text chunk');
+  assert.deepEqual(checkManifest(loadManifest(dir), dir).errors, []);
+});
+
+test('a transparent master as .jpg is refused without --bg, and flattened onto it with', { skip: !hasFfmpeg, timeout: 120000 }, async () => {
+  const dir = tmp();
+  const m = alphaMaster();
+  await assert.rejects(encode(m, 'p.jpg', { contentDir: dir }), /transparen.*\.png.*--bg/);
+  await encode(m, 'p.jpg', { contentDir: dir, bg: '#000000' });
+  assert.ok(px(path.join(dir, 'p.jpg'), 5, 5).slice(0, 3).every((c) => c < 10), 'corner on black');
+  const [r, , b] = px(path.join(dir, 'p.jpg'), 100, 50);
+  assert.ok(b > 230 && r < 20, 'opaque pixels keep their colour');
+});
+
+test('an opaque master as .png is refused: photos are .jpg', { skip: !hasFfmpeg, timeout: 60000 }, async () => {
+  const m = path.join(tmp(), 'o.png');
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=320x200', '-frames:v', '1', m);
+  await assert.rejects(encode(m, 'o.png', { contentDir: tmp() }), /no transparency.*\.jpg/);
 });

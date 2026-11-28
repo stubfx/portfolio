@@ -37,6 +37,21 @@ const run = (root) => build({ contentDir: path.join(root, 'content'), outDir: pa
 const read = (root, rel) => fs.readFileSync(path.join(root, 'dist', rel), 'utf8');
 const pages = ['index.html', 'now/index.html', 'work/a/index.html', '404.html', 'extra/index.html'];
 
+test('every page names its author', () => {
+  for (const p of pages) assert.match(read(root, p), /<meta name="author" content="Luca Molluso">/, p);
+});
+
+test('a transparent .png photo builds, with a webp source and a png img', async () => {
+  const media = { ...MEDIA, 'work/t/s.png': { kind: 'photo', width: 800, height: 400, master: 'x', variants: [{ file: 'work/t/s.800.webp', width: 800, bytes: 3, type: 'image/webp' }, { file: 'work/t/s.png', width: 800, bytes: 6, type: 'image/png' }] } };
+  const r2 = fixture({ 'media.json': JSON.stringify(media), 'work/t.md': PAGE('T.', '![A cutout.](t/s.png)'), 'work/t/s.800.webp': bytes(3), 'work/t/s.png': bytes(6) });
+  const res = await run(r2);
+  assert.equal(res.ok, true, JSON.stringify(res.problems));
+  const html = read(r2, 'work/t/index.html');
+  assert.match(html, /<source type="image\/webp" srcset="\/work\/t\/s\.800\.webp 800w"/);
+  assert.match(html, /<img src="\/work\/t\/s\.png"/);
+  assert.ok(fs.existsSync(path.join(r2, 'dist/work/t/s.png')));
+});
+
 let root;
 let result;
 before(async () => {

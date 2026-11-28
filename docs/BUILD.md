@@ -25,7 +25,7 @@ How the site is built, served and deployed.
 
 | Tool | What for | Needs |
 | --- | --- | --- |
-| `media.mjs` | Photos, loops, players, embed posters, the manifest | ffmpeg and ffprobe |
+| `media.mjs` | Photos, transparent images (WebP and PNG, transparency kept), loops, players, embed posters, the manifest. Names Luca as author in every JPEG, PNG and MP4 it writes. Masters stay outside the repo (`~/porcofolio/masters/`, `~/porcofolio/readymag-archive/`) | ffmpeg and ffprobe |
 | `scripts/fonts.py` | Subsetting the fonts, fallback metrics, glyph coverage | `uv run --with fonttools --with brotli` |
 | `scripts/outcomes/` | The homepage loop: a 2D canvas animation, rendered frame by frame, then through `media.mjs` | `uv run --with playwright==1.64.1`, the Playwright server on the host, ffmpeg |
 | `test/e2e/check.py` | Browser checks | `uv run --with playwright==1.64.1` and the Playwright server on the host |

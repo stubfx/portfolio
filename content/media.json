@@ -10,19 +10,19 @@
     "variants": [
       {
         "file": "outcomes.av1.mp4",
-        "bytes": 2423588,
+        "bytes": 2423677,
         "type": "video/mp4; codecs=\"av01.0.09M.08\""
       },
       {
         "file": "outcomes.mp4",
-        "bytes": 2025260,
+        "bytes": 2025349,
         "type": "video/mp4; codecs=\"avc1.640032\""
       }
     ],
     "poster": {
       "jpg": {
         "file": "outcomes.jpg",
-        "bytes": 33408
+        "bytes": 33499
       },
       "avif": {
         "file": "outcomes.avif",
@@ -52,13 +52,13 @@
       {
         "file": "portrait.800.jpg",
         "width": 800,
-        "bytes": 10147,
+        "bytes": 10238,
         "type": "image/jpeg"
       },
       {
         "file": "portrait.jpg",
         "width": 1200,
-        "bytes": 19098,
+        "bytes": 19189,
         "type": "image/jpeg"
       }
     ],
@@ -71,22 +71,23 @@
     "duration": 12,
     "audio": false,
     "master": "ceffed16565ae664b417f243d1146f3c2ed7c4b278df5d0a3e4719291cc921c4",
+    "posterAt": 0,
     "variants": [
       {
         "file": "work/direction-as-code/buoy.av1.mp4",
-        "bytes": 96560,
+        "bytes": 96649,
         "type": "video/mp4; codecs=\"av01.0.08M.08\""
       },
       {
         "file": "work/direction-as-code/buoy.mp4",
-        "bytes": 361387,
+        "bytes": 361476,
         "type": "video/mp4; codecs=\"avc1.640032\""
       }
     ],
     "poster": {
       "jpg": {
         "file": "work/direction-as-code/buoy.jpg",
-        "bytes": 26153
+        "bytes": 26244
       },
       "avif": {
         "file": "work/direction-as-code/buoy.avif",
@@ -122,19 +123,19 @@
       {
         "file": "work/direction-as-code/hero.800.jpg",
         "width": 800,
-        "bytes": 12698,
+        "bytes": 12789,
         "type": "image/jpeg"
       },
       {
         "file": "work/direction-as-code/hero.1600.jpg",
         "width": 1600,
-        "bytes": 29865,
+        "bytes": 29956,
         "type": "image/jpeg"
       },
       {
         "file": "work/direction-as-code/hero.jpg",
         "width": 2400,
-        "bytes": 52230,
+        "bytes": 52321,
         "type": "image/jpeg"
       }
     ],
@@ -167,19 +168,19 @@
       {
         "file": "work/direction-as-code/sheet.800.jpg",
         "width": 800,
-        "bytes": 38273,
+        "bytes": 38364,
         "type": "image/jpeg"
       },
       {
         "file": "work/direction-as-code/sheet.1600.jpg",
         "width": 1600,
-        "bytes": 79809,
+        "bytes": 79900,
         "type": "image/jpeg"
       },
       {
         "file": "work/direction-as-code/sheet.jpg",
         "width": 2400,
-        "bytes": 145876,
+        "bytes": 145967,
         "type": "image/jpeg"
       }
     ],

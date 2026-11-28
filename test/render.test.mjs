@@ -5,15 +5,20 @@ import { renderBlocks, slug, anchors } from '../lib/render.mjs';
 
 const photo = (name, width = 2400, height = 1200) => ({
   kind: 'photo', src: `/${name}.jpg`, width, height, narrow: height > width,
-  avif: [800, 1600, 2400].map((w) => ({ src: `/${name}.${w}.avif`, w })),
-  jpg: [800, 1600].map((w) => ({ src: `/${name}.${w}.jpg`, w })).concat({ src: `/${name}.jpg`, w: 2400 }),
+  modern: [{ type: 'image/avif', set: [800, 1600, 2400].map((w) => ({ src: `/${name}.${w}.avif`, w })) }],
+  fallback: [800, 1600].map((w) => ({ src: `/${name}.${w}.jpg`, w })).concat({ src: `/${name}.jpg`, w: 2400 }),
+});
+const cutout = (name) => ({
+  kind: 'photo', src: `/${name}.png`, width: 1600, height: 800, narrow: false,
+  modern: [{ type: 'image/webp', set: [{ src: `/${name}.800.webp`, w: 800 }, { src: `/${name}.1600.webp`, w: 1600 }] }],
+  fallback: [{ src: `/${name}.png`, w: 1600 }],
 });
 const video = (kind, name) => ({
   kind, src: `/${name}.mp4`, width: 1920, height: 1080, poster: { jpg: `/${name}.jpg`, avif: `/${name}.avif` },
   sources: [{ src: `/${name}.av1.mp4`, type: 'video/mp4; codecs="av01.0.08M.08"' }, { src: `/${name}.mp4`, type: 'video/mp4; codecs="avc1.640028"' }],
 });
 const refs = {
-  'p.jpg': photo('p'), 'q.jpg': photo('q'), 'tall.jpg': photo('tall', 800, 1200),
+  'p.jpg': photo('p'), 'q.jpg': photo('q'), 'tall.jpg': photo('tall', 800, 1200), 'cut.png': cutout('cut'),
   'l.mp4': video('loop', 'l'), 'long.mp4': video('player', 'long'),
   'https://youtu.be/abc': { kind: 'embed', service: 'youtube', url: 'https://youtu.be/abc', iframe: 'https://www.youtube-nocookie.com/embed/abc?autoplay=1', poster: photo('youtube-abc', 1280, 720) },
   'https://vimeo.com/1': { kind: 'embed', service: 'vimeo', url: 'https://vimeo.com/1', iframe: 'https://player.vimeo.com/video/1?autoplay=1&dnt=1', poster: photo('vimeo-1', 1280, 720) },
@@ -79,6 +84,13 @@ test('photo: picture with avif and jpg srcsets, caption shows the line', () => {
   assert.match(html, /^<figure><figcaption aria-hidden="true"><span class="mk">!\[<\/span><span class="alt">Cap<\/span><span class="mk">\]\(<\/span>p\.jpg<span class="mk">\)<\/span><\/figcaption><picture>/);
   assert.match(html, /<source type="image\/avif" srcset="\/p\.800\.avif 800w, \/p\.1600\.avif 1600w, \/p\.2400\.avif 2400w" sizes="[^"]+">/);
   assert.match(html, /<img src="\/p\.jpg" srcset="\/p\.800\.jpg 800w, \/p\.1600\.jpg 1600w, \/p\.jpg 2400w" sizes="[^"]+" alt="Cap" width="2400" height="1200" loading="eager" fetchpriority="high" decoding="async"><\/picture><\/figure>$/);
+});
+
+test('transparent photo: a webp source and a png img, nothing flattened', () => {
+  const html = media('cut.png');
+  assert.match(html, /<source type="image\/webp" srcset="\/cut\.800\.webp 800w, \/cut\.1600\.webp 1600w" sizes="[^"]+">/);
+  assert.doesNotMatch(html, /image\/avif/);
+  assert.match(html, /<img src="\/cut\.png" srcset="\/cut\.png 1600w"/);
 });
 
 test('portrait-orientation photo is narrow', () => {
