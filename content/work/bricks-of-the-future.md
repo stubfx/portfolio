@@ -4,7 +4,7 @@
 
 A generated picture weighs nothing. It lands on a screen, and the next one replaces it.
 
-A LEGO box is a picture too. It comes with the pieces to make it real.
+A LEGO box is a picture too. It comes with the **pieces** to make it real.
 
 We designed a museum where one turns into the other.
 
@@ -16,23 +16,31 @@ We designed a museum where one turns into the other.
 
 The poster gives it a place and three months: Palazzo Marignoli in Rome, 23.02 to 23.05.
 
+![The poster. The dates in pixel numerals, the console's screen and dial, the name with a red stud for a space.](bricks-of-the-future/poster-dates.jpg)
+
+![The second poster, and its line: Costruisci l'impossibile. Below it, the console's screen, the two open words marked in blue and red.](bricks-of-the-future/poster-line.jpg)
+
+![Bricks on bricks. A banner on a brick front: flat pixels, a few with studs, and the dates.](bricks-of-the-future/banner.jpg)
+
 The identity is a scatter of pixels in brick colours. A few of them have studs. That's the whole idea at poster size: the screen, turning into bricks.
 
-![Bricks on bricks. Flat pixels, a few with studs, and the dates.](bricks-of-the-future/banner.jpg)
+The line on the second poster: Costruisci l'impossibile. Build the impossible.
 
 ## No keyboard
 
 Every work starts at one console. We gave it no keyboard.
 
+![The console on its stand: twenty keys, two dials, three faders and three screens.](bricks-of-the-future/console-stand.jpg)
+
 ![The console as a first sketch: pads, a dial, faders. It looks like a music controller, not a kiosk.](bricks-of-the-future/console-sketch.jpg)
 
-A sentence is already on the screen, with two words left open. You don't write a prompt here. You tune one.
+A sentence is already on the screen, with two words left open. You don't write a prompt here. You **tune** one.
 
 ![The console running. The sentence holds still while two words change: the storm, midnight, twilight. A vast sky, swirling nebula, whispering stars.](bricks-of-the-future/console.mp4)
 
-Nobody needs to know what a prompt is.
-
 ![Twenty keys with pixel pictures instead of letters: a rose, a cloud, a mushroom, a skull, a crown.](bricks-of-the-future/keys.jpg)
+
+Nobody needs to know what a prompt is.
 
 ## Out of the screen
 
@@ -64,15 +72,17 @@ the sentence, built         the portal
 
 ==The machine draws it. You build it.==
 
+![Up close, only bricks: red, yellow, blue, and a few clear ones that let the light through.](bricks-of-the-future/close-up.jpg)
+
 ## The box
 
 The work would leave the museum in a box, printed for one visitor.
 
 ![The box, turning: the picture from the console, a name, 1992 pieces.](bricks-of-the-future/box.mp4)
 
-> A serene stardust figure gently glowing during twilight in an enchanted dreamscape with whispering stars.
+> A serene stardust figure gently glowing during **twilight** in an enchanted dreamscape with **whispering stars**.
 
-In the mock-up, that's the visitor's sentence. It goes on the side of the box, set like a title. Their name goes on the front: MANUEL33.
+In the mock-up, that's the visitor's sentence. Two of its words were theirs to pick at the console. It goes on the side of the box, set like a title. Their name goes on the front: MANUEL33.
 
 ![The sentence on the side, underlined in yellow, blue and red. The name on the front.](bricks-of-the-future/box-sentence.jpg)
 
@@ -83,6 +93,8 @@ Inside are the bricks to build it at home. This one takes 1992.
 ## The portal
 
 The works wouldn't stay in the museum. A portal made for the event would sell them to anyone.
+
+![Browsing the portal: one work per screen, a visitor's name in the corner, a bag to buy it.](bricks-of-the-future/portal-browse.jpg)
 
 In our mock-up, each product page quotes its sentence and signs it with the visitor's name.
 

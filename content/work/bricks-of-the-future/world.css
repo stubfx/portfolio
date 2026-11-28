@@ -1,0 +1,241 @@
+/* Bricks of the Future: a LEGO baseplate in a white gallery; the renders' rooms in hard cuts. Spec: world.md. */
+@font-face{font-family:"Inter Display";src:url(fonts/inter-display-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Inter Text";src:url(fonts/inter-text-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Inter Text";src:url(fonts/inter-text-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Inter Display fallback";src:local("Arial"),local("Liberation Sans"),local("Arimo");size-adjust:105.72%;ascent-override:91.64%;descent-override:22.82%;line-gap-override:0.00%}
+@font-face{font-family:"Inter Text fallback";src:local("Arial"),local("Liberation Sans"),local("Arimo");size-adjust:108.85%;ascent-override:89.00%;descent-override:22.16%;line-gap-override:0.00%}
+@property --lift{syntax:"<number>";inherits:false;initial-value:1}
+
+:root{
+--paper:#ffffff;--ink:#000000;--mk:#707070;--line:#e5e5e5;--bar:rgba(255,255,255,.94);
+--red:#c91a09;--blue:#0055bf;--yellow:#f2cd37;--white:#f4f4f4;
+--display:"Inter Display","Inter Display fallback",Arial,sans-serif;
+--text:"Inter Text","Inter Text fallback",Arial,sans-serif;
+--mono:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;
+--gut:clamp(16px,4vw,64px);
+}
+html,body{background:#fff}
+body{font-family:var(--text);color:#000}
+#grain{display:none}
+::selection{background:var(--yellow);color:#000}
+
+/* the plate: rooms edge to edge, 12 columns inside (content 1120 px at most) */
+.page{max-width:none;margin:0;padding:0;--px:.6;--py:-.6;--sx:calc(var(--px) * -1.4);--sy:calc(var(--py) * -1.4)} 
+.s{--edge:clamp(16px,9vw,160px);--m:max(var(--edge),calc((100% - 1160px) / 2));
+--on:#000;--label:#4d4d4d;--pix:var(--red);--shade:.2;--side:.26;
+position:relative;display:grid;align-content:start;column-gap:20px;row-gap:clamp(20px,2.4vw,40px);
+grid-template-columns:[full-start] minmax(var(--edge),1fr) [content-start] repeat(12,minmax(0,75px)) [content-end] minmax(var(--edge),1fr) [full-end];
+padding-block:clamp(72px,9vw,168px);background:#fff;color:var(--on);overflow-x:clip}
+.s > *{grid-column:content-start/content-end;min-width:0;margin:0}
+[data-s=no-keyboard]{background:#650202;--on:#fff;--label:#f2c9c4;--pix:var(--yellow);--shade:.38;--side:.4}
+[data-s=out-of-the-screen]{background:#000;--on:#fff;--label:#a6a6a6;--pix:var(--yellow);--shade:0;--side:0}
+[data-s=the-box]{background:#003a6e;--on:#fff;--label:#b8cde3;--pix:var(--yellow);--shade:.38;--side:.4}
+
+/* type: one family, two voices */
+.s h1,.s h2{font-family:var(--display);font-weight:700;color:var(--on);text-wrap:balance;overflow-wrap:break-word}
+.s h1{font-size:clamp(48px,9.6vw,184px);line-height:.92;letter-spacing:-.04em}
+.s h2{font-size:clamp(44px,7.2vw,128px);line-height:.95;letter-spacing:-.035em}
+.s p{font:400 clamp(18px,1.55vw,26px)/1.3 var(--text);letter-spacing:-.006em;max-width:34em;color:var(--on);text-wrap:pretty;overflow-wrap:break-word}
+.s blockquote{position:relative;padding:0;border:0;color:var(--on);overflow-wrap:break-word}
+[data-s=intro]>blockquote{font:400 clamp(20px,2vw,32px)/1.22 var(--text);letter-spacing:-.012em;max-width:26em}
+[data-s=intro]>p:nth-of-type(3),[data-s=the-way-in]>p:nth-of-type(3),[data-s=no-keyboard]>p:last-of-type{font:700 clamp(22px,2.5vw,42px)/1.1 var(--display);letter-spacing:-.02em;max-width:18em;text-wrap:balance}
+[data-s=intro]>p:nth-of-type(2){margin-top:calc(.4em - clamp(20px,2.4vw,40px))}
+[data-s=the-box]>blockquote{font:700 clamp(30px,4.6vw,84px)/1.06 var(--display);letter-spacing:-.03em;max-width:15em;text-wrap:balance;text-align:center;justify-self:center}
+[data-s=the-box]>blockquote strong{font-weight:inherit;padding:0 .08em;-webkit-box-decoration-break:clone;box-decoration-break:clone;background:linear-gradient(transparent 50%,var(--blue) 50% 96%,transparent 96%)}
+[data-s=the-box]>blockquote strong~strong{background:linear-gradient(transparent 50%,var(--red) 50% 96%,transparent 96%)}
+[data-s=the-portal]>p:nth-of-type(3){font:700 clamp(30px,4.6vw,84px)/1.02 var(--display);letter-spacing:-.03em;max-width:14em;text-wrap:balance;margin-top:clamp(24px,4vw,72px)}
+[data-s=the-portal]>p:last-of-type{font:400 15px/1.4 var(--text);color:#4d4d4d}
+p.punch{font:700 clamp(44px,7.2vw,132px)/.95 var(--display);letter-spacing:-.035em;max-width:12em;text-wrap:balance;text-align:center;justify-self:center;margin-top:clamp(24px,5vw,88px)}
+p.punch mark{background:none;color:var(--yellow)}
+.s a{color:inherit;text-decoration-thickness:1px;text-underline-offset:.18em}
+.s a:hover{color:var(--red)}
+[data-s=the-portal]>p:last-of-type a{color:#000}
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+
+/* syntax: # is a 1×1 brick, ## a 1×2, > a flat pixel; the rest goes */
+.s .mk{display:none}
+.s h1>.mk.hang,.s h2>.mk.hang{display:block;font-size:inherit;line-height:0;color:transparent;overflow:hidden;padding:0;--b:.36em;margin:0 0 .2em}
+.s h2>.mk.hang{--b:.3em;width:calc(var(--b) * 2);margin-bottom:.22em}
+.s h1>.mk.hang,[data-s=out-of-the-screen] h2>.mk.hang{--c:var(--red)}
+[data-s=the-way-in] h2>.mk.hang{--c:var(--blue)}
+[data-s=no-keyboard] h2>.mk.hang,[data-s=the-portal] h2>.mk.hang{--c:var(--yellow)}
+[data-s=the-box] h2>.mk.hang{--c:var(--white)}
+[data-s=out-of-the-screen]>h2,[data-s=the-box]>h2{text-align:center}
+[data-s=out-of-the-screen]>h2>.mk.hang,[data-s=the-box]>h2>.mk.hang{margin-inline:auto}
+[data-s=intro]>blockquote>.mk.hang{display:inline-block;font-size:inherit;line-height:1;color:transparent;overflow:hidden;width:.42em;height:.42em;margin:0 .4em .05em 0;padding:0;vertical-align:baseline;background:var(--red)}
+.s .code .fence{display:none}
+.s .code{position:relative}
+.s .code pre{font:400 clamp(9.5px,2.7vw,16px)/1.45 var(--mono);color:#fff;width:max-content;max-width:100%;overflow-x:auto;padding:0}
+.s .code pre .m{color:var(--yellow)}
+.s .hr{font-size:0;color:transparent;width:14px;height:14px;background:var(--red);box-shadow:22px 0 0 var(--yellow),44px 0 0 var(--blue);margin-top:clamp(32px,5vw,80px)}
+
+/* wall labels: the alt under the media with a flat pixel; the ![](path) goes */
+.s figure{position:relative;display:flex;flex-direction:column}
+.s figcaption{order:2;margin:10px 0 0;font-size:0;line-height:0;max-width:none}
+.s figcaption .alt{display:block;max-width:46ch;font:400 clamp(13px,.95vw,15px)/1.4 var(--text);color:var(--label)}
+.s figcaption .alt::before{content:"";display:inline-block;width:.6em;height:.6em;margin-right:.6em;background:var(--pix)}
+.s img,.s figure video{background:transparent}
+.s figure.narrow{max-width:none}
+figure:is([data-m=facade],[data-m=console],[data-m=box],[data-m=console-stand],[data-m=close-up]) figcaption{padding-inline:calc(var(--m) + 20px)}
+figure:is([data-m=poster-dates],[data-m=poster-line],[data-m=banner]) img{aspect-ratio:1;object-fit:cover}
+figure[data-m=banner] img{object-position:54% 50%}
+figure[data-m=sculpture] video{background:#000}
+figure[data-m=close-up] figcaption{position:absolute;left:0;bottom:0;z-index:2;margin:0;padding:8px 12px 0 calc(var(--m) + 20px);background:#000;max-width:none}
+figure[data-m=close-up] .alt{display:inline-block;max-width:46ch}
+/* objects float: their rectangle dissolves into the room */
+figure:is([data-m=console-stand],[data-m=box]) :is(img,video){mask-image:radial-gradient(ellipse 52% 56% at 50% 47%,#000 60%,transparent 100%)}
+figure[data-m=console] video{aspect-ratio:2;object-fit:cover;object-position:50% 0;mask-image:radial-gradient(ellipse 54% 58% at 50% 44%,#000 62%,transparent 100%)}
+video.loop:focus-visible{outline:none}
+.frame:has(>video:focus-visible){outline:2px solid currentColor;outline-offset:6px}
+
+/* the brick, from above: one stud per --b cell, lit by the lamp (--sx, --sy) */
+.s h1>.mk.hang,.s h2>.mk.hang,
+header.s::before,header.s::after,.s::before,[data-s=out-of-the-screen]::after,[data-s=the-box]::after,
+.s figure::before{
+width:var(--b);height:var(--b);--x:calc(var(--sx) * var(--b));--y:calc(var(--sy) * var(--b));
+background:
+  radial-gradient(circle at 53% 47%,color-mix(in srgb,var(--c),#fff 9%) 0 calc(var(--b) * .28),transparent calc(var(--b) * .28 + .6px)) 0 0/var(--b) var(--b) repeat-x,
+  radial-gradient(circle at calc(53% + var(--sx) * 5%) calc(47% + var(--sy) * 5%),rgb(0 0 0/.3) 0 calc(var(--b) * .285),transparent calc(var(--b) * .285 + .6px)) 0 0/var(--b) var(--b) repeat-x,
+  var(--c);
+box-shadow:
+  inset calc(var(--x) * .035) calc(var(--y) * .035) 0 rgb(255 255 255/.16),
+  inset calc(var(--x) * -.03) calc(var(--y) * -.03) 0 rgb(0 0 0/.12),
+  calc(var(--x) * .05 * var(--lift)) calc(var(--y) * .05 * var(--lift)) 0 rgb(0 0 0/var(--side)),
+  calc(var(--x) * .3 * var(--lift)) calc(var(--y) * .36 * var(--lift)) calc(var(--b) * .45 * var(--lift)) rgb(0 0 0/var(--shade))}
+.s h2>.mk.hang{width:calc(var(--b) * 2)}
+[data-s=intro]>blockquote::after,[data-s=the-way-in]::after,[data-s=no-keyboard]::after,[data-s=the-portal]::after,.s .code::after,[data-s=the-box]>blockquote::after{
+--p:clamp(9px,.95vw,14px);width:var(--p);height:var(--p);background:var(--c1);
+box-shadow:calc(var(--p) * 2) calc(var(--p) * -1.5) 0 var(--c2),calc(var(--p) * 3.5) var(--p) 0 var(--c4),calc(var(--p) * -1.5) calc(var(--p) * 2.5) 0 var(--c3),
+  calc(var(--p) * 5) calc(var(--p) * 3) 0 calc(var(--p) * -.3) var(--c1),calc(var(--p) * 1.5) calc(var(--p) * 4.5) 0 calc(var(--p) * .3) var(--c2)}
+.s::before,.s::after,.s figure::before,[data-s=intro]>blockquote::after,[data-s=the-box]>blockquote::after,.s .code::after{content:"";position:absolute;pointer-events:none;z-index:1}
+.s figure:not([data-m=museum],[data-m=poster-line],[data-m=keys],[data-m=box-sentence],[data-m=portal])::before{content:none}
+header.s::before,[data-s=no-keyboard]::before,[data-s=out-of-the-screen]::after,[data-s=the-portal]::before{--c:var(--blue)}
+header.s::after,[data-s=the-box]::before,figure:is([data-m=poster-line],[data-m=box-sentence])::before{--c:var(--yellow)}
+[data-s=the-way-in]::before,[data-s=out-of-the-screen]::before,[data-s=the-box]::after,figure:is([data-m=museum],[data-m=portal])::before{--c:var(--red)}
+figure[data-m=keys]::before{--c:var(--white)}
+[data-s=intro]>blockquote::after,[data-s=the-way-in]::after,[data-s=the-portal]::after{--c1:var(--red);--c2:var(--blue);--c3:var(--yellow);--c4:#000}
+[data-s=no-keyboard]::after{--c1:var(--yellow);--c2:var(--white);--c3:var(--blue);--c4:var(--white)}
+.s .code::after,[data-s=the-box]>blockquote::after{--c1:var(--yellow);--c2:var(--red);--c3:var(--white);--c4:var(--white)}
+header.s::after,.s::before,[data-s=out-of-the-screen]::after,[data-s=the-box]::after,figure:is([data-m=museum],[data-m=keys],[data-m=portal])::before{--b:clamp(34px,calc(7vw - 20px),80px)}
+header.s::before,[data-s=out-of-the-screen]::before,[data-s=the-box]::before{--b:clamp(40px,calc(9vw - 20px),104px)}
+figure:is([data-m=poster-line],[data-m=box-sentence])::before{--b:clamp(28px,3.4vw,60px)}
+.s figure::before{top:calc(var(--b) * -.5)}
+figure:is([data-m=museum],[data-m=box-sentence])::before{right:calc(var(--b) * -.38)}
+figure:is([data-m=keys],[data-m=portal])::before{left:calc(var(--b) * -.4)}
+figure[data-m=poster-line]::before{left:62%;top:calc(var(--b) * -.55)}
+figure[data-m=console-sketch]::after{content:"";position:absolute;pointer-events:none;left:calc(100% + 14px);top:4%;width:clamp(80px,7vw,120px);aspect-ratio:160/180;background:url(arrow.svg) center/contain no-repeat}
+
+.status{max-width:none;margin:0;padding:28px calc(max(clamp(16px,9vw,160px),(100% - 1160px) / 2) + 20px) 48px;border-top:1px solid var(--line);font:400 13px/1.4 var(--text);color:#5c5c5c;background:#fff}
+.status b{font-weight:400;color:#000}
+.status a{color:#000}
+
+/* WIDE: Readymag's zig-zag on the grid. Lines: 2 = content start, n+1 = column n, 14 = content end */
+@media (min-width:960px){
+header.s::after,[data-s=no-keyboard]::before,[data-s=out-of-the-screen]::before,[data-s=the-box]::after{left:max(8px,calc(var(--m) + 20px - var(--b) - clamp(12px,3vw,96px)))}
+header.s::before,[data-s=out-of-the-screen]::after,[data-s=the-box]::before,[data-s=the-portal]::before{right:max(8px,calc(var(--m) + 20px - var(--b) - clamp(12px,3vw,96px)))}
+[data-s=the-way-in]::after,[data-s=no-keyboard]::after,[data-s=the-portal]::after{right:max(8px,calc(var(--m) + 20px - var(--p) * 7))}
+
+[data-s=intro]{padding-top:clamp(56px,7vw,120px);padding-bottom:clamp(40px,5vw,96px)}
+header.s::before{top:clamp(24px,4vw,72px)}
+header.s::after{top:36%}
+[data-s=intro]>blockquote{grid-column:2/10;margin-top:clamp(12px,1.5vw,28px)}
+[data-s=intro]>blockquote::after{left:calc(100% + 10%);top:12%}
+[data-s=intro]>p:nth-of-type(-n+2){grid-column:2/8}
+[data-s=intro]>p:nth-of-type(3){grid-column:7/14;justify-self:end;text-align:right;margin-top:clamp(8px,1.5vw,24px)}
+[data-s=intro]>figure{margin-top:clamp(24px,4vw,72px)}
+
+[data-s=the-way-in]{padding-top:clamp(56px,7vw,128px)}
+[data-s=the-way-in]::before{left:calc(var(--m) + 120px);top:clamp(80px,9vw,170px)}
+[data-s=the-way-in]::after{bottom:clamp(96px,9vw,160px)}
+[data-s=the-way-in]>h2{grid-column:6/14;grid-row:1;text-align:right}
+[data-s=the-way-in]>h2>.mk.hang{margin-left:auto}
+[data-s=the-way-in]>figure[data-m=facade]{grid-column:full-start/full-end;grid-row:2;margin-top:clamp(8px,2vw,32px)}
+[data-s=the-way-in]>p:nth-of-type(1){grid-column:8/14;grid-row:3;justify-self:end;text-align:right}
+[data-s=the-way-in]>figure:is([data-m=poster-dates],[data-m=poster-line],[data-m=banner]){grid-row:4;margin-top:clamp(8px,2vw,32px)}
+[data-s=the-way-in]>figure[data-m=poster-dates]{grid-column:2/6}
+[data-s=the-way-in]>figure[data-m=poster-line]{grid-column:6/10}
+[data-s=the-way-in]>figure[data-m=banner]{grid-column:10/14}
+[data-s=the-way-in]>p:nth-of-type(2){grid-column:2/8;grid-row:5;margin-top:clamp(16px,3vw,48px)}
+[data-s=the-way-in]>p:nth-of-type(3){grid-column:8/14;grid-row:5;align-self:end;justify-self:end;text-align:right}
+
+[data-s=no-keyboard]::before{top:46%}
+[data-s=no-keyboard]::after{top:80%}
+[data-s=no-keyboard]>h2{grid-column:2/9;grid-row:1}
+[data-s=no-keyboard]>figure[data-m=console-stand]{grid-column:8/full-end;grid-row:1/span 3;align-self:start;margin-top:calc(-1 * clamp(24px,4vw,72px))}
+[data-s=no-keyboard]>p:nth-of-type(1){grid-column:2/8;grid-row:2}
+[data-s=no-keyboard]>figure[data-m=console-sketch]{grid-column:2/8;grid-row:3;margin-top:clamp(8px,2vw,32px)}
+[data-s=no-keyboard]>p:nth-of-type(2){grid-column:8/14;grid-row:4;margin-top:clamp(8px,2vw,32px)}
+[data-s=no-keyboard]>figure[data-m=console]{grid-column:full-start/full-end;grid-row:5;justify-self:center;width:min(100%,1600px)}
+[data-s=no-keyboard]>figure[data-m=keys]{grid-row:6;margin-top:clamp(24px,4vw,64px)}
+[data-s=no-keyboard]>p:nth-of-type(3){grid-column:2/10;grid-row:7;margin-top:clamp(16px,3vw,48px)}
+
+[data-s=out-of-the-screen]{padding-bottom:0}
+[data-s=out-of-the-screen]::before{top:24%}
+[data-s=out-of-the-screen]::after{top:44%}
+[data-s=out-of-the-screen]>p:not(.punch){grid-column:4/12;justify-self:center;text-align:center}
+[data-s=out-of-the-screen]>figure[data-m=sculpture]{justify-self:center;width:min(62vw,720px);margin-top:clamp(8px,2vw,32px)}
+[data-s=out-of-the-screen]>figure[data-m=sculpture] figcaption{align-self:center;text-align:center}
+[data-s=out-of-the-screen]>figure[data-m=sculpture] .alt,[data-s=the-box]>figure[data-m=box] .alt{margin-inline:auto}
+[data-s=out-of-the-screen]>.code{grid-column:4/12;justify-self:center;margin-top:clamp(16px,3vw,48px)}
+.s .code::after{left:calc(100% + 48px);top:28%}
+[data-s=out-of-the-screen]>figure[data-m=close-up]{grid-column:full-start/full-end;margin-top:clamp(48px,6vw,112px)}
+
+[data-s=the-box]::before{top:30%}
+[data-s=the-box]::after{top:52%}
+[data-s=the-box]>p:nth-of-type(-n+2){grid-column:4/12;justify-self:center;text-align:center}
+[data-s=the-box]>figure[data-m=box]{grid-column:full-start/full-end;justify-self:center;width:min(100%,1600px)}
+[data-s=the-box]>figure[data-m=box] figcaption{padding-inline:0;align-self:center;text-align:center}
+[data-s=the-box]>blockquote{grid-column:3/13;margin-top:clamp(8px,2vw,32px)}
+[data-s=the-box]>blockquote::after{right:-4%;bottom:-.5em}
+[data-s=the-box]>figure[data-m=box-sentence]{grid-column:2/9;grid-row:6;margin-top:clamp(24px,4vw,64px)}
+[data-s=the-box]>p:nth-of-type(3){grid-column:9/14;grid-row:6;align-self:end;margin-bottom:calc(1.4em + 10px)}
+[data-s=the-box]>figure[data-m=set]{grid-row:7;margin-top:clamp(16px,3vw,48px)}
+
+[data-s=the-portal]::before{top:40%}
+[data-s=the-portal]::after{bottom:clamp(48px,6vw,104px)}
+[data-s=the-portal]>figure[data-m=portal-browse]{grid-column:2/9;grid-row:1/span 2;align-self:start}
+[data-s=the-portal]>h2{grid-column:9/14;grid-row:1;align-self:end}
+[data-s=the-portal]>p:nth-of-type(1){grid-column:9/14;grid-row:2;align-self:start}
+[data-s=the-portal]>p:nth-of-type(2){grid-column:2/8;grid-row:3;margin-top:clamp(16px,3vw,48px)}
+[data-s=the-portal]>figure[data-m=portal]{grid-column:5/14;grid-row:4;margin-top:clamp(8px,2vw,32px)}
+}
+
+/* NARROW: one column, source order, designed for the phone */
+@media (max-width:959.98px){
+.s{column-gap:0;padding-block:clamp(64px,14vw,96px);--m:var(--gut);
+  grid-template-columns:[full-start] minmax(var(--gut),1fr) [content-start] minmax(0,314px) 12px minmax(0,314px) [content-end] minmax(var(--gut),1fr) [full-end]}
+[data-s=intro]{padding-top:84px}
+.s>figure{margin-top:8px}
+.s>figure:is([data-m=facade],[data-m=console-stand],[data-m=console],[data-m=box],[data-m=close-up]){grid-column:full-start/full-end}
+.s>figure[data-m=poster-line]{grid-column:2/3}
+.s>figure[data-m=banner]{grid-column:4/5}
+[data-s=out-of-the-screen]{padding-bottom:0}
+[data-s=out-of-the-screen]>h2,[data-s=the-box]>h2{text-align:left}
+[data-s=out-of-the-screen]>h2>.mk.hang,[data-s=the-box]>h2>.mk.hang{margin-inline:0}
+[data-s=out-of-the-screen]>.code{justify-self:center}
+[data-s=out-of-the-screen]>figure[data-m=close-up]{margin-top:32px}
+[data-s=the-portal]>p:nth-of-type(3){margin-top:16px}
+.status{padding-inline:var(--gut)}
+.s::before{--b:40px;top:22px;right:var(--gut)}
+header.s::after,[data-s=the-way-in]::after,[data-s=no-keyboard]::after,[data-s=out-of-the-screen]::after,[data-s=the-box]::after,[data-s=the-portal]::after,
+[data-s=intro]>blockquote::after,[data-s=the-box]>blockquote::after,.s .code::after,figure[data-m=console-sketch]::after{content:none}
+.s figure::before{--b:30px}
+figure:is([data-m=museum],[data-m=box-sentence])::before{right:8px}
+figure:is([data-m=keys],[data-m=portal])::before{left:8px}
+}
+
+/* motion: only with world.js, never with reduced motion */
+@keyframes snap{0%{opacity:0;transform:scale(1.3);--lift:3.4}55%{opacity:1;transform:scale(.95);--lift:.7}78%{transform:scale(1.02);--lift:1.05}100%{transform:none;--lift:1}}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.bricks-live .s:not(.placed)::before,.bricks-live .s:not(.placed)::after,.bricks-live .s:not(.placed) .mk.hang,.bricks-live figure:not(.placed)::before,.bricks-live :is(blockquote,.code):not(.placed)::after{opacity:0}
+.bricks-live .s.placed>:is(h1,h2)>.mk.hang,.bricks-live .s.placed::before,.bricks-live :is(header.s,[data-s=out-of-the-screen],[data-s=the-box]).placed::after,.bricks-live figure.placed::before{animation:snap .34s cubic-bezier(.2,.8,.3,1) both}
+.bricks-live :is([data-s=the-way-in],[data-s=no-keyboard],[data-s=the-portal]).placed::after,.bricks-live :is(blockquote,.code).placed::after,.bricks-live [data-s=intro].placed>blockquote>.mk.hang{animation:pop .21s steps(3,jump-start) .16s both}
+.bricks-live .s.placed::before{animation-delay:80ms}
+.bricks-live figure.placed::before{animation-delay:.12s}
+.bricks-live :is(header.s,[data-s=out-of-the-screen],[data-s=the-box]).placed::after{animation-delay:.16s}
+
+@media print{
+.s::before,.s::after,.s figure::before,.s blockquote::after,.s .code::after{display:none}
+.s{background:#fff;--on:#000;--label:#4d4d4d}
+}
+.s video[controls]{mask-image:none} /* a loop showing its own controls (reduced motion, no JS) is a plain, usable video */

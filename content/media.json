@@ -201,6 +201,50 @@
       }
     }
   },
+  "work/bricks-of-the-future/close-up.jpg": {
+    "kind": "photo",
+    "width": 2098,
+    "height": 1180,
+    "master": "fd43fdadad8a7656266a9cbe5d1003fdfe93af6df00c1b27cf9120a5003505dc",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/close-up.800.avif",
+        "width": 800,
+        "bytes": 14350,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/close-up.1600.avif",
+        "width": 1600,
+        "bytes": 27637,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/close-up.2098.avif",
+        "width": 2098,
+        "bytes": 36225,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/close-up.800.jpg",
+        "width": 800,
+        "bytes": 50888,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/close-up.1600.jpg",
+        "width": 1600,
+        "bytes": 122930,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/close-up.jpg",
+        "width": 2098,
+        "bytes": 172555,
+        "type": "image/jpeg"
+      }
+    ]
+  },
   "work/bricks-of-the-future/console-sketch.jpg": {
     "kind": "photo",
     "width": 1412,
@@ -229,6 +273,38 @@
         "file": "work/bricks-of-the-future/console-sketch.jpg",
         "width": 1412,
         "bytes": 190256,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/console-stand.jpg": {
+    "kind": "photo",
+    "width": 1320,
+    "height": 1026,
+    "master": "9f59997bc39994e6b0cd50ea446e44f9c3d709ff1ae848695b0251a649f59e48",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/console-stand.800.avif",
+        "width": 800,
+        "bytes": 9185,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/console-stand.1320.avif",
+        "width": 1320,
+        "bytes": 14938,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/console-stand.800.jpg",
+        "width": 800,
+        "bytes": 37225,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/console-stand.jpg",
+        "width": 1320,
+        "bytes": 71652,
         "type": "image/jpeg"
       }
     ]
@@ -396,6 +472,38 @@
       }
     ]
   },
+  "work/bricks-of-the-future/portal-browse.jpg": {
+    "kind": "photo",
+    "width": 1202,
+    "height": 676,
+    "master": "36c731344e7270e3db8277b4a203079fef597f0d156bebaa33fe6a94ba51e061",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/portal-browse.800.avif",
+        "width": 800,
+        "bytes": 11238,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/portal-browse.1202.avif",
+        "width": 1202,
+        "bytes": 15799,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/portal-browse.800.jpg",
+        "width": 800,
+        "bytes": 36597,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/portal-browse.jpg",
+        "width": 1202,
+        "bytes": 58485,
+        "type": "image/jpeg"
+      }
+    ]
+  },
   "work/bricks-of-the-future/portal.jpg": {
     "kind": "photo",
     "width": 1202,
@@ -424,6 +532,58 @@
         "file": "work/bricks-of-the-future/portal.jpg",
         "width": 1202,
         "bytes": 96392,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/poster-dates.jpg": {
+    "kind": "photo",
+    "width": 1080,
+    "height": 1080,
+    "master": "50763b7a64d80f90da4eb2cf8b268337bac0f21fd6e0ea553769cc01106c0939",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/poster-dates.800.avif",
+        "width": 800,
+        "bytes": 21490,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/poster-dates.1080.avif",
+        "width": 1080,
+        "bytes": 27667,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/poster-dates.800.jpg",
+        "width": 800,
+        "bytes": 81323,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/poster-dates.jpg",
+        "width": 1080,
+        "bytes": 126570,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/poster-line.jpg": {
+    "kind": "photo",
+    "width": 670,
+    "height": 670,
+    "master": "18dc9c9720ff89e0040e7d9bfe686e4aa8ab2b422bb179e0833ef9f8e24a2684",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/poster-line.670.avif",
+        "width": 670,
+        "bytes": 10728,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/poster-line.jpg",
+        "width": 670,
+        "bytes": 40124,
         "type": "image/jpeg"
       }
     ]
