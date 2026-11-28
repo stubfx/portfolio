@@ -65,8 +65,6 @@ Teaching GenAI to classes of about 50 graduates. Running "AI Way of Work" sessio
 
 ## About
 
-![Luca Molluso, Rome.](portrait.jpg)
-
 Modder since 2015. Engineer since 2017, at IBM, now at Accenture Song. Real-time 3D for global luxury and automotive brands. A BA in Art Direction, 110/110 cum laude, earned alongside the day job. GenAI trainer. Ten years of transverse flute. Blender, Linux, FOSS.
 
 AI is a tool, not a goal. It makes me faster. It doesn't decide what's good. [More in about.md](about.md)

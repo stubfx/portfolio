@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { codecString, videoArgs, photoArgs, encode, embedPoster, withExif, AUTHOR, COPYRIGHT } from '../media.mjs';
+import { codecString, videoArgs, photoArgs, encode, embedPoster, removeMedia, withExif, AUTHOR, COPYRIGHT } from '../media.mjs';
 import { loadManifest, checkManifest, videoKind, LIMITS } from '../lib/media.mjs';
 
 const hasFfmpeg = spawnSync('ffprobe', ['-version']).status === 0 && spawnSync('ffmpeg', ['-version']).status === 0;
@@ -223,4 +223,18 @@ test('re-encoding from a smaller master removes the files the old entry had and 
   assert.ok(!fs.existsSync(path.join(dir, 'work/t/hero.2400.avif')), 'the old 2400 px file is gone');
   assert.ok(!fs.existsSync(path.join(dir, 'work/t/hero.1600.jpg')), 'the old 1600 px file is gone');
   assert.deepEqual(checkManifest(loadManifest(dir), dir).errors, []);
+});
+
+test('remove: the entry and every file it lists go; other entries stay; an unknown path says so', { skip: !hasFfmpeg, timeout: 120000 }, async () => {
+  const dir = tmp();
+  const m = path.join(tmp(), 'm.png');
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=1000x700', '-frames:v', '1', m);
+  await encode(m, 'a.jpg', { contentDir: dir });
+  await encode(m, 'b.jpg', { contentDir: dir });
+  const files = loadManifest(dir)['a.jpg'].variants.map((v) => v.file);
+  removeMedia('a.jpg', { contentDir: dir });
+  assert.deepEqual(Object.keys(loadManifest(dir)), ['b.jpg']);
+  for (const f of files) assert.ok(!fs.existsSync(path.join(dir, f)), f);
+  assert.deepEqual(checkManifest(loadManifest(dir), dir).errors, []);
+  assert.throws(() => removeMedia('nope.jpg', { contentDir: dir }), /nope\.jpg isn't in media\.json/);
 });

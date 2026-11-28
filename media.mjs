@@ -6,6 +6,7 @@
 //
 //   node media.mjs <master> <content path> [--poster <seconds>] [--bg <hex>] [--sample] [--force]
 //   node media.mjs --embed <url> <page dir> [--from <still>] [--sample] [--force]
+//   node media.mjs --remove <content path>          (the entry and its files; the Markdown line is yours to delete)
 //
 // The content path's extension decides: .jpg a photo, .png an image with transparency (kept: WebP widths and
 // a PNG), .mp4 a clip. A transparent master as .jpg needs --bg <hex>, which flattens it onto that colour.
@@ -287,11 +288,22 @@ export async function embedPoster(url, pageDir, { contentDir = 'content', from =
   return encode(master, embedPosterKey(pageDir, e), { contentDir, sample, force, log });
 }
 
+/** Takes a medium off the site: its manifest entry and every file it lists. */
+export function removeMedia(contentPath, { contentDir = 'content' } = {}) {
+  const m = loadManifest(contentDir);
+  if (!m[contentPath]) throw new Error(`${contentPath} isn't in media.json`);
+  for (const f of entryFiles(m[contentPath])) fs.rmSync(path.join(contentDir, f), { force: true });
+  delete m[contentPath];
+  fs.writeFileSync(path.join(contentDir, 'media.json'), `${JSON.stringify(m, null, 2)}\n`);
+}
+
 async function main(args) {
   const flag = (name) => { const i = args.indexOf(name); return i >= 0 ? args.splice(i, 2)[1] : null; };
   const bool = (name) => { const i = args.indexOf(name); if (i >= 0) args.splice(i, 1); return i >= 0; };
   const sample = bool('--sample');
   const force = bool('--force');
+  const remove = flag('--remove');
+  if (remove) { removeMedia(remove); console.log(`${remove}: removed, with its files`); return; }
   const embed = flag('--embed');
   const from = flag('--from');
   const poster = Number(flag('--poster') ?? 0);

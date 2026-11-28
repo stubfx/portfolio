@@ -8,13 +8,11 @@ How to write the site. Everything visible on the site is written here, in Markdo
 | --- | --- | --- |
 | `content/index.md` | `/` | Also served as `/index.md` and `/llms.txt` |
 | `content/now.md` | `/now/` | What I'm doing this month |
-| `content/about.md` | `/about/` | About me, in the homepage's look: the order of the old Readymag About page (portrait and bio, tools, languages, work, contact, Suzanne) |
+| `content/about.md` | `/about/` | About me, in the homepage's look: the order of the old Readymag About page (bio, tools, languages, work, contact). No portrait for now (Luca, 2026-11-28); the terminal-style closing line and Suzanne were for Readymag only |
 | `content/cv.md` | `/cv/` | The master CV from the profile doc |
 | `content/404.md` | `/404.html` | The not-found page |
 | `content/work/<case>.md` | `/work/<case>/` | One file per case |
 | `content/work/<case>/` | | That case's photos and loops, with their posters (made by `media.mjs`). Embed posters sit beside the page, in `content/work/` |
-| `content/portrait.jpg` | | The About portrait (the one from the Readymag site) |
-| `content/suzanne.mp4` | | The About page's closing loop, from the Readymag site's wireframe GIF, on black |
 | `content/media.json` | | The media manifest, written by `media.mjs`. Never edit it by hand |
 
 No front matter. The title is the H1, the description is the blockquote right under it, dates come from git.
