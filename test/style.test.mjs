@@ -50,3 +50,8 @@ test('the header sits in the frame layer, above any world; a world page hides th
   assert.match(frame, /html\.world #themeseg\{display:none\}/);
   assert.match(base, /^@layer base,world,frame;\s*@layer base\{/);
 });
+
+test('a video box has no placeholder colour: at fractional widths a GPU-drawn video leaves a sliver of it (Luca: "a tiny little line on the right")', () => {
+  assert.doesNotMatch(rule('figure video'), /background:var\(--line\)/);
+  assert.match(rule('figure video'), /background:none/);
+});

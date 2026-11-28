@@ -58,7 +58,7 @@ img{display:block;width:100%;height:auto;background:var(--line)}
 picture{display:block}
 figure.narrow{max-width:min(440px,100%)}
 .cutout img{background:none} /* transparent images: the page shows through, no placeholder box */
-figure video{display:block;width:100%;height:auto;background:var(--line)}
+figure video{display:block;width:100%;height:auto;background:none} /* no placeholder colour: at fractional widths a GPU-drawn video can leave a 1 px sliver of it */
 .frame{position:relative;display:block}
 .loop{cursor:pointer}
 .loop-tag,.embed .tag{position:absolute;right:12px;bottom:10px;z-index:2;font:11px/1 var(--mono);color:#f4f4f4;background:rgba(0,0,0,.55);padding:4px 6px;pointer-events:none}

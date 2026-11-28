@@ -1,0 +1,215 @@
+/* WAYLAY: a live broadcast you can be thrown out of.
+   Black edge to edge, one light, Bebas Neue for what the episode shouts, Montserrat for what it says.
+   The colour rule: white is alive, Netflix red is what you lose. Spec: world.md. */
+
+@font-face{font-family:"Bebas Neue";src:url(fonts/bebas-neue.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Montserrat";src:url(fonts/montserrat.woff2) format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
+
+:root{
+  --paper:#000000;--ink:#ffffff;--mk:#8c8c8c;--line:#262626;--bar:rgba(0,0,0,.8);
+  --red:#e50914;   /* Netflix red: what you lose. Display type, bold keywords (19px+), the lost life */
+  --sub:#bdbdbd;   /* subtitles (captions) */
+  --dim:#8c8c8c;   /* status line, closing line */
+  --bebas:"Bebas Neue",Impact,"Arial Narrow",sans-serif;
+  --mont:"Montserrat",Arial,sans-serif;
+  --pad:clamp(16px,5vw,96px);
+  --gap:clamp(12px,2vw,32px);
+  --body:clamp(19px,calc(1vw + 7px),28px);
+  --h2:clamp(50px,14.5vw,120px);
+  --space:clamp(112px,15vw,240px);
+  color-scheme:dark;
+}
+@media (min-width:900px){:root{--h2:clamp(72px,8.4vw,172px)}}
+
+html,body{background:#000}
+#grain{opacity:.035;mix-blend-mode:screen} /* a live screen, still black */
+::selection{background:var(--red);color:#fff}
+
+/* ---------- the page: a grid per section, syntax hidden ---------- */
+.page{max-width:none;margin:0;padding:0;color:#fff;font-family:var(--mont)}
+.page .mk,.page .hr{display:none}
+.s{display:grid;grid-template-columns:minmax(0,1fr);column-gap:var(--gap);padding:var(--space) var(--pad) 0;overflow-x:clip}
+.s > *{grid-column:1/-1;min-width:0}
+@media (min-width:900px){.s{grid-template-columns:repeat(12,minmax(0,1fr))}}
+
+/* ---------- type ---------- */
+.page h1,.page h2,.page .punch{font-family:var(--bebas);font-weight:400;font-synthesis:none;text-transform:uppercase;letter-spacing:.005em;color:#fff;margin:0;max-width:none;overflow-wrap:normal}
+.page h1 strong,.page h2 strong,.page .punch strong{font-weight:400;color:var(--red);white-space:nowrap}
+.page h2{font-size:var(--h2);line-height:.84;margin:0 0 .28em}
+.page p,.page li{font-family:var(--mont);font-weight:400;font-size:var(--body);line-height:1.42;letter-spacing:0;max-width:30em;margin:0 0 1em}
+.page p strong{font-weight:700;color:var(--red)}
+.page a{color:#fff;text-decoration-thickness:1px;text-underline-offset:.22em}
+.page a:hover{color:var(--red)}
+.page blockquote{font-family:var(--mont);letter-spacing:0;margin:0;max-width:none}
+/* intertitles: the lines between segments, set like a presenter's line */
+.s[data-s=before-it-airs] figure + p,
+.s[data-s=vote-on-the-fate] h2 + p,
+.s[data-s=then-risk-it-all] h2 + p,
+.s[data-s=for-the-survivors] h2 + p{font-weight:500;font-size:clamp(21px,2vw,32px);line-height:1.3;text-align:center;justify-self:center;max-width:24em}
+
+/* ---------- media: no frames; everything comes out of the black ---------- */
+.page figure{margin:0;display:flex;flex-direction:column}
+.page figure.narrow{max-width:none}
+.page img,.page figure video{background:transparent}
+/* captions are subtitles: the alt text only, centred under the picture */
+.page figcaption{order:2;font-size:0;line-height:0;margin:16px auto 0;padding:0 var(--pad);max-width:min(700px,100%);text-align:center}
+.page figcaption .alt{font:500 15px/1.45 var(--mont);color:var(--sub);letter-spacing:.005em}
+@media (min-width:900px){.page figcaption .alt{font-size:16px}}
+figure:is([data-m=audience],[data-m=title]) figcaption{display:none}
+/* full bleed, edge to edge */
+figure:is([data-m=homepage],[data-m=countdown],[data-m=vote],[data-m=scream-to-jump],[data-m=day-after],[data-m=title]){margin-inline:calc(-1 * var(--pad))}
+/* photos that don't end in black fade into it */
+figure:is([data-m=countdown],[data-m=homepage],[data-m=day-after]) picture{
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 var(--ft),#000 calc(100% - var(--fb)),transparent),linear-gradient(to right,transparent,#000 var(--fs),#000 calc(100% - var(--fs)),transparent);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to bottom,transparent,#000 var(--ft),#000 calc(100% - var(--fb)),transparent),linear-gradient(to right,transparent,#000 var(--fs),#000 calc(100% - var(--fs)),transparent);
+  mask-composite:intersect}
+figure[data-m=countdown] picture{--ft:12%;--fb:22%;--fs:7%}
+figure[data-m=homepage] picture{--ft:5%;--fb:24%;--fs:2.5%}
+figure[data-m=day-after] picture{--ft:16%;--fb:18%;--fs:12%}
+
+/* ---------- intro: the launch screen ---------- */
+.s[data-s=intro]{position:relative;padding-top:0;padding-bottom:0}
+.s[data-s=intro] figure{order:-1;margin:0 calc(-1 * var(--pad));aspect-ratio:4/5;overflow:hidden;-webkit-mask-image:linear-gradient(#000 58%,transparent 92%);mask-image:linear-gradient(#000 58%,transparent 92%)}
+.s[data-s=intro] figure :is(.frame,video){display:block;width:100%;height:100%}
+.s[data-s=intro] video{object-fit:cover}
+.s[data-s=intro] h1{position:relative;z-index:1;font-size:clamp(50px,16.4vw,140px);line-height:.84;margin-top:-.95em;max-width:5.4em}
+.s[data-s=intro] blockquote{position:relative;z-index:1;font-size:clamp(18px,1.5vw,24px);line-height:1.42;color:#d9d9d9;max-width:26em;margin-top:1.1em}
+@media (min-width:900px){
+  .s[data-s=intro]{min-height:calc(100svh - 49px);grid-template-rows:1fr auto auto;padding-bottom:clamp(40px,8vh,96px)}
+  .s[data-s=intro] figure{position:absolute;grid-area:auto;top:0;left:27vw;width:100vw;margin:0;aspect-ratio:auto;z-index:0;-webkit-mask-image:none;mask-image:none} /* grid-area auto: offsets from the header's edge, not the content box */
+  .s[data-s=intro] figure :is(.frame,video){height:auto}
+  .s[data-s=intro] h1{grid-column:1/8;grid-row:2;font-size:clamp(72px,8.6vw,190px);margin-top:0}
+  .s[data-s=intro] blockquote{grid-column:1/6;grid-row:3}
+}
+
+/* ---------- streamed once: the thesis ---------- */
+@media (min-width:900px){
+  .s[data-s=streamed-once] h2{grid-column:1/7;grid-row:1/span 3;font-size:clamp(80px,10.5vw,210px);max-width:5em}
+  .s[data-s=streamed-once] p{grid-column:7/12}
+  .s[data-s=streamed-once] h2 + p{margin-top:.45em}
+}
+
+/* ---------- before it airs: teasers, the homepage, the countdown ---------- */
+.s[data-s=before-it-airs] figure[data-m=teasers]{margin:8px -2vw 0}
+.s[data-s=before-it-airs] figure + p{margin-top:clamp(80px,12vw,200px);margin-bottom:clamp(28px,4vw,64px)}
+@media (min-width:900px){
+  .s[data-s=before-it-airs] h2{grid-column:8/13;grid-row:1;align-self:end}
+  .s[data-s=before-it-airs] h2 + p{grid-column:8/12;grid-row:2;align-self:start}
+  .s[data-s=before-it-airs] figure[data-m=teasers]{grid-column:1/8;grid-row:1/4;align-self:center;margin:0 0 0 -2vw}
+  .s[data-s=before-it-airs] figure + p{grid-column:3/11}
+}
+
+/* ---------- vote on the fate: the TV in the dark ---------- */
+.s[data-s=vote-on-the-fate] h2{justify-self:center;text-align:center}
+.s[data-s=vote-on-the-fate] figure{position:relative;z-index:0;margin-top:clamp(-150px,-9vw,-24px)}
+.s[data-s=vote-on-the-fate] h2 + p{position:relative;z-index:1}
+@media (min-width:900px){.s[data-s=vote-on-the-fate] h2 + p{grid-column:3/11}}
+
+/* ---------- then risk it all: bigger ---------- */
+.s[data-s=then-risk-it-all] h2{justify-self:center;text-align:center;font-size:clamp(56px,15.5vw,124px)}
+.s[data-s=then-risk-it-all] figure{margin-top:clamp(8px,2vw,32px)}
+@media (min-width:900px){
+  .s[data-s=then-risk-it-all] h2{font-size:clamp(96px,12vw,240px)}
+  .s[data-s=then-risk-it-all] h2 + p{grid-column:3/11;grid-row:2}
+  .s[data-s=then-risk-it-all] figure{grid-row:3}
+  .s[data-s=then-risk-it-all] figure + p{grid-column:10/13;grid-row:3;align-self:center;position:relative;z-index:1;margin:0 0 6%}
+}
+
+/* ---------- with your own lives: the biggest type on the page ---------- */
+.s[data-s=with-your-own-lives] h2{font-size:clamp(64px,19vw,150px);line-height:.8;max-width:7em} /* always WITH YOUR OWN / LIVES. */
+.s[data-s=with-your-own-lives] figure[data-m=three-lives]{margin:0 calc(-1 * var(--pad))}
+.s[data-s=with-your-own-lives] .punch{font-size:clamp(40px,11.5vw,96px);line-height:.88;max-width:9.6em;margin:.1em 0 .45em}
+.s[data-s=with-your-own-lives] figure[data-m=game-over]{justify-self:center;width:min(100%,72vh,640px);margin-top:clamp(56px,9vw,150px)}
+@media (min-width:900px){
+  .s[data-s=with-your-own-lives] h2{font-size:clamp(150px,15.5vw,320px)}
+  .s[data-s=with-your-own-lives] figure[data-m=three-lives]{grid-column:1/8;grid-row:2/4;align-self:center;margin:0 0 0 calc(-1 * var(--pad) - 5vw)}
+  .s[data-s=with-your-own-lives] .punch{grid-column:7/13;grid-row:2;align-self:end;position:relative;z-index:1;font-size:clamp(56px,5.2vw,108px);margin:0}
+  .s[data-s=with-your-own-lives] .punch + p{grid-column:7/12;grid-row:3;margin-top:1.1em}
+  .s[data-s=with-your-own-lives] figure[data-m=game-over]{grid-column:1/-1}
+}
+
+/* ---------- locked out: the posts of the dead ---------- */
+.s[data-s=locked-out] figure[data-m=day-after]{margin-top:clamp(24px,5vw,80px)}
+.s[data-s=locked-out] figure[data-m=day-after] + p{font-size:15px;line-height:1.4;color:var(--sub);margin:clamp(56px,8vw,120px) 0 .9em}
+.s[data-s=locked-out] blockquote{font-weight:500;font-size:clamp(22px,2.3vw,36px);line-height:1.3;color:#fff;border-left:3px solid var(--red);padding-left:.8em;max-width:20em}
+.s[data-s=locked-out] figure[data-m=game-over-post]{justify-self:center;width:min(86%,420px);margin-top:clamp(48px,8vw,96px)}
+@media (min-width:900px){
+  .s[data-s=locked-out]{grid-template-rows:auto auto 1fr 1fr}
+  .s[data-s=locked-out] h2{grid-column:1/7;grid-row:1}
+  .s[data-s=locked-out] h2 + p{grid-column:7/12;grid-row:1;align-self:end;margin-bottom:.4em}
+  .s[data-s=locked-out] figure[data-m=day-after]{grid-row:2}
+  .s[data-s=locked-out] figure[data-m=day-after] + p{grid-column:2/7;grid-row:3;align-self:end;margin-bottom:.9em}
+  .s[data-s=locked-out] blockquote{grid-column:2/7;grid-row:4;align-self:start}
+  .s[data-s=locked-out] figure[data-m=game-over-post]{grid-column:8/12;grid-row:3/5;align-self:center;justify-self:center;width:100%;max-width:420px;margin-top:clamp(56px,8vw,120px)}
+}
+
+/* ---------- for the survivors: white again, the bear ---------- */
+.s[data-s=for-the-survivors] h2{justify-self:center;text-align:center}
+.s[data-s=for-the-survivors] figure[data-m=bear]{justify-self:center;width:min(100%,640px);margin-top:clamp(24px,4vw,56px)}
+.s[data-s=for-the-survivors] figure[data-m=keepsake]{margin-top:clamp(72px,10vw,160px)}
+.s[data-s=for-the-survivors] figure[data-m=keepsake] + p{font-family:var(--bebas);font-size:clamp(40px,11vw,96px);line-height:.9;text-transform:uppercase;margin:clamp(72px,10vw,160px) 0 .3em}
+.s[data-s=for-the-survivors] figure[data-m=title]{margin-top:var(--space)}
+.s[data-s=for-the-survivors] > p:last-child{font-size:14px;line-height:1.5;color:var(--dim);text-align:center;justify-self:center;margin:clamp(40px,5vw,72px) 0 0}
+@media (min-width:900px){
+  /* rows: h2 1, text 2, bear 3, keepsake 4, the prototype line and photo side by side in 5, then the title card */
+  .s[data-s=for-the-survivors] h2 + p{grid-column:3/11}
+  .s[data-s=for-the-survivors] figure[data-m=keepsake]{grid-column:2/12}
+  .s[data-s=for-the-survivors] figure[data-m=keepsake] + p{grid-column:1/5;grid-row:5;align-self:center;font-size:clamp(64px,6vw,120px);margin:0}
+  .s[data-s=for-the-survivors] figure[data-m=prototype]{grid-column:5/13;grid-row:5;margin-top:clamp(72px,10vw,160px)}
+}
+
+/* ---------- status line ---------- */
+.status{max-width:none;padding:28px var(--pad) 88px;justify-content:center;color:var(--dim)}
+.status b,.status a{color:#fff}
+
+/* ---------- motion: two glitches and one lost life ---------- */
+@keyframes glitch{
+  0%{text-shadow:.06em 0 0 #00e5ff,-.06em 0 0 var(--red);transform:translateX(-.03em)}
+  18%{text-shadow:-.05em 0 0 #00e5ff,.05em 0 0 #ffd400;transform:translateX(.04em) skewX(-8deg)}
+  36%{text-shadow:.03em 0 0 #00e5ff,-.07em 0 0 var(--red);transform:translateX(0)}
+  54%{text-shadow:-.02em 0 0 #00e5ff,.03em 0 0 #ffd400;transform:translateX(-.015em) skewX(4deg)}
+  72%{text-shadow:.01em 0 0 #00e5ff,-.01em 0 0 var(--red);transform:none}
+  100%{text-shadow:none;transform:none}
+}
+.s[data-s=intro] h1 strong{display:inline-block;animation:glitch .66s steps(1,end) .35s both}
+.page .punch mark{display:inline-block;background:none;color:inherit}
+html[data-lives="2"] .page .punch mark{animation:glitch .5s steps(1,end) both}
+
+/* the lives: three white figures stacked in the left margin from the first game on, never explained.
+   world.js takes the bottom one at the punch line. Drawn in 3x3 pixels with box-shadow, so no image and no font */
+@property --l3{syntax:"<color>";inherits:true;initial-value:#ffffff}
+html[data-lives] .page{--c:3px}
+@media (min-width:600px){html[data-lives] .page{--c:4px}}
+@media (min-width:900px){html[data-lives] .page{--c:5px}}
+@media (min-width:1200px){html[data-lives] .page{--c:6px}}
+html[data-lives] .page::before,html[data-lives] .page::after{content:"";position:fixed;z-index:30;pointer-events:none;
+  left:max(2px,calc((var(--pad) - var(--c) * 5) / 2));bottom:clamp(72px,11vh,128px)}
+html[data-lives] .page::before{width:calc(var(--c) * 5);height:calc(var(--c) * 15);background:#000;border-radius:2px}
+html[data-lives] .page::after{--l:#fff;width:var(--c);height:var(--c);margin:0 0 calc(var(--c) * 13) var(--c);
+  box-shadow:
+    calc(var(--c)*1) calc(var(--c)*0) var(--l),calc(var(--c)*0) calc(var(--c)*1) var(--l),calc(var(--c)*1) calc(var(--c)*1) var(--l),calc(var(--c)*2) calc(var(--c)*1) var(--l),calc(var(--c)*0) calc(var(--c)*2) var(--l),calc(var(--c)*2) calc(var(--c)*2) var(--l),
+    calc(var(--c)*1) calc(var(--c)*5) var(--l),calc(var(--c)*0) calc(var(--c)*6) var(--l),calc(var(--c)*1) calc(var(--c)*6) var(--l),calc(var(--c)*2) calc(var(--c)*6) var(--l),calc(var(--c)*0) calc(var(--c)*7) var(--l),calc(var(--c)*2) calc(var(--c)*7) var(--l),
+    calc(var(--c)*1) calc(var(--c)*10) var(--l3),calc(var(--c)*0) calc(var(--c)*11) var(--l3),calc(var(--c)*1) calc(var(--c)*11) var(--l3),calc(var(--c)*2) calc(var(--c)*11) var(--l3),calc(var(--c)*0) calc(var(--c)*12) var(--l3),calc(var(--c)*2) calc(var(--c)*12) var(--l3)}
+html[data-lives="3"] .page::before,html[data-lives="3"] .page::after{animation:hud-in .3s steps(3,end) both}
+@keyframes hud-in{from{opacity:0}to{opacity:1}}
+html[data-lives="2"] .page::after{--l3:var(--red);animation:lose .9s steps(1,end) both}
+@keyframes lose{0%{--l3:var(--red)}17%{--l3:#fff}33%{--l3:var(--red)}50%{--l3:#fff}67%{--l3:var(--red)}83%{--l3:#fff}100%{--l3:var(--red)}}
+
+@media (prefers-reduced-motion:reduce){
+  .s[data-s=intro] h1 strong,html[data-lives="2"] .page .punch mark,html[data-lives] .page::before,html[data-lives] .page::after{animation:none}
+}
+
+/* review fix 1: the hero video's own box starts right of the title, so its native controls (reduced motion, no JavaScript)
+   never sit under the text. Same picture as before: only black is cropped. Height capped to the screen so the controls stay visible */
+@media (min-width:900px){
+  .s[data-s=intro] figure{left:53vw;width:47vw}
+  .s[data-s=intro] figure :is(.frame,video){height:min(56.25vw,calc(100svh - 49px))}
+  .s[data-s=intro] video{object-fit:cover;object-position:49% 0}
+}
+
+/* review fix 2: on phones a subtitle ran straight into the next line (scream-to-jump: 0 px, three-lives into the punch: 4 px) */
+@media (max-width:899.98px){
+  .s > figure + p{margin-top:clamp(32px,9vw,56px)}
+  .s[data-s=with-your-own-lives] .punch{margin-top:clamp(36px,10vw,64px)}
+}

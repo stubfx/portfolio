@@ -14,6 +14,8 @@ which the real content doesn't have yet), serves both with build.mjs's server (R
   overflow  no horizontal scrolling at 360 px
   focus     every Tab stop shows an outline of at least 2 px
   header    the file bar is the same on a world page (a hostile one in the fixture) as on the homepage: type, size, layout, on top
+  words     no word splits across two lines (Luca: "alexand - er") in any heading, punch line, quote or text, at 360 to 1920 px;
+            breaking at a hyphen, dash or slash is fine
   rows      timeline rows span the screen edge to edge, show no scrollbar, never scroll the page, keep long titles inside cards; arrows scroll
 
 Usage: uv run -q --with playwright==1.64.1 python test/e2e/check.py [name ...]   (no names: all but reference)
@@ -314,6 +316,38 @@ def rows(r):
             ctx.close()
 
 
+SPLIT_WORDS = r"""(() => {
+  const out = [];
+  for (const el of document.querySelectorAll('main h1, main h2, main h3, main .punch, main blockquote, main p, main li, main td')) {
+    if (el.closest('figcaption, pre, .code')) continue;
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n; (n = walk.nextNode());) {
+      for (const m of n.data.matchAll(/[^\s\-‐‑–—\/]+/g)) {
+        const range = document.createRange();
+        range.setStart(n, m.index);
+        range.setEnd(n, m.index + m[0].length);
+        const tops = new Set([...range.getClientRects()].filter((b) => b.width > 0).map((b) => Math.round(b.top)));
+        if (tops.size > 1) out.push(`${el.tagName.toLowerCase()} "${m[0]}"`);
+      }
+    }
+  }
+  return [...new Set(out)];
+})()"""
+
+
+@check
+def words(r):
+    for w in (360, 390, 768, 1024, 1280, 1440, 1920, 2560):
+        for url in r.dist_pages:
+            ctx, pg = r.page(w, 900)
+            pg.goto(url, wait_until='networkidle')
+            pg.wait_for_timeout(150)
+            split = pg.evaluate(SPLIT_WORDS)
+            ctx.close()
+            if split:
+                r.fail('words', f'{url.replace(r.dist, "")} at {w}: {", ".join(split[:6])}')
+
+
 HEADER_PROBE = """(() => {
   const b = document.querySelector('.bar'), c = document.getElementById('copy'), v = document.querySelector('#viewseg button');
   const s = getComputedStyle(b), k = getComputedStyle(c), t = getComputedStyle(v);
@@ -351,16 +385,18 @@ def main(names):
     if unknown:
         sys.exit(f'unknown checks: {unknown}; known: {list(CHECKS)}')
     names = names or [n for n in CHECKS if n != 'reference']
-    subprocess.run(['node', 'build.mjs'], cwd=ROOT, check=True)
+    # its own builds, so a dev server rebuilding dist/ meanwhile can't pull files from under the checks
+    dist_dir = tempfile.mkdtemp(prefix='e2e-dist-')
+    subprocess.run(['node', '-e', NODE_BUILD, str(ROOT / 'content'), dist_dir], cwd=ROOT, check=True)
     fix_dir = tempfile.mkdtemp(prefix='e2e-')
     subprocess.run(['node', '-e', NODE_BUILD, str(FIXTURE), fix_dir], cwd=ROOT, check=True)
-    dist, dist_url = serve(ROOT / 'dist')
+    dist, dist_url = serve(dist_dir)
     fix, fix_url = serve(fix_dir)
     h = host()
     try:
         with sync_playwright() as p:
             browser = p.chromium.connect(f'ws://{h}:3333/', expose_network='<loopback>')
-            r = Run(browser, dist_url, ROOT / 'dist', fix_url, fix_dir)
+            r = Run(browser, dist_url, dist_dir, fix_url, fix_dir)
             for n in names:
                 before = len(r.failures)
                 CHECKS[n](r)

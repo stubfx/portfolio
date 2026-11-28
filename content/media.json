@@ -1043,6 +1043,37 @@
       }
     }
   },
+  "work/waylay/bear.mp4": {
+    "kind": "video",
+    "width": 1000,
+    "height": 1000,
+    "duration": 2.46,
+    "audio": false,
+    "master": "915225fed7cd4e75f6cbb82224650b189b7e3a1a0e53c08c589fa0227a42757f",
+    "posterAt": 1,
+    "variants": [
+      {
+        "file": "work/waylay/bear.av1.mp4",
+        "bytes": 44224,
+        "type": "video/mp4; codecs=\"av01.0.05M.08\""
+      },
+      {
+        "file": "work/waylay/bear.mp4",
+        "bytes": 134036,
+        "type": "video/mp4; codecs=\"avc1.640020\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/waylay/bear.jpg",
+        "bytes": 22960
+      },
+      "avif": {
+        "file": "work/waylay/bear.avif",
+        "bytes": 3512
+      }
+    }
+  },
   "work/waylay/countdown.jpg": {
     "kind": "photo",
     "width": 2400,
@@ -1134,57 +1165,57 @@
   "work/waylay/game-over-post.png": {
     "kind": "photo",
     "width": 800,
-    "height": 1052,
-    "master": "f8c3d01a4a2f2a6312a3835e62179a9d76e9bfc1933196aad27d52f3cf58279b",
+    "height": 1376,
+    "master": "75bf20d0fc43ac7fa5c522b6762f2586463ee40e24bc46ef2d42bf779d6efc74",
     "variants": [
       {
         "file": "work/waylay/game-over-post.800.webp",
         "width": 800,
-        "bytes": 109058,
+        "bytes": 131476,
         "type": "image/webp"
       },
       {
-        "file": "work/waylay/game-over-post.1200.webp",
-        "width": 1200,
-        "bytes": 190736,
+        "file": "work/waylay/game-over-post.868.webp",
+        "width": 868,
+        "bytes": 145576,
         "type": "image/webp"
       },
       {
         "file": "work/waylay/game-over-post.png",
         "width": 800,
-        "bytes": 363616,
+        "bytes": 568058,
         "type": "image/png"
       }
     ]
   },
   "work/waylay/game-over.mp4": {
     "kind": "video",
-    "width": 1440,
-    "height": 1440,
+    "width": 1438,
+    "height": 1438,
     "duration": 6.03,
     "audio": false,
-    "master": "d921171ec5d844e2089446b7be2ad367125f097c264b3eb6144f537d36a68185",
+    "master": "d3a42522ca55659d9256a5c77b88a3efb03ae1bfd7a2a210a1fd8480c906546d",
     "posterAt": 5.5,
     "variants": [
       {
         "file": "work/waylay/game-over.av1.mp4",
-        "bytes": 182137,
+        "bytes": 152339,
         "type": "video/mp4; codecs=\"av01.0.08M.08\""
       },
       {
         "file": "work/waylay/game-over.mp4",
-        "bytes": 528560,
+        "bytes": 320915,
         "type": "video/mp4; codecs=\"avc1.640032\""
       }
     ],
     "poster": {
       "jpg": {
         "file": "work/waylay/game-over.jpg",
-        "bytes": 54154
+        "bytes": 50012
       },
       "avif": {
         "file": "work/waylay/game-over.avif",
-        "bytes": 8814
+        "bytes": 9076
       }
     }
   },
@@ -1355,26 +1386,26 @@
   },
   "work/waylay/teasers.png": {
     "kind": "photo",
-    "width": 1200,
-    "height": 876,
-    "master": "55981c214294ce8c869a107978a4fb47db4944bccca0b70cc72bbc517aa5ab94",
+    "width": 800,
+    "height": 724,
+    "master": "a34995a5eacae1f0b6e13ce6519060d0c4656297e25cdb377cdb61d4be2aa455",
     "variants": [
       {
         "file": "work/waylay/teasers.800.webp",
         "width": 800,
-        "bytes": 47350,
+        "bytes": 74492,
         "type": "image/webp"
       },
       {
-        "file": "work/waylay/teasers.1471.webp",
-        "width": 1471,
-        "bytes": 119950,
+        "file": "work/waylay/teasers.1039.webp",
+        "width": 1039,
+        "bytes": 111550,
         "type": "image/webp"
       },
       {
         "file": "work/waylay/teasers.png",
-        "width": 1200,
-        "bytes": 517688,
+        "width": 800,
+        "bytes": 436576,
         "type": "image/png"
       }
     ]
