@@ -23,9 +23,9 @@ Accenture Song. GenAI trainer for classes of about 50. Weekly "AI Way of Work" s
 
 110/110 cum laude, earned alongside the day job. Days at work, nights at school.
 
-- Frammenti: The true face of Alexander the Great, rebuilt with AI for RAI Cultura.
-- WAYLAY: A live Black Mirror episode you can die in.
-- Bricks of the Future: LEGO and OpenAI build a museum where ideas become bricks.
+- [Frammenti](work/frammenti.md): Alexander the Great's face, anchored in marble, for a RAI Cultura documentary.
+- [WAYLAY](work/waylay.md): A live Black Mirror episode. Three lives, and nobody tells you.
+- [Bricks of the Future](work/bricks-of-the-future.md): A LEGO and OpenAI museum where your sentence goes home as a box of bricks.
 - Bilbo: An audiobook app for a break from reality.
 - Interstellar credits: What if Kubrick had shot Interstellar in 1968?
 - Philadelphia: From invisible to indispensable, on street-food menus.

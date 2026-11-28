@@ -64,6 +64,415 @@
     ],
     "sample": true
   },
+  "work/bricks-of-the-future/banner.jpg": {
+    "kind": "photo",
+    "width": 1443,
+    "height": 1082,
+    "master": "1c7427327e3fe153629ef2dce9e25154ce18b4d0f4ba2b4ce4a03599c960d378",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/banner.800.avif",
+        "width": 800,
+        "bytes": 91004,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/banner.1443.avif",
+        "width": 1443,
+        "bytes": 231932,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/banner.800.jpg",
+        "width": 800,
+        "bytes": 193974,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/banner.jpg",
+        "width": 1443,
+        "bytes": 545898,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/box-sentence.jpg": {
+    "kind": "photo",
+    "width": 1992,
+    "height": 1394,
+    "master": "a30159906bbae400661584c092f6ad3d3b21365c71623d704d219939252127fd",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/box-sentence.800.avif",
+        "width": 800,
+        "bytes": 23350,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/box-sentence.1600.avif",
+        "width": 1600,
+        "bytes": 48598,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/box-sentence.1992.avif",
+        "width": 1992,
+        "bytes": 59644,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/box-sentence.800.jpg",
+        "width": 800,
+        "bytes": 62688,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/box-sentence.1600.jpg",
+        "width": 1600,
+        "bytes": 158308,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/box-sentence.jpg",
+        "width": 1992,
+        "bytes": 206353,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/box.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1080,
+    "duration": 6.4,
+    "audio": false,
+    "master": "e7edcea278af4f7ae6cf1b90c6476aeaa9e433e12c3b86da5d79f5c035f2ce88",
+    "posterAt": 1.6,
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/box.av1.mp4",
+        "bytes": 855682,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/bricks-of-the-future/box.mp4",
+        "bytes": 1425236,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/bricks-of-the-future/box.jpg",
+        "bytes": 96548
+      },
+      "avif": {
+        "file": "work/bricks-of-the-future/box.avif",
+        "bytes": 28073
+      }
+    }
+  },
+  "work/bricks-of-the-future/console-sketch.jpg": {
+    "kind": "photo",
+    "width": 1412,
+    "height": 794,
+    "master": "8a9859702ca7dcb3e0677f5b1ec060cf24ca8bcb95d07117010872ac6104acd1",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/console-sketch.800.avif",
+        "width": 800,
+        "bytes": 35771,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/console-sketch.1412.avif",
+        "width": 1412,
+        "bytes": 92631,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/console-sketch.800.jpg",
+        "width": 800,
+        "bytes": 72834,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/console-sketch.jpg",
+        "width": 1412,
+        "bytes": 190256,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/console.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1080,
+    "duration": 7.97,
+    "audio": false,
+    "master": "9ec83100b63ea9f3cc23ce5e3fe4c80cd8e3fe9072c893a4f30efa05ce4215fa",
+    "posterAt": 4.5,
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/console.av1.mp4",
+        "bytes": 463988,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/bricks-of-the-future/console.mp4",
+        "bytes": 663534,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/bricks-of-the-future/console.jpg",
+        "bytes": 104250
+      },
+      "avif": {
+        "file": "work/bricks-of-the-future/console.avif",
+        "bytes": 19655
+      }
+    }
+  },
+  "work/bricks-of-the-future/facade.jpg": {
+    "kind": "photo",
+    "width": 1920,
+    "height": 1080,
+    "master": "9dbbff1bd4046250aab77c39d9b3c05e69e32e7daada030a6c938c88c57ac9d6",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/facade.800.avif",
+        "width": 800,
+        "bytes": 27185,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/facade.1600.avif",
+        "width": 1600,
+        "bytes": 70213,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/facade.1920.avif",
+        "width": 1920,
+        "bytes": 88293,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/facade.800.jpg",
+        "width": 800,
+        "bytes": 83670,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/facade.1600.jpg",
+        "width": 1600,
+        "bytes": 256739,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/facade.jpg",
+        "width": 1920,
+        "bytes": 355689,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/keys.jpg": {
+    "kind": "photo",
+    "width": 2400,
+    "height": 1320,
+    "master": "6befc73fba3d864a45c1f0a6ac0837cc4b92a8b58a9cd064164d477b3922daa6",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/keys.800.avif",
+        "width": 800,
+        "bytes": 12413,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/keys.1600.avif",
+        "width": 1600,
+        "bytes": 23989,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/keys.2400.avif",
+        "width": 2400,
+        "bytes": 34795,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/keys.800.jpg",
+        "width": 800,
+        "bytes": 52520,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/keys.1600.jpg",
+        "width": 1600,
+        "bytes": 123307,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/keys.jpg",
+        "width": 2400,
+        "bytes": 201471,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/museum.jpg": {
+    "kind": "photo",
+    "width": 1685,
+    "height": 948,
+    "master": "ce9017377d32a40cf7309e35af70ad5bd815493a936f5aee880cd84d00d4bf02",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/museum.800.avif",
+        "width": 800,
+        "bytes": 16756,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/museum.1600.avif",
+        "width": 1600,
+        "bytes": 30772,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/museum.1685.avif",
+        "width": 1685,
+        "bytes": 32311,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/museum.800.jpg",
+        "width": 800,
+        "bytes": 50960,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/museum.1600.jpg",
+        "width": 1600,
+        "bytes": 111744,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/museum.jpg",
+        "width": 1685,
+        "bytes": 120456,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/portal.jpg": {
+    "kind": "photo",
+    "width": 1202,
+    "height": 676,
+    "master": "16c28542d071e7bbd7d6311180f575b1fec408c5e52a50a978c73409ff0a7f39",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/portal.800.avif",
+        "width": 800,
+        "bytes": 21598,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/portal.1202.avif",
+        "width": 1202,
+        "bytes": 32168,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/portal.800.jpg",
+        "width": 800,
+        "bytes": 59492,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/portal.jpg",
+        "width": 1202,
+        "bytes": 96392,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/bricks-of-the-future/sculpture.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1924,
+    "duration": 4,
+    "audio": false,
+    "master": "f8eb76d9f57145c491f92a0b09eb90ae566871843abe5c553ec41b5fad8bd211",
+    "posterAt": 3.5,
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/sculpture.av1.mp4",
+        "bytes": 712424,
+        "type": "video/mp4; codecs=\"av01.0.12M.08\""
+      },
+      {
+        "file": "work/bricks-of-the-future/sculpture.mp4",
+        "bytes": 1413578,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/bricks-of-the-future/sculpture.jpg",
+        "bytes": 204601
+      },
+      "avif": {
+        "file": "work/bricks-of-the-future/sculpture.avif",
+        "bytes": 42675
+      }
+    }
+  },
+  "work/bricks-of-the-future/set.jpg": {
+    "kind": "photo",
+    "width": 1920,
+    "height": 1080,
+    "master": "8452cb1b57c96311a11554a970aee9cfd59bb201b6af08d13e42f740c0813e9f",
+    "variants": [
+      {
+        "file": "work/bricks-of-the-future/set.800.avif",
+        "width": 800,
+        "bytes": 19180,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/set.1600.avif",
+        "width": 1600,
+        "bytes": 44452,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/set.1920.avif",
+        "width": 1920,
+        "bytes": 53800,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/bricks-of-the-future/set.800.jpg",
+        "width": 800,
+        "bytes": 49275,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/set.1600.jpg",
+        "width": 1600,
+        "bytes": 129654,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/bricks-of-the-future/set.jpg",
+        "width": 1920,
+        "bytes": 169597,
+        "type": "image/jpeg"
+      }
+    ]
+  },
   "work/direction-as-code/buoy.mp4": {
     "kind": "video",
     "width": 1920,
@@ -185,5 +594,834 @@
       }
     ],
     "sample": true
+  },
+  "work/frammenti/act-one.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1080,
+    "duration": 19.29,
+    "audio": true,
+    "master": "7197728ea3ab85231206510585f7861ce60874d17154894322e7aabde48b91f2",
+    "posterAt": 1,
+    "variants": [
+      {
+        "file": "work/frammenti/act-one.av1.mp4",
+        "bytes": 944438,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/frammenti/act-one.mp4",
+        "bytes": 2454335,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/frammenti/act-one.jpg",
+        "bytes": 49518
+      },
+      "avif": {
+        "file": "work/frammenti/act-one.avif",
+        "bytes": 9678
+      }
+    }
+  },
+  "work/frammenti/face.jpg": {
+    "kind": "photo",
+    "width": 640,
+    "height": 672,
+    "master": "638efbb139eb2d4e7970067d40e38a2c86dac91b239acfcb4f451939746dd60f",
+    "variants": [
+      {
+        "file": "work/frammenti/face.640.avif",
+        "width": 640,
+        "bytes": 23757,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/face.jpg",
+        "width": 640,
+        "bytes": 58644,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/frammenti/guided.jpg": {
+    "kind": "photo",
+    "width": 2080,
+    "height": 962,
+    "master": "595a7b1c9f77efcd04b9dd8f80f0818e4330b56182da08c6c1b5b8f92f45b833",
+    "variants": [
+      {
+        "file": "work/frammenti/guided.800.avif",
+        "width": 800,
+        "bytes": 17922,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/guided.1600.avif",
+        "width": 1600,
+        "bytes": 40695,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/guided.2080.avif",
+        "width": 2080,
+        "bytes": 56365,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/guided.800.jpg",
+        "width": 800,
+        "bytes": 47996,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/frammenti/guided.1600.jpg",
+        "width": 1600,
+        "bytes": 127224,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/frammenti/guided.jpg",
+        "width": 2080,
+        "bytes": 184934,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/frammenti/hero.jpg": {
+    "kind": "photo",
+    "width": 2400,
+    "height": 1706,
+    "master": "36f6365e7b8386035b3552c5e679b2c7ccda066842f56659b8fc47764b13add2",
+    "variants": [
+      {
+        "file": "work/frammenti/hero.800.avif",
+        "width": 800,
+        "bytes": 27116,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/hero.1600.avif",
+        "width": 1600,
+        "bytes": 98341,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/hero.2400.avif",
+        "width": 2400,
+        "bytes": 173483,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/hero.800.jpg",
+        "width": 800,
+        "bytes": 56040,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/frammenti/hero.1600.jpg",
+        "width": 1600,
+        "bytes": 214631,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/frammenti/hero.jpg",
+        "width": 2400,
+        "bytes": 416686,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/frammenti/hollywood.png": {
+    "kind": "photo",
+    "width": 480,
+    "height": 488,
+    "master": "a98727965c626973137b924183a8982622b938bd251127e2e942c32d1355ae02",
+    "variants": [
+      {
+        "file": "work/frammenti/hollywood.699.webp",
+        "width": 699,
+        "bytes": 110938,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/frammenti/hollywood.png",
+        "width": 480,
+        "bytes": 450631,
+        "type": "image/png"
+      }
+    ]
+  },
+  "work/frammenti/model.jpg": {
+    "kind": "photo",
+    "width": 2235,
+    "height": 1256,
+    "master": "fb755f5e43644ce7621b27627e685b3e163f75b0a496422a7bb62c1a8c03b22b",
+    "variants": [
+      {
+        "file": "work/frammenti/model.800.avif",
+        "width": 800,
+        "bytes": 10259,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/model.1600.avif",
+        "width": 1600,
+        "bytes": 25863,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/model.2235.avif",
+        "width": 2235,
+        "bytes": 38586,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/model.800.jpg",
+        "width": 800,
+        "bytes": 27871,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/frammenti/model.1600.jpg",
+        "width": 1600,
+        "bytes": 79100,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/frammenti/model.jpg",
+        "width": 2235,
+        "bytes": 129885,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/frammenti/remap.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1080,
+    "duration": 8,
+    "audio": false,
+    "master": "744b0ca95a679157e88db44980f5e17b9e95ad14f95897b8cbbd6a08cf2ee5cc",
+    "posterAt": 2.5,
+    "variants": [
+      {
+        "file": "work/frammenti/remap.av1.mp4",
+        "bytes": 695325,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/frammenti/remap.mp4",
+        "bytes": 2014209,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/frammenti/remap.jpg",
+        "bytes": 139274
+      },
+      "avif": {
+        "file": "work/frammenti/remap.avif",
+        "bytes": 43106
+      }
+    }
+  },
+  "work/frammenti/sources.png": {
+    "kind": "photo",
+    "width": 480,
+    "height": 514,
+    "master": "239c9075e9aa289024373954a6f4aeb20a3b146e2753bcfe9e9cb2d269b8c690",
+    "variants": [
+      {
+        "file": "work/frammenti/sources.800.webp",
+        "width": 800,
+        "bytes": 201622,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/frammenti/sources.1040.webp",
+        "width": 1040,
+        "bytes": 244038,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/frammenti/sources.png",
+        "width": 480,
+        "bytes": 414867,
+        "type": "image/png"
+      }
+    ]
+  },
+  "work/frammenti/turntable.mp4": {
+    "kind": "video",
+    "width": 640,
+    "height": 1000,
+    "duration": 6.25,
+    "audio": false,
+    "master": "376a388c1c0fc1c6f693bad570331c6b1722c7652938fd112d3d3a9bd42c6d3d",
+    "posterAt": 0,
+    "variants": [
+      {
+        "file": "work/frammenti/turntable.av1.mp4",
+        "bytes": 327028,
+        "type": "video/mp4; codecs=\"av01.0.04M.08\""
+      },
+      {
+        "file": "work/frammenti/turntable.mp4",
+        "bytes": 706649,
+        "type": "video/mp4; codecs=\"avc1.64001f\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/frammenti/turntable.jpg",
+        "bytes": 23373
+      },
+      "avif": {
+        "file": "work/frammenti/turntable.avif",
+        "bytes": 6347
+      }
+    }
+  },
+  "work/vimeo-1095364041.jpg": {
+    "kind": "photo",
+    "width": 1280,
+    "height": 720,
+    "master": "d5f5684f5499ee088f65836dacce0737880d94ada640e1f277b9ec51fd3683cd",
+    "variants": [
+      {
+        "file": "work/vimeo-1095364041.800.avif",
+        "width": 800,
+        "bytes": 26608,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/vimeo-1095364041.1280.avif",
+        "width": 1280,
+        "bytes": 46379,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/vimeo-1095364041.800.jpg",
+        "width": 800,
+        "bytes": 61396,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/vimeo-1095364041.jpg",
+        "width": 1280,
+        "bytes": 112930,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/vimeo-1095388475.jpg": {
+    "kind": "photo",
+    "width": 1280,
+    "height": 720,
+    "master": "2eec28f42e53662fa218546e89ed6915af800d808cd2e9a1ce01646d9dcfbe05",
+    "variants": [
+      {
+        "file": "work/vimeo-1095388475.800.avif",
+        "width": 800,
+        "bytes": 25367,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/vimeo-1095388475.1280.avif",
+        "width": 1280,
+        "bytes": 45300,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/vimeo-1095388475.800.jpg",
+        "width": 800,
+        "bytes": 52085,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/vimeo-1095388475.jpg",
+        "width": 1280,
+        "bytes": 92118,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/waylay/audience.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1080,
+    "duration": 4.17,
+    "audio": false,
+    "master": "7199ddae271968f2d65be6dd5eeafee757dc70df7fe968156b8965a8077459fb",
+    "posterAt": 2.2,
+    "variants": [
+      {
+        "file": "work/waylay/audience.av1.mp4",
+        "bytes": 304151,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/waylay/audience.mp4",
+        "bytes": 302255,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/waylay/audience.jpg",
+        "bytes": 164270
+      },
+      "avif": {
+        "file": "work/waylay/audience.avif",
+        "bytes": 42692
+      }
+    }
+  },
+  "work/waylay/countdown.jpg": {
+    "kind": "photo",
+    "width": 2400,
+    "height": 1350,
+    "master": "6caf4147af81d32e5fc8ab92a2a01bb49efb62133dc0041edff069dc33b95c1f",
+    "variants": [
+      {
+        "file": "work/waylay/countdown.800.avif",
+        "width": 800,
+        "bytes": 12072,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/countdown.1600.avif",
+        "width": 1600,
+        "bytes": 30198,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/countdown.2400.avif",
+        "width": 2400,
+        "bytes": 49692,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/countdown.800.jpg",
+        "width": 800,
+        "bytes": 39645,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/countdown.1600.jpg",
+        "width": 1600,
+        "bytes": 115028,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/countdown.jpg",
+        "width": 2400,
+        "bytes": 206982,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/waylay/day-after.jpg": {
+    "kind": "photo",
+    "width": 1920,
+    "height": 1080,
+    "master": "058ffcb0cd3c30cfc7316434c2c15f13840f8a193ad5b50663c0bff3b8062dd8",
+    "variants": [
+      {
+        "file": "work/waylay/day-after.800.avif",
+        "width": 800,
+        "bytes": 10456,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/day-after.1600.avif",
+        "width": 1600,
+        "bytes": 26501,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/day-after.1920.avif",
+        "width": 1920,
+        "bytes": 31794,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/day-after.800.jpg",
+        "width": 800,
+        "bytes": 30254,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/day-after.1600.jpg",
+        "width": 1600,
+        "bytes": 88035,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/day-after.jpg",
+        "width": 1920,
+        "bytes": 116212,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/waylay/game-over-post.png": {
+    "kind": "photo",
+    "width": 800,
+    "height": 1052,
+    "master": "f8c3d01a4a2f2a6312a3835e62179a9d76e9bfc1933196aad27d52f3cf58279b",
+    "variants": [
+      {
+        "file": "work/waylay/game-over-post.800.webp",
+        "width": 800,
+        "bytes": 109058,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/game-over-post.1200.webp",
+        "width": 1200,
+        "bytes": 190736,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/game-over-post.png",
+        "width": 800,
+        "bytes": 363616,
+        "type": "image/png"
+      }
+    ]
+  },
+  "work/waylay/game-over.mp4": {
+    "kind": "video",
+    "width": 1440,
+    "height": 1440,
+    "duration": 6.03,
+    "audio": false,
+    "master": "d921171ec5d844e2089446b7be2ad367125f097c264b3eb6144f537d36a68185",
+    "posterAt": 5.5,
+    "variants": [
+      {
+        "file": "work/waylay/game-over.av1.mp4",
+        "bytes": 182137,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/waylay/game-over.mp4",
+        "bytes": 528560,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/waylay/game-over.jpg",
+        "bytes": 54154
+      },
+      "avif": {
+        "file": "work/waylay/game-over.avif",
+        "bytes": 8814
+      }
+    }
+  },
+  "work/waylay/homepage.jpg": {
+    "kind": "photo",
+    "width": 1920,
+    "height": 1240,
+    "master": "4915a49afa6a57770779f78fc3f04f8fa92ca24d2d9bc00a56c7dc68d34a2d51",
+    "variants": [
+      {
+        "file": "work/waylay/homepage.800.avif",
+        "width": 800,
+        "bytes": 21411,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/homepage.1600.avif",
+        "width": 1600,
+        "bytes": 42665,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/homepage.1920.avif",
+        "width": 1920,
+        "bytes": 45547,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/homepage.800.jpg",
+        "width": 800,
+        "bytes": 65446,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/homepage.1600.jpg",
+        "width": 1600,
+        "bytes": 139836,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/homepage.jpg",
+        "width": 1920,
+        "bytes": 170453,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/waylay/keepsake.jpg": {
+    "kind": "photo",
+    "width": 2161,
+    "height": 1726,
+    "master": "4adfcd8444bd9e79a39ce6c8cbf7570ec4b5e0188770825ed347b05dc457b9df",
+    "variants": [
+      {
+        "file": "work/waylay/keepsake.800.avif",
+        "width": 800,
+        "bytes": 10272,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/keepsake.1600.avif",
+        "width": 1600,
+        "bytes": 26876,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/keepsake.2161.avif",
+        "width": 2161,
+        "bytes": 38149,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/keepsake.800.jpg",
+        "width": 800,
+        "bytes": 27655,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/keepsake.1600.jpg",
+        "width": 1600,
+        "bytes": 75800,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/keepsake.jpg",
+        "width": 2161,
+        "bytes": 114371,
+        "type": "image/jpeg"
+      }
+    ],
+    "bg": "#000000"
+  },
+  "work/waylay/prototype.jpg": {
+    "kind": "photo",
+    "width": 1920,
+    "height": 1080,
+    "master": "f72d17b5d2232cbfdd55ca6531819bd8e2cad36882f64ea5139770f0e4a578e2",
+    "variants": [
+      {
+        "file": "work/waylay/prototype.800.avif",
+        "width": 800,
+        "bytes": 21758,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/prototype.1600.avif",
+        "width": 1600,
+        "bytes": 76537,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/prototype.1920.avif",
+        "width": 1920,
+        "bytes": 108588,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/prototype.800.jpg",
+        "width": 800,
+        "bytes": 48970,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/prototype.1600.jpg",
+        "width": 1600,
+        "bytes": 171190,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/prototype.jpg",
+        "width": 1920,
+        "bytes": 241887,
+        "type": "image/jpeg"
+      }
+    ]
+  },
+  "work/waylay/scream-to-jump.png": {
+    "kind": "photo",
+    "width": 1600,
+    "height": 900,
+    "master": "75f80523ffb855b90869f14c16d122143b835dac86c92092df99ee2d70c603d4",
+    "variants": [
+      {
+        "file": "work/waylay/scream-to-jump.800.webp",
+        "width": 800,
+        "bytes": 35042,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/scream-to-jump.1600.webp",
+        "width": 1600,
+        "bytes": 103744,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/scream-to-jump.2400.webp",
+        "width": 2400,
+        "bytes": 202740,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/scream-to-jump.png",
+        "width": 1600,
+        "bytes": 303430,
+        "type": "image/png"
+      }
+    ]
+  },
+  "work/waylay/teasers.png": {
+    "kind": "photo",
+    "width": 1200,
+    "height": 876,
+    "master": "55981c214294ce8c869a107978a4fb47db4944bccca0b70cc72bbc517aa5ab94",
+    "variants": [
+      {
+        "file": "work/waylay/teasers.800.webp",
+        "width": 800,
+        "bytes": 47350,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/teasers.1471.webp",
+        "width": 1471,
+        "bytes": 119950,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/teasers.png",
+        "width": 1200,
+        "bytes": 517688,
+        "type": "image/png"
+      }
+    ]
+  },
+  "work/waylay/three-lives.png": {
+    "kind": "photo",
+    "width": 1640,
+    "height": 940,
+    "master": "002fba48a982391bf4474be35641cc04584185e3e67d58926c5c99ead96fc272",
+    "variants": [
+      {
+        "file": "work/waylay/three-lives.800.webp",
+        "width": 800,
+        "bytes": 37444,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/three-lives.1600.webp",
+        "width": 1600,
+        "bytes": 143132,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/three-lives.1640.webp",
+        "width": 1640,
+        "bytes": 144384,
+        "type": "image/webp"
+      },
+      {
+        "file": "work/waylay/three-lives.png",
+        "width": 1640,
+        "bytes": 385631,
+        "type": "image/png"
+      }
+    ]
+  },
+  "work/waylay/title.mp4": {
+    "kind": "video",
+    "width": 1920,
+    "height": 1000,
+    "duration": 8.29,
+    "audio": false,
+    "master": "7eb9555ac68304ca7d74d68aafb51eb4a17d7b7620a76181f154aa50e74ae500",
+    "posterAt": 4.5,
+    "variants": [
+      {
+        "file": "work/waylay/title.av1.mp4",
+        "bytes": 131010,
+        "type": "video/mp4; codecs=\"av01.0.08M.08\""
+      },
+      {
+        "file": "work/waylay/title.mp4",
+        "bytes": 715930,
+        "type": "video/mp4; codecs=\"avc1.640032\""
+      }
+    ],
+    "poster": {
+      "jpg": {
+        "file": "work/waylay/title.jpg",
+        "bytes": 29203
+      },
+      "avif": {
+        "file": "work/waylay/title.avif",
+        "bytes": 4652
+      }
+    }
+  },
+  "work/waylay/vote.jpg": {
+    "kind": "photo",
+    "width": 1920,
+    "height": 1080,
+    "master": "bd412848f12fc0beb389569b3cfbbb20026b164a8bdde964387f3cc3ac946b7f",
+    "variants": [
+      {
+        "file": "work/waylay/vote.800.avif",
+        "width": 800,
+        "bytes": 5430,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/vote.1600.avif",
+        "width": 1600,
+        "bytes": 11124,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/vote.1920.avif",
+        "width": 1920,
+        "bytes": 13566,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/waylay/vote.800.jpg",
+        "width": 800,
+        "bytes": 22104,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/vote.1600.jpg",
+        "width": 1600,
+        "bytes": 56981,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/waylay/vote.jpg",
+        "width": 1920,
+        "bytes": 73000,
+        "type": "image/jpeg"
+      }
+    ]
   }
 }
