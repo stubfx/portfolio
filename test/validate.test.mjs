@@ -123,3 +123,10 @@ test('world: a stylesheet or script without its page, a script without a stylesh
   assert.ok(has(ps, 'content/work/b/world.css', 0, /work\/b\.md/), formatProblems(ps));
   assert.ok(has(ps, 'content/work/a/world.js', 0, /world\.css/), formatProblems(ps));
 });
+
+test('world: an image its stylesheet uses needs no media.json entry, but stays under 200 KB', () => {
+  assert.deepEqual(world(`${OK}h1{mask:url(dust.png)}\n`, { 'work/a/dust.png': 'x' }), []);
+  const ps = world(`${OK}h1{mask:url(dust.png)}\n`, { 'work/a/dust.png': { size: 300 * 1024 } });
+  assert.ok(has(ps, 'content/work/a/dust.png', 0, /200 KB/), formatProblems(ps));
+  assert.ok(!ps.some((p) => /media\.json/.test(p.message)), formatProblems(ps));
+});

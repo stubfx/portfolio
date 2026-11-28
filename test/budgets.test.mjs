@@ -6,7 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { build } from '../build.mjs';
-import { walk } from '../lib/site.mjs';
+import { walk, loadSite } from '../lib/site.mjs';
+import { worldAssets } from '../lib/world.mjs';
 import { loadManifest, checkManifest } from '../lib/media.mjs';
 
 const KB = 1024;
@@ -65,7 +66,8 @@ test('fonts under 150 KB', () => {
 });
 
 test('media within its caps', () => {
-  assert.deepEqual(checkManifest(loadManifest('content'), 'content').errors, []);
+  const own = worldAssets(loadSite({ contentDir: 'content', repoDir: '.' }).pages.filter((p) => p.world).map((p) => p.world));
+  assert.deepEqual(checkManifest(loadManifest('content'), 'content').errors.filter((e) => !own.has(e.file)), []);
 });
 
 test('rows.js under 1 KB gzipped', () => {

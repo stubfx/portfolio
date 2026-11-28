@@ -279,6 +279,7 @@ A project page can bring its own look ([DESIGN.md](DESIGN.md) section 10). Its f
 | --- | --- |
 | `content/work/<case>/world.css` | The page's stylesheet. Must set `--paper` to a `#rrggbb` colour (the browser bar takes it). Published inside `@layer world`, below the header |
 | `content/work/<case>/fonts/*.woff2` | Its fonts, subset, with their licence beside them (`ofl.txt` or `license.txt`). Preloaded on that page only |
+| `content/work/<case>/<name>.png` (or `.svg`, `.jpg`) | Optional. A small image the stylesheet uses through `url()`, a mask or a texture: under 200 KB, no picture of the work (pictures go in the Markdown, through `media.mjs`). It skips `media.json` |
 | `content/work/<case>/world.js` | Optional. A small enhancement (under 2 KB gzipped); the page reads fully without it |
 
 The Markdown stays the same grammar. On a world page the HTML gives the stylesheet hooks: the intro (everything before the first `##`) is `<header class="s" data-s="intro">`; each `##` opens `<section class="s" data-s="<heading id>">`; each figure carries its file name, `<figure data-m="countdown">` for `waylay/countdown.jpg`.
