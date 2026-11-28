@@ -249,7 +249,11 @@ export async function encode(master, contentPath, { contentDir = 'content', post
   const same = old && old.master === sha256(master) && (old.kind !== 'video' || (old.posterAt ?? 0) === poster) && (old.bg ?? null) === (bg ?? null)
     && entryFiles(old).every((f) => fs.existsSync(path.join(contentDir, f)));
   if (same && !force) { entry = { ...old }; log(`${contentPath}: unchanged, skipped (use --force to encode it again)`); }
-  else entry = kind === 'photo' ? await encodePhoto(master, contentPath, contentDir, bg) : await encodeVideo(master, contentPath, contentDir, poster);
+  else {
+    entry = kind === 'photo' ? await encodePhoto(master, contentPath, contentDir, bg) : await encodeVideo(master, contentPath, contentDir, poster);
+    // a smaller master makes fewer widths: the old entry's extra files would be orphans the build refuses
+    if (old) for (const f of entryFiles(old)) if (!entryFiles(entry).includes(f)) fs.rmSync(path.join(contentDir, f), { force: true });
+  }
   if (sample) entry.sample = true;
   else delete entry.sample;
   writeManifestEntry(contentDir, contentPath, entry);

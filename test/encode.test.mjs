@@ -210,3 +210,17 @@ test('a transparent PNG too heavy at 800 px steps further down until it fits the
   assert.ok(png.bytes <= LIMITS.photo, `png ${png.bytes} bytes`);
   assert.deepEqual(checkManifest(loadManifest(dir), dir).errors, []);
 });
+
+test('re-encoding from a smaller master removes the files the old entry had and the new one has not', { skip: !hasFfmpeg, timeout: 180000 }, async () => {
+  const dir = tmp();
+  const big = path.join(tmp(), 'big.png');
+  const small = path.join(tmp(), 'small.png');
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=3000x2000', '-frames:v', '1', big);
+  ffmpeg('-f', 'lavfi', '-i', 'testsrc=size=1000x700', '-frames:v', '1', small);
+  await encode(big, 'work/t/hero.jpg', { contentDir: dir });
+  assert.ok(fs.existsSync(path.join(dir, 'work/t/hero.2400.avif')));
+  await encode(small, 'work/t/hero.jpg', { contentDir: dir });
+  assert.ok(!fs.existsSync(path.join(dir, 'work/t/hero.2400.avif')), 'the old 2400 px file is gone');
+  assert.ok(!fs.existsSync(path.join(dir, 'work/t/hero.1600.jpg')), 'the old 1600 px file is gone');
+  assert.deepEqual(checkManifest(loadManifest(dir), dir).errors, []);
+});
