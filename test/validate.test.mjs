@@ -30,6 +30,8 @@ const RULES = [
   ['log hash on a real page', '# A\n\n> d\n\n```log\ndeadbee  msg  Nov 1\n```\n', 6, 'deadbee'],
   ['inline italics', '# A\n\n> d\n\nAn *idea*.\n', 5, 'italics'],
   ['parse error', '# A\n\n> d\n\n#### Deep\n', 5, 'heading level'],
+  ['timeline year with a hyphen', '# A\n\n> d\n\n## Timeline\n\n### 2022-2025: AANT.\n', 7, 'en dash'],
+  ['timeline entry without a year', '# A\n\n> d\n\n## Timeline\n\n### Hired at IBM.\n', 7, '### YYYY: Title'],
 ];
 for (const [name, md, line, msg] of RULES) {
   test(name, () => {
@@ -77,4 +79,12 @@ test('a broken media.json is one clear problem, not a crash', () => {
   assert.equal(ps.length, 1, formatProblems(ps));
   assert.equal(ps[0].file, 'content/media.json');
   assert.match(ps[0].message, /not valid JSON/);
+});
+
+test('the timeline rule only reads the Timeline section, on any page', () => {
+  const outside = problems({ 'x.md': '# A\n\n> d\n\n## Work\n\n### Hired at IBM.\n' });
+  assert.ok(!outside.some((p) => /YYYY/.test(p.message)), formatProblems(outside));
+  const work = problems({ 'work/x.md': '# A\n\n> d\n\n## Timeline\n\n### Hired at IBM.\n\n## Then\n\n### Fine here.\n' });
+  assert.ok(has(work, 'content/work/x.md', 7, /YYYY/), formatProblems(work));
+  assert.ok(!has(work, 'content/work/x.md', 11, /YYYY/), 'after the section ends');
 });
