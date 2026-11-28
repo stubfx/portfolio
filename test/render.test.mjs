@@ -138,3 +138,22 @@ test('special characters are escaped in text and attributes', () => {
 test('heading ids never collide with the page shell', () => {
   assert.deepEqual(anchors(parse('## Raw\n\n## Status\n\n## Page\n\n## Work\n').blocks), ['raw-2', 'status-2', 'page-2', 'work']);
 });
+
+const cardCtx = { ...ctx, card: (h) => ({ href: h.replace(/\.md$/, '/'), file: h.split('/').pop(), cover: h.endsWith('x.md') ? photo('cov', 1600, 1200) : null }) };
+const rt = (md) => renderBlocks(parse(md).blocks, cardCtx);
+
+test('timeline: each ### YEAR: Title is an entry, the year beside it, closed before the next entry or section', () => {
+  const html = rt('## Timeline\n\n### 2017: Hired at IBM.\n\nMods got me in.\n\n### 2015–: Mods.\n\nPocket money.\n\n## Now\n\nNow.\n');
+  assert.match(html, /<section class="entry"><p class="when">2017<\/p><h3 id="2017-hired-at-ibm"><span class="mk hang" aria-hidden="true">###<\/span>Hired at IBM\.<\/h3><p>Mods got me in\.<\/p><\/section>/);
+  assert.match(html, /<section class="entry"><p class="when">2015–<\/p><h3 id="2015-mods">.*?Mods\.<\/h3><p>Pocket money\.<\/p><\/section><h2 id="now">/);
+});
+
+test('timeline: a file list is a row of cards; the cover comes from the linked page; planned and cover-less cards are text', () => {
+  const html = rt('## Timeline\n\n### 2022–2025: AANT.\n\n- [X](work/x.md): The idea.\n- [Y](work/y.md): No media.\n- Z: Not written yet.\n');
+  assert.match(html, /<div class="row"><ul class="cards">/);
+  assert.match(html, /<li class="card"><a href="work\/x\/"><span class="cover"><picture><source type="image\/avif" srcset="[^"]+" sizes="\(min-width: 720px\) 22rem, 72vw"><img src="\/cov\.jpg"[^>]* alt=""[^>]* loading="lazy"[^>]*><\/picture><\/span><span class="file">x\.md<\/span><span class="title">X<\/span><span class="note">The idea\.<\/span><\/a><\/li>/);
+  assert.match(html, /<li class="card"><a href="work\/y\/"><span class="cover"><\/span><span class="file">y\.md<\/span><span class="title">Y<\/span>/);
+  assert.match(html, /<li class="card planned"><span class="cover"><\/span><span class="title">Z<\/span><span class="note">Not written yet\.<\/span><\/li>/);
+  assert.match(html, /<\/ul><button class="row-btn prev" type="button" aria-label="Scroll left">◀<\/button><button class="row-btn next" type="button" aria-label="Scroll right">▶<\/button><\/div><\/section>$/);
+  assert.doesNotMatch(html, /tbl index/);
+});

@@ -161,6 +161,7 @@ Port, don't rewrite. From this repo's history at commit `5ed1192`: `src/client/g
 | HTML + CSS per page | under 40 KB uncompressed, excluding media |
 | Fonts | under 150 KB total |
 | JS on pages without video or embeds | under 3 KB gzipped |
+| `rows.js` (pages with a row of cards) | under 1 KB gzipped |
 | Media (MB = 1024 × 1024 bytes) | a loop file 10 MB (warning above 6 MB), a player file 60 MB, a photo file 600 KB, all media 700 MB |
 | Layout shift | under 0.05 while fonts load, at 1440 and 390 px |
 | Lighthouse (mobile) | 95+ in all four categories, checked by hand before launch |

@@ -18,3 +18,10 @@ test('long words wrap instead of widening the page', () => {
   assert.match(rule('.tbl td'), /overflow-wrap:anywhere/);
   assert.doesNotMatch(css, /\.tbl\.index td\.c1\{white-space:nowrap\}/);
 });
+
+test('rows bleed edge to edge, snap, and never scroll the page', () => {
+  assert.match(rule('.row'), /margin:[^;]*calc\(-1 \* var\(--bleed-r\)\)[^;]*calc\(-1 \* var\(--bleed-l\)\)/);
+  assert.match(rule('.cards'), /scroll-snap-type:x mandatory/);
+  assert.match(rule('body'), /overflow-x:clip/);
+  assert.match(rule('html:not(.js) .row-btn'), /display:none/);
+});

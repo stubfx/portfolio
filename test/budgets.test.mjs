@@ -31,7 +31,8 @@ test('JS under 3 KB gzipped on pages without video or embeds', () => {
   assert.ok(without.length > 0, 'at least one page has no video');
   for (const p of without) {
     const scripts = [...fs.readFileSync(path.join(out, p), 'utf8').matchAll(/<script type="module" src="\/assets\/([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(scripts, ['main.js'], p);
+    const row = fs.readFileSync(path.join(out, p), 'utf8').includes('class="row"');
+    assert.deepEqual(scripts, row ? ['main.js', 'rows.js'] : ['main.js'], p);
   }
 });
 
@@ -42,4 +43,9 @@ test('fonts under 150 KB', () => {
 
 test('media within its caps', () => {
   assert.deepEqual(checkManifest(loadManifest('content'), 'content').errors, []);
+});
+
+test('rows.js under 1 KB gzipped', () => {
+  const gz = zlib.gzipSync(fs.readFileSync(path.join(out, 'assets/rows.js'))).length;
+  assert.ok(gz < KB, `${gz} bytes`);
 });

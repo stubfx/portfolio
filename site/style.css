@@ -7,6 +7,7 @@
   --mono:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;
   --pad:clamp(18px,7vw,120px);
   --hw:3.6rem;
+  --yr:6.5rem; /* the timeline's year column */
 }
 /* night: warm near-neutral dark, faint orange tint (OKLCH hue 60, chroma under .015) */
 html[data-theme="night"]{--paper:#1c1917;--ink:#ebe5e0;--grey:#b4aca6;--mk:#726a64;--line:#312d2a;--red:#e66f62;--bar:rgba(28,25,23,.88);color-scheme:dark}
@@ -14,7 +15,7 @@ html[data-theme="night"]{--paper:#1c1917;--ink:#ebe5e0;--grey:#b4aca6;--mk:#726a
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
 html,body{background:var(--paper)}
-body{min-height:100vh}
+body{min-height:100vh;overflow-x:clip} /* rows bleed to the screen edges; the page itself never scrolls sideways */
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .mk,pre,code,.bar,.status,figcaption,.wip,.fence,.hr,.comment,.tag,.loop-tag{font-variant-ligatures:none}
 
@@ -100,6 +101,39 @@ figure video{display:block;width:100%;height:auto;background:var(--line)}
 .tbl.index .c3{text-align:right;width:4.5em;padding-right:0}
 .planned{color:var(--grey)}
 
+/* the timeline: ### YEAR: Title entries, the year in its own column; the ### marker hangs as everywhere */
+.entry{display:grid;grid-template-columns:var(--yr) minmax(0,1fr);column-gap:1.5rem;align-items:baseline}
+.entry > *{grid-column:2}
+.entry > .when{grid-column:1;grid-row:1;margin:0;font:13px/1.4 var(--mono);color:var(--mk);font-variant-ligatures:none}
+.entry > .row{grid-column:1 / -1}
+
+/* a file list in the timeline: a row of cards, edge to edge, wider than the text column */
+.row{--bleed-l:calc(max(0px, (100vw - 1560px) / 2) + var(--pad) + var(--hw));--bleed-r:calc(max(0px, (100vw - 1560px) / 2) + var(--pad));
+  position:relative;margin:1.2em calc(-1 * var(--bleed-r)) 2.4em calc(-1 * var(--bleed-l))}
+.cards{list-style:none;margin:0;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:thin;
+  padding:4px var(--bleed-r) 14px calc(var(--bleed-l) + var(--yr) + 1.5rem);scroll-padding-left:calc(var(--bleed-l) + var(--yr) + 1.5rem)}
+.card{flex:0 0 22rem;min-width:0;max-width:none;margin:0;scroll-snap-align:start;font-size:inherit;line-height:inherit}
+.card a{display:block;color:inherit;text-decoration:none}
+.cover{display:block;aspect-ratio:4/3;background:var(--line);overflow:hidden;margin-bottom:12px}
+.cover picture,.cover img{display:block;width:100%;height:100%;object-fit:cover}
+.cover img{transition:transform .15s ease}
+.card a:hover .cover img{transform:scale(1.03)}
+.card .file{display:block;font:12px/1.4 var(--mono);color:var(--mk);font-variant-ligatures:none}
+.card .title{display:block;font-size:clamp(19px,1.6vw,24px);line-height:1.2;letter-spacing:-.01em;margin:.15em 0 .3em;overflow-wrap:break-word}
+.card a:hover .title{color:var(--red)}
+.card .note{display:block;font-size:clamp(15px,1.15vw,17px);line-height:1.35;color:var(--grey);overflow-wrap:break-word}
+.card.planned .cover{background:none;border:1px dashed var(--line)}
+.card.planned .title{color:var(--grey)}
+.row-btn{display:none;position:absolute;top:calc(4px + 8.25rem);transform:translateY(-50%);z-index:3;width:44px;height:44px;
+  align-items:center;justify-content:center;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:15px/1 var(--mono);cursor:pointer}
+.row-btn.prev{left:16px}
+.row-btn.next{right:16px}
+.row-btn:hover{background:var(--ink);color:var(--paper)}
+.row-btn[disabled]{opacity:0;pointer-events:none}
+@media (hover:hover){.row-btn{display:inline-flex}}
+html:not(.js) .row-btn{display:none}
+@media (prefers-reduced-motion:reduce){.cover img{transition:none}.card a:hover .cover img{transform:none}}
+
 /* code: fences visible; logic lanes and yaml/log keys in grey */
 .code{margin:.8em 0 1.8em}
 .fence{font:13px/1.4 var(--mono);color:var(--mk)}
@@ -128,7 +162,15 @@ pre .m,pre .k{color:var(--grey)}
   .tbl.index td.c1{white-space:normal}
   .tbl.index td.c2{grid-column:2/4;margin-top:.25em}
   .tbl.index .c3{grid-row:1;grid-column:3}
+  .entry{grid-template-columns:minmax(0,1fr)}
+  .entry > *,.entry > .when{grid-column:1}
+  .entry > .when{grid-row:auto;margin-top:1.8em}
+  .entry > h3{margin-top:.1em}
+  .cards{padding-left:var(--bleed-l);scroll-padding-left:var(--bleed-l)}
+  .card{flex-basis:72vw}
+  .row-btn{top:calc(4px + 27vw)}
 }
 @media print{
-  #grain,.bar,.wip{display:none}
+  #grain,.bar,.wip,.row-btn{display:none}
+  .cards{flex-wrap:wrap;overflow:visible}
 }

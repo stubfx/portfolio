@@ -52,6 +52,22 @@ test('a transparent .png photo builds, with a webp source and a png img', async 
   assert.ok(fs.existsSync(path.join(r2, 'dist/work/t/s.png')));
 });
 
+test('the home timeline: cards with covers from the linked pages, rows.js only where there is a row', async () => {
+  const index = INDEX.replace('## Work\n\n- [A](work/a.md): Idea. (2026)\n- B: Later. (2025)\n',
+    '## Timeline\n\n### 2022–2025: School.\n\n- [A](work/a.md): Idea.\n- [C](work/c.md): A loop.\n- [Now](now.md): Text only.\n- B: Later.\n');
+  const r3 = fixture({ 'index.md': index, 'work/c.md': PAGE('C.', '![A loop.](a/clip.mp4)') });
+  const res = await run(r3);
+  assert.equal(res.ok, true, JSON.stringify(res.problems));
+  const home = read(r3, 'index.html');
+  assert.match(home, /<li class="card"><a href="\/work\/a\/"><span class="cover"><picture><source type="image\/avif" srcset="\/work\/a\/p\.800\.avif 800w"/);
+  assert.match(home, /<li class="card"><a href="\/work\/c\/"><span class="cover"><picture><source type="image\/avif" srcset="\/work\/a\/clip\.avif 1920w"[^>]*><img src="\/work\/a\/clip\.jpg"/);
+  assert.match(home, /<li class="card"><a href="\/now\/"><span class="cover"><\/span><span class="file">now\.md<\/span>/);
+  assert.match(home, /<li class="card planned">/);
+  assert.match(home, /<script type="module" src="\/assets\/rows\.js"><\/script>/);
+  assert.doesNotMatch(read(r3, 'work/a/index.html'), /rows\.js/);
+  assert.ok(fs.existsSync(path.join(r3, 'dist/assets/rows.js')));
+});
+
 let root;
 let result;
 before(async () => {
