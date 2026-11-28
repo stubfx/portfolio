@@ -29,3 +29,8 @@ test('rows bleed edge to edge, snap, and never scroll the page', () => {
 test('transparent images get no placeholder background, so the page shows through', () => {
   assert.match(rule('.cutout img'), /background:none/);
 });
+
+test('.vh hides text visually and keeps it for screen readers', () => {
+  assert.match(rule('.vh'), /position:absolute/);
+  assert.match(rule('.vh'), /clip-path:inset\(50%\)/);
+});

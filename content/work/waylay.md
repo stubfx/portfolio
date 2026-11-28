@@ -12,7 +12,7 @@ WAYLAY doesn't wait. The audience plays it from their phones, and can be thrown 
 
 Before launch, the teasers promise surprises. They don't say which.
 
-![Two teaser posts for 22/11. The copy: "Don't miss the event of the year. Join in, and discover the surprises we have in store for you."](waylay/teasers.png)
+![Two teaser posts for 22/11. The copy: "Don't miss the event of the year. … Join in, and discover the surprises we have in store for you."](waylay/teasers.png)
 
 On launch day, a new Netflix homepage, and an app made for the event. The phone is how you play.
 
@@ -64,7 +64,7 @@ Out of lives, viewers can only ask how it ends. We mocked up their posts.
 
 One reply, translated from the Italian:
 
-> We're all in the same boat. I lost my lives too, and now I'm here looking for spoilers.
+> We're all in the same boat. I lost my lives too, and now I'm here looking for spoilers. …
 
 ![Game over, on Instagram. Every head is red but one, top right.](waylay/game-over-post.png)
 

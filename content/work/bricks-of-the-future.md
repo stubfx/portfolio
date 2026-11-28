@@ -8,7 +8,7 @@ A LEGO box is a picture too. It comes with the pieces to make it real.
 
 We designed a museum where one turns into the other.
 
-![Inside the museum. Every picture on the walls is a brick mosaic. The console in front is where visitors make their own.](bricks-of-the-future/museum.jpg)
+![Inside the museum. Every picture on the walls is a brick mosaic. The console in front is where visitors would make their own.](bricks-of-the-future/museum.jpg)
 
 ## The way in
 
@@ -66,13 +66,13 @@ the sentence, built         the portal
 
 ## The box
 
-The work leaves the museum in a box, printed for one visitor.
+The work would leave the museum in a box, printed for one visitor.
 
 ![The box, turning: the picture from the console, a name, 1992 pieces.](bricks-of-the-future/box.mp4)
 
 > A serene stardust figure gently glowing during twilight in an enchanted dreamscape with whispering stars.
 
-That's one visitor's sentence. It goes on the side of the box, set like a title. Their name goes on the front: MANUEL33.
+In the mock-up, that's the visitor's sentence. It goes on the side of the box, set like a title. Their name goes on the front: MANUEL33.
 
 ![The sentence on the side, underlined in yellow, blue and red. The name on the front.](bricks-of-the-future/box-sentence.jpg)
 
@@ -82,13 +82,13 @@ Inside are the bricks to build it at home. This one takes 1992.
 
 ## The portal
 
-The works don't stay in the museum. A portal made for the event sells them to anyone.
+The works wouldn't stay in the museum. A portal made for the event would sell them to anyone.
 
-Each product page quotes its sentence and signs it with the visitor's name.
+In our mock-up, each product page quotes its sentence and signs it with the visitor's name.
 
 ![The portal's product page: the sentence, signed MANUEL33. 1992 pieces, 49,99 €, and a buy button.](bricks-of-the-future/portal.jpg)
 
-Every product in this shop has an author. The author is a visitor.
+We designed a shop where every product has an author: a visitor.
 
 ---
 

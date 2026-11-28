@@ -23,6 +23,9 @@ body{min-height:100vh;overflow-x:clip} /* rows bleed to the screen edges; the pa
 #grain{position:fixed;left:-50%;top:-50%;width:200%;height:200%;z-index:50;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-repeat:repeat}
 html[data-theme="night"] #grain{opacity:.05;mix-blend-mode:normal}
 
+/* text for screen readers only */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
 /* WIP banner and file bar */
 .wip{background:var(--ink);color:var(--paper);font:12px/1.45 var(--mono);letter-spacing:.02em;padding:9px var(--pad)}
 .wip b{font-weight:700}

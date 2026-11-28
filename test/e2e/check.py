@@ -298,6 +298,15 @@ def rows(r):
                     r.fail('rows', f'{where}: the back arrow is enabled at the start')
                 if after <= state['at']:
                     r.fail('rows', f'{where}: the next arrow did not scroll ({state["at"]} -> {after})')
+                pg.focus('.row .row-btn.next')
+                for _ in range(12):
+                    if pg.evaluate("document.querySelector('.row .row-btn.next').disabled"):
+                        break
+                    pg.keyboard.press('Enter')
+                    pg.wait_for_timeout(700)
+                active = pg.evaluate("document.activeElement.className")
+                if 'prev' not in active:
+                    r.fail('rows', f'{where}: at the end of the row, keyboard focus went to "{active or 'the page'}", not the back arrow')
             ctx.close()
 
 

@@ -79,6 +79,6 @@ AI is a tool, not a goal. It makes me faster. It doesn't decide what's good.
 
 ---
 
-<!-- Draft: the academy pages are being written, one by one. Case 01 is a sample. -->
+<!-- Draft: the academy pages are being written, one by one. Direction as code is a sample. -->
 
 <!-- This page is a markdown file. People read it here. Agents read the same words at /index.md and /llms.txt. -->

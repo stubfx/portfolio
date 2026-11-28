@@ -60,6 +60,7 @@ test('the home timeline: cards with covers from the linked pages, rows.js only w
   assert.equal(res.ok, true, JSON.stringify(res.problems));
   const home = read(r3, 'index.html');
   assert.match(home, /<li class="card"><a href="\/work\/a\/"><span class="cover"><picture><source type="image\/avif" srcset="\/work\/a\/p\.800\.avif 800w"/);
+  assert.match(home, /<span class="file">a\.md · sample<\/span>/, 'a sample page says so on its card');
   assert.match(home, /<li class="card"><a href="\/work\/c\/"><span class="cover"><picture><source type="image\/avif" srcset="\/work\/a\/clip\.avif 1920w"[^>]*><img src="\/work\/a\/clip\.jpg"/);
   assert.match(home, /<li class="card"><a href="\/now\/"><span class="cover"><\/span><span class="file">now\.md<\/span>/);
   assert.match(home, /<li class="card planned">/);

@@ -140,13 +140,13 @@ test('heading ids never collide with the page shell', () => {
   assert.deepEqual(anchors(parse('## Raw\n\n## Status\n\n## Page\n\n## Work\n').blocks), ['raw-2', 'status-2', 'page-2', 'work']);
 });
 
-const cardCtx = { ...ctx, card: (h) => ({ href: h.replace(/\.md$/, '/'), file: h.split('/').pop(), cover: h.endsWith('x.md') ? photo('cov', 1600, 1200) : null }) };
+const cardCtx = { ...ctx, card: (h) => ({ href: h.replace(/\.md$/, '/'), file: h.split('/').pop(), sample: h.endsWith('s.md'), cover: h.endsWith('x.md') ? photo('cov', 1600, 1200) : h.endsWith('w.md') ? photo('wide', 2400, 900) : null }) };
 const rt = (md) => renderBlocks(parse(md).blocks, cardCtx);
 
 test('timeline: each ### YEAR: Title is an entry, the year beside it, closed before the next entry or section', () => {
   const html = rt('## Timeline\n\n### 2017: Hired at IBM.\n\nMods got me in.\n\n### 2015–: Mods.\n\nPocket money.\n\n## Now\n\nNow.\n');
-  assert.match(html, /<section class="entry"><p class="when">2017<\/p><h3 id="2017-hired-at-ibm"><span class="mk hang" aria-hidden="true">###<\/span>Hired at IBM\.<\/h3><p>Mods got me in\.<\/p><\/section>/);
-  assert.match(html, /<section class="entry"><p class="when">2015–<\/p><h3 id="2015-mods">.*?Mods\.<\/h3><p>Pocket money\.<\/p><\/section><h2 id="now">/);
+  assert.match(html, /<section class="entry"><p class="when" aria-hidden="true">2017<\/p><h3 id="2017-hired-at-ibm"><span class="mk hang" aria-hidden="true">###<\/span><span class="vh">2017: <\/span>Hired at IBM\.<\/h3><p>Mods got me in\.<\/p><\/section>/);
+  assert.match(html, /<section class="entry"><p class="when" aria-hidden="true">2015–<\/p><h3 id="2015-mods">.*?Mods\.<\/h3><p>Pocket money\.<\/p><\/section><h2 id="now">/);
 });
 
 test('timeline: a file list is a row of cards; the cover comes from the linked page; planned and cover-less cards are text', () => {
@@ -157,4 +157,12 @@ test('timeline: a file list is a row of cards; the cover comes from the linked p
   assert.match(html, /<li class="card planned"><span class="cover"><\/span><span class="title">Z<\/span><span class="note">Not written yet\.<\/span><\/li>/);
   assert.match(html, /<\/ul><button class="row-btn prev" type="button" aria-label="Scroll left">◀<\/button><button class="row-btn next" type="button" aria-label="Scroll right">▶<\/button><\/div><\/section>$/);
   assert.doesNotMatch(html, /tbl index/);
+});
+
+test('cards: a sample page says so; a wide cover, cropped to 4:3, asks for a larger file', () => {
+  const html = rt('## Timeline\n\n### 2026: Now.\n\n- [S](work/s.md): A sample.\n- [W](work/w.md): Wide.\n- [X](work/x.md): Four by three.\n');
+  assert.match(html, /<span class="file">s\.md · sample<\/span>/);
+  assert.match(html, /<span class="file">x\.md<\/span>/);
+  assert.match(html, /srcset="\/wide\.800\.avif[^"]*" sizes="\(min-width: 720px\) calc\(22rem \* 2\.00\), calc\(72vw \* 2\.00\)"/);
+  assert.match(html, /srcset="\/cov\.800\.avif[^"]*" sizes="\(min-width: 720px\) 22rem, 72vw"/);
 });
