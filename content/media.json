@@ -656,6 +656,38 @@
       }
     }
   },
+  "work/frammenti/broadcast.jpg": {
+    "kind": "photo",
+    "width": 840,
+    "height": 630,
+    "master": "0d55b8667fa99978feae0f0732f457241fdc34dba71e890e303698ea0063f997",
+    "variants": [
+      {
+        "file": "work/frammenti/broadcast.800.avif",
+        "width": 800,
+        "bytes": 68369,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/broadcast.840.avif",
+        "width": 840,
+        "bytes": 77657,
+        "type": "image/avif"
+      },
+      {
+        "file": "work/frammenti/broadcast.800.jpg",
+        "width": 800,
+        "bytes": 145741,
+        "type": "image/jpeg"
+      },
+      {
+        "file": "work/frammenti/broadcast.jpg",
+        "width": 840,
+        "bytes": 162877,
+        "type": "image/jpeg"
+      }
+    ]
+  },
   "work/frammenti/face.jpg": {
     "kind": "photo",
     "width": 640,

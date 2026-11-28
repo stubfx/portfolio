@@ -23,7 +23,7 @@ Accenture Song. GenAI trainer for classes of about 50. Weekly "AI Way of Work" s
 
 110/110 cum laude, earned alongside the day job. Days at work, nights at school.
 
-- [Frammenti](work/frammenti.md): Alexander the Great's face, anchored in marble, for a RAI Cultura documentary.
+- [Frammenti](work/frammenti.md): Alexander the Great's face, anchored in marble, for a Rai Cultura documentary.
 - [WAYLAY](work/waylay.md): A live Black Mirror episode. Three lives, and nobody tells you.
 - [Bricks of the Future](work/bricks-of-the-future.md): A LEGO and OpenAI museum where your sentence goes home as a box of bricks.
 - Bilbo: An audiobook app for a break from reality.

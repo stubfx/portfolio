@@ -1,0 +1,193 @@
+/* Frammenti: a dark room. A face assembles out of the black. Reference stylesheet by the art director (spec: world.md). Goes to content/work/frammenti/world.css; fonts in fonts/, dust.png beside it. */
+
+@font-face{font-family:"Bebas Neue";src:url(fonts/bebas-neue.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Inter";src:url(fonts/inter.woff2) format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+@property --solid{syntax:"<percentage>";inherits:false;initial-value:64%}
+
+:root{
+  --paper:#000000;--ink:#eeeae5;--mk:#79726b;--line:#1e1c1a;--bar:rgba(0,0,0,.8);
+  --stone:#a39d96;--dust:#d9a09a;--flesh:#e2c08f;
+  --red:var(--dust);--grey:var(--stone);
+  --title:"Bebas Neue","Bebas Neue fallback",Impact,"Arial Narrow",sans-serif;
+  --text:"Inter","Inter fallback",system-ui,sans-serif;
+  --g:clamp(16px,4vw,64px);
+  color-scheme:dark;
+}
+html,body{background:#000}
+body{font-family:var(--text)}
+#grain{opacity:.1;mix-blend-mode:multiply} /* multiply: the black stays #000, grain lives in the marble and the skin */
+
+/* every scene: one centred column, room to go wide or full bleed */
+.page{max-width:none;padding:0}
+.s{--main:min(1040px,100% - 2 * var(--g));--wide:min(1280px,100% - 2 * var(--g));--side:calc((var(--wide) - var(--main)) / 2);
+  display:grid;grid-template-columns:[full-start] minmax(0,1fr) [wide-start] var(--side) [main-start] var(--main) [main-end] var(--side) [wide-end] minmax(0,1fr) [full-end];
+  padding-top:clamp(120px,17vw,260px)}
+.s > *{grid-column:main;min-width:0}
+.mk{display:none}
+
+h2{font:400 clamp(52px,8.2vw,156px)/.86 var(--title);letter-spacing:.004em;text-transform:uppercase;text-align:center;color:#fff;margin:0 0 .42em;text-wrap:balance}
+.s p,.s li{font:400 clamp(18px,1.42vw,22px)/1.5 var(--text);letter-spacing:-.006em;color:var(--ink);max-width:33em;margin:0 auto .9em;text-align:center;text-wrap:pretty}
+.s a{text-decoration-thickness:1px;text-underline-offset:.2em}
+.s a:hover{color:var(--dust)}
+:focus-visible{outline:2px solid var(--dust)}
+
+/* captions: museum labels under the work. Alt in Inter, the file as a catalogue tag; the ![]( ) syntax goes */
+figure{display:flex;flex-direction:column;margin:clamp(40px,5vw,72px) 0}
+figcaption{order:2;display:flex;flex-direction:column-reverse;gap:4px;margin:14px 0 0;max-width:34em;font:400 11px/1.4 var(--mono);letter-spacing:.04em;color:var(--mk)}
+figcaption .alt{font:400 clamp(14px,1.05vw,15.5px)/1.45 var(--text);letter-spacing:0;color:var(--stone)}
+img,figure video{background:#000}
+.cutout img{background:none}
+figure.narrow{max-width:none}
+
+/* ---------- INTRO: the title card ---------- */
+[data-s="intro"]{padding-top:0;grid-template-rows:auto auto auto auto}
+[data-s="intro"] h1{grid-column:full;grid-row:1;z-index:2;align-self:end;justify-self:start;margin:0 0 17svh 52vw;max-width:3.95em;
+  font:400 clamp(72px,11vw,230px)/.84 var(--title);letter-spacing:.005em;text-transform:uppercase;color:#fff;text-align:left;
+  /* lines 1 and 2 whole; line 3 (FRAGMENTS.) solid up to --solid, then shards */
+  -webkit-mask:linear-gradient(#000 0 0) 0 0/100% calc(100% - .84em) no-repeat,linear-gradient(#000 0 0) 0 100%/calc(var(--solid) + 1px) .84em no-repeat,url(dust.png) 100% 100%/calc(100% - var(--solid)) .84em no-repeat;
+          mask:linear-gradient(#000 0 0) 0 0/100% calc(100% - .84em) no-repeat,linear-gradient(#000 0 0) 0 100%/calc(var(--solid) + 1px) .84em no-repeat,url(dust.png) 100% 100%/calc(100% - var(--solid)) .84em no-repeat}
+[data-s="intro"] figure[data-m="hero"]{grid-column:full;grid-row:1;margin:0;position:relative;height:calc(100svh - 45px);min-height:540px}
+[data-s="intro"] figure[data-m="hero"] picture,[data-s="intro"] figure[data-m="hero"] img{height:100%}
+[data-s="intro"] figure[data-m="hero"] img{object-fit:cover;object-position:0% 36%}
+[data-s="intro"] figure[data-m="hero"] picture{-webkit-mask:linear-gradient(#000 70%,transparent);mask:linear-gradient(#000 70%,transparent)} /* the bust sinks into the black */
+[data-s="intro"] figure[data-m="hero"] figcaption{position:absolute;left:52vw;bottom:clamp(20px,4svh,40px);margin:0;max-width:min(26em,40vw);z-index:3}
+[data-s="intro"] blockquote{grid-row:2;font:400 clamp(19px,1.7vw,26px)/1.42 var(--text);letter-spacing:-.008em;color:var(--stone);text-align:center;max-width:31em;margin:clamp(96px,12vw,180px) auto clamp(110px,15vw,220px)}
+[data-s="intro"] > p{font:300 clamp(28px,3.9vw,64px)/1.1 var(--text);letter-spacing:-.025em;max-width:16em;margin:0 auto .25em;color:#fff}
+[data-s="intro"] > p + p{color:var(--stone)}
+
+/* ---------- WHAT SURVIVES: the evidence board ---------- */
+figure[data-m="sources"]{width:min(100%,780px);margin-inline:auto}
+
+/* ---------- THE MACHINE'S ALEXANDER: text left, the Hollywood heads right ---------- */
+[data-s="the-machine-s-alexander"],[data-s="on-air"]{grid-template-columns:[full-start] minmax(0,1fr) [wide-start main-start a-start] calc(var(--main) * .42) [a-end] calc(var(--main) * .065) [b-start] calc(var(--main) * .515) [b-end main-end wide-end] minmax(0,1fr) [full-end];align-items:start}
+[data-s="the-machine-s-alexander"] h2{grid-column:a;text-align:left;margin-top:.1em}
+[data-s="the-machine-s-alexander"] > p:not(.punch){grid-column:a;text-align:left;margin-left:0}
+[data-s="the-machine-s-alexander"] figure[data-m="hollywood"]{grid-column:b;grid-row:1 / span 4;margin:0}
+[data-s="the-machine-s-alexander"] blockquote{grid-column:main;font:300 clamp(28px,3.4vw,56px)/1.12 var(--text);letter-spacing:-.025em;color:#fff;text-align:center;max-width:17em;margin:clamp(80px,9vw,140px) auto 0}
+/* the punch line: WORDS DRIFT breaks into shards, GEOMETRY HOLDS stays whole */
+p.punch{grid-column:full;justify-self:center;width:fit-content;max-width:5.7em;margin:clamp(110px,13vw,200px) 0 0;
+  font:400 clamp(60px,13vw,240px)/.86 var(--title);letter-spacing:.006em;text-transform:uppercase;text-align:left;color:var(--dust)}
+p.punch mark{color:inherit;display:block;
+  -webkit-mask:linear-gradient(#000 0 0) 0 100%/100% 50% no-repeat,linear-gradient(#000 0 0) 0 0/40% 50% no-repeat,url(dust.png) 100% 0/60.5% 50% no-repeat;
+          mask:linear-gradient(#000 0 0) 0 100%/100% 50% no-repeat,linear-gradient(#000 0 0) 0 0/40% 50% no-repeat,url(dust.png) 100% 0/60.5% 50% no-repeat}
+
+/* ---------- THE MARBLE'S ALEXANDER: the photos become a turning model ---------- */
+figure[data-m="model"]{grid-column:wide;grid-row:4}
+figure[data-m="model"] figcaption{max-width:min(34em,58%)}
+figure[data-m="turntable"]{grid-column:wide;grid-row:4;align-self:start;width:24.03%;margin:calc(18.65% + clamp(40px,5vw,72px)) 0 0 68.8%}
+figure[data-m="turntable"] figcaption{margin-top:14px}
+figure[data-m="guided"]{grid-column:full;width:min(100%,1720px);justify-self:center;margin-bottom:0;position:relative}
+figure[data-m="guided"] picture{-webkit-mask:linear-gradient(#000 80%,transparent);mask:linear-gradient(#000 80%,transparent)} /* the wall's last row sinks into the black */
+figure[data-m="guided"] figcaption{position:absolute;top:100%;left:var(--g);max-width:min(26em,30vw)}
+figure[data-m="face"]{width:clamp(220px,25vw,380px);justify-self:center;margin-top:calc(-.105 * min(100vw,1720px));position:relative;z-index:1}
+figure[data-m="face"] img{box-shadow:0 0 0 1px rgba(238,234,229,.1),0 30px 80px #000}
+
+/* ---------- THE MARBLE SPEAKS: the face gets its colour ---------- */
+[data-s="the-marble-speaks"] h2,[data-s="the-marble-speaks"] ~ .s h2{color:var(--flesh)} /* from here on the face has skin */
+figure[data-m="remap"]{grid-column:full;width:min(100%,1920px);justify-self:center}
+figure[data-m="remap"] video{-webkit-mask:linear-gradient(#000 82%,transparent);mask:linear-gradient(#000 82%,transparent)}
+figure[data-m="remap"] figcaption,figure[data-m="act-one"] figcaption,figure[data-m="vimeo-1095364041"] figcaption{align-self:center;align-items:center;text-align:center}
+figure[data-m="act-one"]{grid-column:wide}
+
+/* ---------- FROM THE MOSAIC TO THE FACE ---------- */
+figure[data-m="vimeo-1095364041"]{grid-column:wide}
+.embed{background:#000}
+.embed .play{font:0/0 a;width:clamp(64px,7vw,104px);aspect-ratio:1;border:1.5px solid rgba(255,255,255,.9);border-radius:50%;background:rgba(0,0,0,.25);padding:0}
+.embed .play::after{content:"";position:absolute;left:54%;top:50%;transform:translate(-50%,-50%);border-style:solid;border-width:.6em 0 .6em 1.04em;border-color:transparent transparent transparent #fff;font-size:clamp(14px,1.5vw,22px)}
+.embed:hover .play,.embed:focus-visible .play{background:var(--dust);border-color:var(--dust)}
+
+/* ---------- THE MOSAIC'S JOURNEY: text left, archive right ---------- */
+[data-s="the-mosaic-s-journey"]{grid-template-columns:[full-start] minmax(0,1fr) [wide-start main-start a-start] calc(var(--wide) * .3) [a-end] calc(var(--wide) * .05) [b-start] calc(var(--wide) * .65) [b-end main-end wide-end] minmax(0,1fr) [full-end];align-items:center}
+[data-s="the-mosaic-s-journey"] h2{grid-column:a;grid-row:1;text-align:left;align-self:end}
+[data-s="the-mosaic-s-journey"] > p{grid-column:a;grid-row:2;text-align:left;margin-left:0;align-self:start}
+[data-s="the-mosaic-s-journey"] figure{grid-column:b;grid-row:1 / span 2;margin:0}
+
+/* ---------- US AND THE MACHINE ---------- */
+.code{justify-self:center;margin:clamp(24px,3vw,48px) 0 0}
+.fence{display:none}
+pre{font:400 clamp(11px,1.12vw,15px)/1.6 var(--mono);color:var(--ink)}
+pre .m{color:var(--stone)}
+
+/* ---------- ON AIR: the broadcast, then the way to watch it ---------- */
+[data-s="on-air"] h2{grid-column:b;grid-row:1;text-align:left}
+[data-s="on-air"] figure{grid-column:a;grid-row:1 / span 3;margin:0}
+[data-s="on-air"] > p{grid-column:b;text-align:left;margin-left:0}
+[data-s="on-air"] > p:has(> a:only-child){font:400 clamp(40px,4.6vw,84px)/1.02 var(--title);letter-spacing:.006em;text-transform:uppercase;margin-top:.5em}
+[data-s="on-air"] > p:has(> a:only-child) a{text-decoration:underline;text-decoration-color:var(--dust);text-decoration-thickness:.05em;text-underline-offset:.1em}
+
+/* ---------- CREDITS and the end ---------- */
+[data-s="credits"] h2{font-size:clamp(36px,3.6vw,60px)}
+[data-s="credits"] ul{list-style:none;margin:0 auto;max-width:36em}
+[data-s="credits"] li{font-size:clamp(15px,1.1vw,17px);color:var(--stone);margin-bottom:.6em}
+.hr{font-size:0;width:56px;height:1px;background:var(--mk);justify-self:center;margin:clamp(72px,8vw,120px) 0 28px}
+[data-s="credits"] > p{font-size:14px;color:var(--stone)}
+.status{max-width:none;padding:24px var(--g) 64px;justify-content:center;font-size:11px;color:var(--mk)}
+.status b,.status a{color:var(--stone)}
+
+/* ---------- motion: the title gathers; the work lights up out of the black ---------- */
+@media (prefers-reduced-motion:no-preference){
+  [data-s="intro"] h1{animation:gather 2s cubic-bezier(.2,.7,.2,1) .25s both}
+  @supports (animation-timeline:view()){
+    figure:not([data-m="hero"]) :is(picture,video,.embed){animation:lightup linear both;animation-timeline:view();animation-range:entry 5% cover 35%}
+    figure[data-m="hero"] picture{animation:dim linear both;animation-timeline:view();animation-range:exit 10% exit 90%}
+  }
+}
+@keyframes gather{from{--solid:4%}to{--solid:64%}}
+@keyframes lightup{from{opacity:0}to{opacity:1}}
+@keyframes dim{to{opacity:.2}}
+
+/* ---------- phones and narrow windows ---------- */
+@media (max-width:899px){
+  [data-s="intro"] figure[data-m="hero"]{height:min(125vw,68svh);min-height:0}
+  [data-s="intro"] figure[data-m="hero"] img{object-position:12% 40%}
+  [data-s="intro"] figure[data-m="hero"] figcaption{display:none}
+  [data-s="intro"] h1{grid-row:2;grid-column:main;margin:-.55em 0 0;font-size:min(23vw,170px)}
+  [data-s="intro"] blockquote{grid-row:3;margin:64px auto 96px;text-align:left}
+  [data-s="intro"] > p{text-align:left;margin-left:0}
+  [data-s="the-machine-s-alexander"],[data-s="the-mosaic-s-journey"],[data-s="on-air"]{grid-template-columns:[full-start] var(--g) [wide-start main-start a-start b-start] minmax(0,1fr) [a-end b-end main-end wide-end] var(--g) [full-end]}
+  [data-s="the-machine-s-alexander"] figure[data-m="hollywood"],[data-s="the-mosaic-s-journey"] figure,[data-s="on-air"] figure{grid-row:auto;margin:40px 0}
+  [data-s="the-mosaic-s-journey"] h2,[data-s="the-mosaic-s-journey"] > p,[data-s="on-air"] h2{grid-row:auto}
+  [data-s="on-air"] h2{grid-row:1}
+  [data-s="on-air"] figure{grid-row:2}
+  h2{text-align:left}
+  .s p,.s li{text-align:left;margin-left:0}
+  [data-s="the-machine-s-alexander"] blockquote{text-align:left;margin-left:0}
+  figure[data-m="act-one"],figure[data-m="vimeo-1095364041"],figure[data-m="vimeo-1095388475"]{grid-column:full}
+  figure[data-m="act-one"] figcaption,figure[data-m="vimeo-1095364041"] figcaption,figure[data-m="vimeo-1095388475"] figcaption{padding:0 var(--g)}
+  p.punch{justify-self:start;margin-left:var(--g);font-size:min(15.6vw,120px)}
+  figure[data-m="model"]{grid-row:auto}
+  figure[data-m="turntable"]{grid-row:auto;width:min(62vw,340px);margin:24px auto 40px;justify-self:center}
+  figure[data-m="guided"] figcaption{position:static;order:0;margin:0 0 12px;padding:0 var(--g);max-width:none}
+  figure[data-m="face"]{width:58vw;margin-top:-9vw}
+  figure[data-m="remap"] video{aspect-ratio:4/3;object-fit:cover}
+  figure[data-m="remap"] figcaption,figure[data-m="act-one"] figcaption,figure[data-m="vimeo-1095364041"] figcaption{align-self:stretch;align-items:flex-start;text-align:left;padding:0 var(--g)}
+  figure[data-m="remap"] figcaption{padding:0 var(--g)}
+  [data-s="credits"] ul{margin-left:0}
+  .hr{justify-self:start}
+  .code{justify-self:stretch}
+}
+
+/* review fixes from the art director's alignment check, 2026-11-28 */
+
+/* 1. face.jpg's caption sat under the image's box-shadow: the picture's scroll animation makes it a stacking
+      context that paints above the caption, so the tag rendered at #48443F and the alt at #918B85 */
+figure[data-m="face"] figcaption{position:relative;z-index:1}
+
+/* 2. the archive poster is pillarboxed (picture from 26.4% to 72.7% of the 16:9 box): label and tag follow the picture */
+figure[data-m="vimeo-1095388475"] figcaption{padding-left:26.4%}
+figure[data-m="vimeo-1095388475"] .embed .tag{right:calc(27.3% + 12px)}
+
+/* 3. caption measure: 34em resolved against the 11px mono (374px), so labels wrapped short with orphans */
+figcaption{max-width:min(100%,32rem)}
+figcaption .alt{text-wrap:pretty}
+figure[data-m="model"] figcaption{max-width:min(32rem,58%)}
+
+/* 4. the turntable had no bottom margin: between about 900 and 1100px its caption touched the next paragraph */
+figure[data-m="turntable"]{margin-bottom:clamp(40px,5vw,72px)}
+
+/* 5. phones: crop the still model off the board, so the bust isn't shown twice; the arrow leads to the turning model below */
+@media (max-width:899px){
+  figure[data-m="model"] picture{aspect-ratio:1474/1256;overflow:hidden}
+  figure[data-m="model"] img{width:151.6%;max-width:none}
+  figure[data-m="model"] figcaption{max-width:none}
+}

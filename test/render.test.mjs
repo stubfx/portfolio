@@ -187,3 +187,11 @@ test('world pages: a timeline entry closes before its section', () => {
 test('other pages keep the flat markup', () => {
   assert.doesNotMatch(r('# T\n\n> d\n\n![C](p.jpg)\n\n## A\n\nText.\n'), /<section|<header|data-m=/);
 });
+
+test('world pages: pictures may run full bleed, so they ask for the screen width', () => {
+  const html = rw('# T\n\n> d\n\n![C](p.jpg)\n\n![C](tall.jpg)\n\n![C](https://vimeo.com/1)\n');
+  assert.match(html, /<figure data-m="p">.*?<img [^>]*sizes="100vw"/);
+  assert.match(html, /<figure data-m="tall" class="narrow">.*?<img [^>]*sizes="\(min-width: 720px\) 50vw, 100vw"/);
+  assert.match(html, /<figure data-m="vimeo-1">.*?<img [^>]*sizes="100vw"/);
+  assert.doesNotMatch(html, /1280px|440px/);
+});

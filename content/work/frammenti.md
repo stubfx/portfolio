@@ -1,6 +1,6 @@
 # A face, from fragments.
 
-> An academy project with RAI Cultura: the search for Alexander the Great's true face, with AI, for a documentary that aired on Rai 5.
+> Frammenti: the search for Alexander the Great's true face, with AI. An academy project with Rai Cultura, for a documentary that aired on Rai 5.
 
 ![Alexander's marble portrait as a 3D model, coming apart into fragments. Frammenti is Italian for fragments.](frammenti/hero.jpg)
 
@@ -8,9 +8,11 @@ Nobody alive has seen Alexander the Great's face.
 
 The machines think they have.
 
+## What survives
+
 The documentary is about the Alexander Mosaic. Our part was the face.
 
-What survives of it comes in fragments.
+It survives only in fragments. We started from the official archives.
 
 ![What we worked from: marble portraits of Alexander, the mosaic of the Battle of Issus with its gaps, documents from the official archives, archive photographs on a lightbox.](frammenti/sources.png)
 
@@ -25,38 +27,6 @@ The images came back from Hollywood. Diffusion models picture the heroes of the 
 > The model knew the sculptor's name. Not Alexander's face.
 
 ==Words drift. Geometry holds.==
-
-```logic
-US                          MACHINE
-
-the official archives
-│
-▼
-research ─────────────────▶ chatgpt
-                            │ the first prompts
-                            ▼
-                            diffusion models
-                            │ a Hollywood Alexander
-                            ▼
-the eye ◀───────────────────┘
-│ too modern, too plastic
-▼
-the marble portrait
-│ I take charge of
-│ the 3D model
-▼
-shots of the model ───────▶ diffusion, guided
-                            │ the face holds
-                            ▼
-the face ◀──────────────────┘
-│ I remap it in blender
-▼
-the textured head ────────▶ runwayml act-one
-                            │ the face moves
-                            ▼
-the final cut ◀─────────────┘
-  from mosaic to face
-```
 
 ## The marble's Alexander
 
@@ -96,9 +66,47 @@ Alongside the face, we set the archive in motion with RunwayML.
 
 ![Archive photographs of the mosaic's historic moves, from Pompeii to the museum in Naples.](https://vimeo.com/1095388475)
 
+## Us and the machine
+
+The whole chain. Our steps on the left, the machines' on the right.
+
+```logic
+US                          MACHINE
+
+the official archives
+│
+▼
+research ─────────────────▶ chatgpt
+                            │ the first prompts
+                            ▼
+                            diffusion models
+                            │ a Hollywood Alexander
+                            ▼
+the eye ◀───────────────────┘
+│ too modern, too plastic
+▼
+the marble portrait
+│ I take charge of
+│ the 3D model
+▼
+shots of the model ───────▶ diffusion, guided
+                            │ the face holds
+                            ▼
+the face ◀──────────────────┘
+│ I remap it in blender
+▼
+the textured head ────────▶ runwayml act-one
+                            │ the face moves
+                            ▼
+the final cut ◀─────────────┘
+  from mosaic to face
+```
+
 ## On air
 
-Il volto di Alessandro, the restoration of the mosaic of Alexander and Darius. Previewed at MANN, the National Archaeological Museum of Naples, on 26 March 2025. First aired on Rai 5 on 2 April.
+![The poster for Il volto di Alessandro: a preview at MANN in Naples on 26 March, then first on Rai 5 on 2 April at 21:15.](frammenti/broadcast.jpg)
+
+Il volto di Alessandro, on the restoration of the mosaic of Alexander and Darius. Previewed at MANN, the National Archaeological Museum of Naples, on 26 March 2025. First aired on Rai 5 on 2 April.
 
 [Watch Il volto di Alessandro on RaiPlay.](https://www.raiplay.it/video/2025/03/Art-Night-Il-volto-di-Alessandro-25138810-bba4-4ed2-a482-c0649360641b.html)
 
