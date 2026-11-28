@@ -1,0 +1,8 @@
+/* A hostile world for the e2e header check: it changes everything it may, and tries what it may not. */
+:root{--paper:#101010;--ink:#f0f0f0;--mk:#888888;--line:#333333;--bar:rgba(16,16,16,.9);--mono:serif;--pad:3px;--fmono:serif;--fpad:1px}
+html{font-size:30px;color-scheme:dark}
+body{letter-spacing:.3em;text-transform:uppercase;font-family:serif;line-height:3}
+*{--fmono:serif;--fpad:1px}
+:focus-visible{outline:none}
+main{position:relative;z-index:30;background:#101010}
+button{font:40px serif;letter-spacing:1em;padding:20px}

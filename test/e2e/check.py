@@ -13,6 +13,7 @@ which the real content doesn't have yet), serves both with build.mjs's server (R
   cls       layout shift under 0.05 while fonts load (fonts delayed 800 ms), 1440 and 390 wide
   overflow  no horizontal scrolling at 360 px
   focus     every Tab stop shows an outline of at least 2 px
+  header    the file bar is the same on a world page (a hostile one in the fixture) as on the homepage: type, size, layout, on top
   rows      timeline rows span the screen edge to edge, show no scrollbar, never scroll the page, keep long titles inside cards; arrows scroll
 
 Usage: uv run -q --with playwright==1.64.1 python test/e2e/check.py [name ...]   (no names: all but reference)
@@ -311,6 +312,38 @@ def rows(r):
                 if 'prev' not in active:
                     r.fail('rows', f'{where}: at the end of the row, keyboard focus went to "{active or 'the page'}", not the back arrow')
             ctx.close()
+
+
+HEADER_PROBE = """(() => {
+  const b = document.querySelector('.bar'), c = document.getElementById('copy'), v = document.querySelector('#viewseg button');
+  const s = getComputedStyle(b), k = getComputedStyle(c), t = getComputedStyle(v);
+  return { font: s.fontFamily, size: s.fontSize, spacing: s.letterSpacing, transform: s.textTransform, height: b.offsetHeight,
+    pad: s.paddingLeft, copy: [c.offsetWidth, c.offsetHeight, k.fontFamily, k.fontSize, k.letterSpacing, k.padding],
+    view: [t.fontFamily, t.fontSize, t.letterSpacing, t.padding], theme: getComputedStyle(document.getElementById('themeseg')).display };
+})()"""
+
+
+@check
+def header(r):
+    for w, h in VIEWS:
+        ctx, pg = r.page(w, h)
+        pg.goto(r.fix + '/', wait_until='networkidle')
+        home = pg.evaluate(HEADER_PROBE)
+        pg.goto(r.fix + '/worldly/', wait_until='networkidle')
+        world = pg.evaluate(HEADER_PROBE)
+        pg.evaluate('window.scrollTo(0, 1500)')
+        pg.wait_for_timeout(100)
+        on_top = pg.evaluate('(() => { const b = document.querySelector(".bar").getBoundingClientRect();'
+                             ' return scrollY > 0 && !!document.elementFromPoint(innerWidth / 2, b.top + b.height / 2)?.closest(".bar"); })()')
+        ctx.close()
+        if world.pop('theme') != 'none':
+            r.fail('header', f'{w}: the theme switch shows on a world page')
+        home.pop('theme')
+        diff = {k: (home[k], world[k]) for k in home if home[k] != world[k]}
+        if diff:
+            r.fail('header', f'{w}: the world page moved the header: {diff}')
+        if not on_top:
+            r.fail('header', f'{w}: the world page covers the header')
 
 
 def main(names):

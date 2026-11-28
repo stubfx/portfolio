@@ -170,7 +170,7 @@ pre .m,pre .k{color:var(--grey)}
 .wip b{font-weight:700}
 .wip a{color:inherit;text-decoration:underline;text-underline-offset:.2em}
 .bar{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px var(--fpad);
-  font:12px/1.2 var(--fmono);letter-spacing:0;text-transform:none;text-align:left;text-shadow:none;font-variant-ligatures:none;
+  font:12px/1.2 var(--fmono);letter-spacing:0;word-spacing:0;text-transform:none;text-align:left;text-shadow:none;font-variant-ligatures:none;
   background:var(--bar);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
 .bar :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .bar .path{color:var(--mk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -178,9 +178,9 @@ pre .m,pre .k{color:var(--grey)}
 .bar .path b{color:var(--ink);font-weight:400}
 .bar .right{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .btn,.seg{display:inline-flex;border:1px solid var(--ink)}
-.btn{background:none;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer;min-width:7.2em;justify-content:center;text-decoration:none}
+.btn{background:none;padding:6px 9px;font:inherit;letter-spacing:inherit;text-transform:inherit;word-spacing:inherit;text-shadow:inherit;color:var(--ink);cursor:pointer;min-width:7.2em;justify-content:center;text-decoration:none}
 .btn:hover{background:var(--ink);color:var(--paper)}
-.seg button{background:none;border:0;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer}
+.seg button{background:none;border:0;padding:6px 9px;font:inherit;letter-spacing:inherit;text-transform:inherit;word-spacing:inherit;text-shadow:inherit;color:var(--ink);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .rawlink{min-width:0}
 /* without JavaScript: no copy, no theme switch, a plain raw link instead of the view switch */
