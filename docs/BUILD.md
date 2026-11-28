@@ -15,7 +15,7 @@ How the site is built, served and deployed.
 | --- | --- |
 | Build | `build.mjs`, Node 22+, built-in modules only |
 | Markdown | `lib/parse.mjs`, `lib/inline.mjs`, `lib/render.mjs`: our parser and renderer for the subset |
-| Styles | One hand-written `site/style.css`, CSS custom properties |
+| Styles | One hand-written `site/style.css` (the frame), CSS custom properties and cascade layers; a project page may add its own `world.css` (CONTENT.md section 11) |
 | Client JS | `site/main.js` (theme, copy and raw, grain) and `site/media.js` (loops and embeds, only on pages with video). Content never needs JS |
 | Dev server | `node build.mjs --serve` |
 | Tests | `node --test`, run locally before every merge |
@@ -42,6 +42,7 @@ lib/                      build-time modules
   history.mjs             edit counts and commit checks from git
   site.mjs                the site model: pages, links, media, states
   validate.mjs            every problem, file and line
+  world.mjs               a page's world: its stylesheet, fonts and script
   page.mjs  csp.mjs  outputs.mjs  contrast.mjs
 site/
   template.html           page shell
@@ -79,7 +80,7 @@ Every URL is root-relative; absolute URLs use `https://lucamolluso.com`.
 2. **Validate** (any failure stops the build; every problem is reported at once as `file:line: message`): the Markdown subset; one H1 first, then the description; at most one punch line; no inline `==`; non-empty alt text; supported media only, each in the manifest; every manifest file present with its recorded size; no media file missing from the manifest; budgets; embed hosts and posters; every internal link and anchor resolves; `log` lines well formed, and their hashes real on pages that aren't sample; file names.
 3. Render each file into `site/template.html`; write `dist/<path>/index.html`; copy the raw `.md` next to it.
 4. Write `llms.txt`, `llms-full.txt`, `sitemap.xml`, `robots.txt`, `404.html`.
-5. Copy `site/` assets to `/assets/`, every file the manifest lists, and `static/`.
+5. Copy `site/` assets to `/assets/`, every file the manifest lists, each world (its `world.css` wrapped in `@layer world{…}`, its script, its fonts and their licences), and `static/`.
 6. Write `.nojekyll`.
 
 ## 5. Renderer
@@ -117,7 +118,7 @@ All text and every attribute is HTML-escaped. Headings get `id`s from their text
 | `content/work/<case>.md` | `/work/<case>/` | `/work/<case>.md` |
 | all pages | | `/llms-full.txt` (index first, then the cases in index order, then the rest; each preceded by `Source: <absolute .md URL>`) |
 
-Every page's `<head>`: `<title>` from the H1; `<meta name="description">` from the blockquote; `<link rel="canonical">`; `<link rel="alternate" type="text/markdown" href="….md">`; Open Graph tags (the first photo or poster, or `/og.jpg`); `<meta name="theme-color">`; the CSP (section 15); preloads for the display and text fonts. Homepage only: JSON-LD `Person` (name, jobTitle "Technical Artist", url, email, sameAs LinkedIn, address Rome).
+Every page's `<head>`: `<title>` from the H1; on a world page, its `world.css` after `style.css`, its fonts preloaded instead of the frame's, its `--paper` as the theme colour, and `class="world" data-world="<case>"` on `<html>`; `<meta name="description">` from the blockquote; `<link rel="canonical">`; `<link rel="alternate" type="text/markdown" href="….md">`; Open Graph tags (the first photo or poster, or `/og.jpg`); `<meta name="theme-color">`; the CSP (section 15); preloads for the display and text fonts. Homepage only: JSON-LD `Person` (name, jobTitle "Technical Artist", url, email, sameAs LinkedIn, address Rome).
 
 ## 7. History from git
 
@@ -158,8 +159,9 @@ Port, don't rewrite. From this repo's history at commit `5ed1192`: `src/client/g
 | Area | Target |
 | --- | --- |
 | Content without JS | 100% readable, all links work |
-| HTML + CSS per page | under 40 KB uncompressed, excluding media |
-| Fonts | under 150 KB total |
+| HTML + CSS per page | under 40 KB uncompressed, excluding media; a world page may add up to 20 KB for its `world.css` |
+| Fonts | under 150 KB total for the frame; a world's own fonts under 120 KB |
+| A world's `world.js` | under 2 KB gzipped |
 | JS on pages without video or embeds | under 3 KB gzipped |
 | `rows.js` (pages with a row of cards) | under 1 KB gzipped |
 | Media (MB = 1024 × 1024 bytes) | a loop file 10 MB (warning above 6 MB), a player file 60 MB, a photo file 600 KB, all media 700 MB |

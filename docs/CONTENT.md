@@ -268,3 +268,17 @@ From the Career project's profile doc (the source of truth): modder since 2015; 
 | 05 | The academy (2022–2025 in the timeline) | Fifteen projects, one page each | Frammenti, WAYLAY and Bricks of the Future written; the rest one by one |
 
 Three real cases retire the WIP banner: the first three academy pages do it.
+
+## 11. Worlds
+
+A project page can bring its own look ([DESIGN.md](DESIGN.md) section 10). Its files sit in the page's media folder:
+
+| File | What it is |
+| --- | --- |
+| `content/work/<case>/world.css` | The page's stylesheet. Must set `--paper` to a `#rrggbb` colour (the browser bar takes it). Published inside `@layer world`, below the header |
+| `content/work/<case>/fonts/*.woff2` | Its fonts, subset, with their licence beside them (`ofl.txt` or `license.txt`). Preloaded on that page only |
+| `content/work/<case>/world.js` | Optional. A small enhancement (under 2 KB gzipped); the page reads fully without it |
+
+The Markdown stays the same grammar. On a world page the HTML gives the stylesheet hooks: the intro (everything before the first `##`) is `<header class="s" data-s="intro">`; each `##` opens `<section class="s" data-s="<heading id>">`; each figure carries its file name, `<figure data-m="countdown">` for `waylay/countdown.jpg`.
+
+The build refuses: `@import`; a `url()` outside the world's folder or to a missing file; any rule for the header (`.bar`, `.wip`, its buttons); a world without `--paper`; a font without its licence; a `world.css` or `world.js` without its page, and a `world.js` without its `world.css`.

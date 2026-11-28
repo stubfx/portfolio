@@ -1,4 +1,7 @@
 /* lucamolluso.com: a Markdown file, typeset. Values: docs/DESIGN.md. Started from prototype/index.html v14. */
+@layer base,world,frame;
+
+@layer base{
 :root{
   /* day (default): Catppuccin Latte (official values), text pure black */
   --paper:#eff1f5;--ink:#000000;--grey:#5c5f77;--mk:#9ca0b0;--line:#ccd0da;--red:#e64553;--bar:rgba(239,241,245,.9);
@@ -17,7 +20,7 @@ html{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-te
 html,body{background:var(--paper)}
 body{min-height:100vh;overflow-x:clip} /* rows bleed to the screen edges; the page itself never scrolls sideways */
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.mk,pre,code,.bar,.status,figcaption,.wip,.fence,.hr,.comment,.tag,.loop-tag{font-variant-ligatures:none}
+.mk,pre,code,.status,figcaption,.fence,.hr,.comment,.tag,.loop-tag{font-variant-ligatures:none}
 
 /* the human layer: film grain on top (ported from the previous site) */
 #grain{position:fixed;left:-50%;top:-50%;width:200%;height:200%;z-index:50;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-repeat:repeat}
@@ -25,26 +28,6 @@ html[data-theme="night"] #grain{opacity:.05;mix-blend-mode:normal}
 
 /* text for screen readers only */
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-
-/* WIP banner and file bar */
-.wip{background:var(--ink);color:var(--paper);font:12px/1.45 var(--mono);letter-spacing:.02em;padding:9px var(--pad)}
-.wip b{font-weight:700}
-.wip a{color:inherit;text-decoration:underline;text-underline-offset:.2em}
-.bar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px var(--pad);
-  font:12px/1.2 var(--mono);background:var(--bar);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
-.bar .path{color:var(--mk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.bar .path a{color:var(--mk);text-decoration:none}
-.bar .path b{color:var(--ink);font-weight:400}
-.bar .right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.btn,.seg{display:inline-flex;border:1px solid var(--ink)}
-.btn{background:none;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer;min-width:7.2em;justify-content:center;text-decoration:none}
-.btn:hover{background:var(--ink);color:var(--paper)}
-.seg button{background:none;border:0;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.rawlink{min-width:0}
-/* without JavaScript: no copy, no theme switch, a plain raw link instead of the view switch */
-html:not(.js) #copy,html:not(.js) #themeseg,html:not(.js) #viewseg{display:none}
-.js .rawlink{display:none}
 
 /* the page: a markdown file, typeset */
 .page{max-width:1560px;margin:0 auto;padding:clamp(48px,9vw,140px) var(--pad) 72px calc(var(--pad) + var(--hw))}
@@ -114,8 +97,9 @@ figure video{display:block;width:100%;height:auto;background:var(--line)}
 /* a file list in the timeline: a row of cards, edge to edge, wider than the text column */
 .row{--bleed-l:calc(max(0px, (100vw - 1560px) / 2) + var(--pad) + var(--hw));--bleed-r:calc(max(0px, (100vw - 1560px) / 2) + var(--pad));
   position:relative;margin:1.2em calc(-1 * var(--bleed-r)) 2.4em calc(-1 * var(--bleed-l))}
-.cards{list-style:none;margin:0;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:thin;
-  padding:4px var(--bleed-r) 14px calc(var(--bleed-l) + var(--yr) + 1.5rem);scroll-padding-left:calc(var(--bleed-l) + var(--yr) + 1.5rem)}
+.cards{list-style:none;margin:0;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;
+  padding:4px var(--bleed-r) 4px calc(var(--bleed-l) + var(--yr) + 1.5rem);scroll-padding-left:calc(var(--bleed-l) + var(--yr) + 1.5rem)}
+.cards::-webkit-scrollbar{display:none} /* swipe, trackpad, keyboard and the arrows scroll it; no bar shows */
 .card{flex:0 0 22rem;min-width:0;max-width:none;margin:0;scroll-snap-align:start;font-size:inherit;line-height:inherit}
 .card a{display:block;color:inherit;text-decoration:none}
 .cover{display:block;aspect-ratio:4/3;background:var(--line);overflow:hidden;margin-bottom:12px}
@@ -157,8 +141,6 @@ pre .m,pre .k{color:var(--grey)}
 @media (max-width:720px){
   :root{--hw:0px}
   .mk.hang{width:auto;margin-left:0;padding-right:.35em;font-size:calc(.12em + 9px)}
-  .btn{min-width:0}
-  #viewseg{display:none}
   .tbl > .mk.hang{display:none}
   .tbl thead{display:none}
   .tbl.index tr{display:grid;grid-template-columns:3.4em 1fr auto;border-bottom:1px solid var(--line);padding:.7em 0}
@@ -175,6 +157,39 @@ pre .m,pre .k{color:var(--grey)}
   .row-btn{top:calc(4px + 27vw)}
 }
 @media print{
-  #grain,.bar,.wip,.row-btn{display:none}
+  #grain,.row-btn{display:none}
   .cards{flex-wrap:wrap;overflow:visible}
+}
+}
+
+/* THE FRAME: the WIP banner and the file bar, the same on every page. Its own layer sits above any page's world
+   (docs/DESIGN.md section 10): a world sets the header's colours through the tokens, never its type or layout. */
+@layer frame{
+.wip,.bar{--fmono:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;--fpad:clamp(18px,7vw,120px)}
+.wip{background:var(--ink);color:var(--paper);font:12px/1.45 var(--fmono);letter-spacing:.02em;text-transform:none;padding:9px var(--fpad);font-variant-ligatures:none}
+.wip b{font-weight:700}
+.wip a{color:inherit;text-decoration:underline;text-underline-offset:.2em}
+.bar{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px var(--fpad);
+  font:12px/1.2 var(--fmono);letter-spacing:0;text-transform:none;text-align:left;text-shadow:none;font-variant-ligatures:none;
+  background:var(--bar);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.bar .path{color:var(--mk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.bar .path a{color:var(--mk);text-decoration:none}
+.bar .path b{color:var(--ink);font-weight:400}
+.bar .right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.btn,.seg{display:inline-flex;border:1px solid var(--ink)}
+.btn{background:none;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer;min-width:7.2em;justify-content:center;text-decoration:none}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.seg button{background:none;border:0;padding:6px 9px;font:inherit;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.rawlink{min-width:0}
+/* without JavaScript: no copy, no theme switch, a plain raw link instead of the view switch */
+html:not(.js) #copy,html:not(.js) #themeseg,html:not(.js) #viewseg{display:none}
+.js .rawlink{display:none}
+html.world #themeseg{display:none} /* a world sets its own colours: day and night are the frame's */
+@media (max-width:720px){
+  .btn{min-width:0}
+  #viewseg{display:none}
+}
+@media print{.bar,.wip{display:none}}
 }

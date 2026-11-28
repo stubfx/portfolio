@@ -88,3 +88,38 @@ test('the timeline rule only reads the Timeline section, on any page', () => {
   assert.ok(has(work, 'content/work/x.md', 7, /YYYY/), formatProblems(work));
   assert.ok(!has(work, 'content/work/x.md', 11, /YYYY/), 'after the section ends');
 });
+
+// A page's world: work/a/world.css beside work/a.md (docs/CONTENT.md section 9).
+const OK = ':root{--paper:#000000}\n';
+const world = (css, extra = {}) => problems({ 'work/a.md': '# A\n\n> d\n', 'work/a/world.css': css, ...extra });
+
+test('a clean world has no problems', () => {
+  assert.deepEqual(world(`${OK}@font-face{font-family:W;src:url("fonts/w.woff2") format("woff2")}\n/* .bar in a comment is fine */\n`,
+    { 'work/a/fonts/w.woff2': 'x', 'work/a/fonts/ofl.txt': 'licence', 'work/a/world.js': 'export {};\n' }), []);
+});
+
+const WORLD_RULES = [
+  ['world: @import', `${OK}@import url(x.css);\n`, 2, /@import/],
+  ['world: a url to another site', `${OK}h1{background:url(https://x.com/a.png)}\n`, 2, /inside its own folder/],
+  ['world: a url outside its folder', `${OK}h1{background:url('../b/a.png')}\n`, 2, /inside its own folder/],
+  ['world: a url to a missing file', `${OK}\nh1{background:url(fonts/none.woff2)}\n`, 3, /no such file/],
+  ['world: styling the header', `${OK}main h1, .bar .path{display:none}\n`, 2, /header/],
+  ['world: no --paper colour', 'h1{color:red}\n', 1, /--paper/],
+];
+for (const [name, css, line, msg] of WORLD_RULES) {
+  test(name, () => {
+    const ps = world(css);
+    assert.ok(has(ps, 'content/work/a/world.css', line, msg), `${name}: ${formatProblems(ps)}`);
+  });
+}
+
+test('world: fonts need their licence beside them', () => {
+  const ps = world(`${OK}@font-face{font-family:W;src:url(fonts/w.woff2)}\n`, { 'work/a/fonts/w.woff2': 'x' });
+  assert.ok(has(ps, 'content/work/a/fonts/w.woff2', 0, /licen[cs]e/), formatProblems(ps));
+});
+
+test('world: a stylesheet or script without its page, a script without a stylesheet', () => {
+  const ps = problems({ 'work/b/world.css': OK, 'work/a.md': '# A\n\n> d\n', 'work/a/world.js': 'export {};\n' });
+  assert.ok(has(ps, 'content/work/b/world.css', 0, /work\/b\.md/), formatProblems(ps));
+  assert.ok(has(ps, 'content/work/a/world.js', 0, /world\.css/), formatProblems(ps));
+});

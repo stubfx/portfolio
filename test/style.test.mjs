@@ -22,6 +22,8 @@ test('long words wrap instead of widening the page', () => {
 test('rows bleed edge to edge, snap, and never scroll the page', () => {
   assert.match(rule('.row'), /margin:[^;]*calc\(-1 \* var\(--bleed-r\)\)[^;]*calc\(-1 \* var\(--bleed-l\)\)/);
   assert.match(rule('.cards'), /scroll-snap-type:x mandatory/);
+  assert.match(rule('.cards'), /scrollbar-width:none/); // Luca, 2026-11-28: no visible scrollbars in the rows
+  assert.match(rule('.cards::-webkit-scrollbar'), /display:none/);
   assert.match(rule('body'), /overflow-x:clip/);
   assert.match(rule('html:not(.js) .row-btn'), /display:none/);
 });
@@ -33,4 +35,18 @@ test('transparent images get no placeholder background, so the page shows throug
 test('.vh hides text visually and keeps it for screen readers', () => {
   assert.match(rule('.vh'), /position:absolute/);
   assert.match(rule('.vh'), /clip-path:inset\(50%\)/);
+});
+
+test('the header sits in the frame layer, above any world; a world page hides the theme switch', () => {
+  const src = fs.readFileSync('site/style.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').trim();
+  assert.match(src, /^@layer base,world,frame;/);
+  const at = src.indexOf('@layer frame{');
+  assert.ok(at > 0, 'a frame layer');
+  const [base, frame] = [src.slice(0, at), src.slice(at)];
+  for (const sel of ['.bar{', '.btn{', '.seg button{', '.wip{']) {
+    assert.ok(frame.includes(sel), `${sel} in the frame layer`);
+    assert.ok(!base.includes(sel), `${sel} only in the frame layer`);
+  }
+  assert.match(frame, /html\.world #themeseg\{display:none\}/);
+  assert.match(base, /^@layer base,world,frame;\s*@layer base\{/);
 });

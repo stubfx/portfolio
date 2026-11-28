@@ -200,3 +200,26 @@ test('the banner calls the content sample only while a page is sample', async ()
   assert.match(html, /<div class="wip" role="note">/);
   assert.ok(!html.includes('Sample content'), 'no page is sample');
 });
+
+test('a page with a world: its stylesheet in the world layer, its fonts preloaded, its colours, its script; other pages untouched', async () => {
+  const css = ':root{--paper:#0a0a0a;--ink:#ffffff}\n@font-face{font-family:W;src:url("fonts/w.woff2") format("woff2")}\nh1{font-family:W}\n';
+  const w = fixture({ 'work/a/world.css': css, 'work/a/world.js': 'export {};\n', 'work/a/fonts/w.woff2': bytes(7), 'work/a/fonts/ofl.txt': 'licence' });
+  const res = await run(w);
+  assert.equal(res.ok, true, JSON.stringify(res.problems));
+  const html = read(w, 'work/a/index.html');
+  assert.match(html, /<html lang="en" data-theme="day" class="world" data-world="a">/);
+  assert.match(html, /<link rel="stylesheet" href="\/assets\/style\.css">\n<link rel="stylesheet" href="\/work\/a\/world\.css">/);
+  assert.match(html, /<link rel="preload" href="\/work\/a\/fonts\/w\.woff2" as="font" type="font\/woff2" crossorigin>/);
+  assert.doesNotMatch(html, /archivo-black\.woff2|dm-sans\.woff2/);
+  assert.match(html, /<meta name="theme-color" content="#0a0a0a">/);
+  assert.match(html, /<script type="module" src="\/work\/a\/world\.js"><\/script>/);
+  assert.match(html, /<main class="page" id="page"><header class="s" data-s="intro"><h1 id="a">/);
+  assert.match(html, /<figure data-m="p">/);
+  assert.equal(read(w, 'work/a/world.css'), `@layer world{\n${css.trimEnd()}\n}\n`);
+  for (const f of ['fonts/w.woff2', 'fonts/ofl.txt', 'world.js']) assert.ok(fs.existsSync(path.join(w, 'dist/work/a', f)), f);
+  const now = read(w, 'now/index.html');
+  assert.doesNotMatch(now, /class="world"|world\.css|world\.js|<header class="s"/);
+  assert.match(now, /<html lang="en" data-theme="day">/);
+  assert.match(now, /archivo-black\.woff2/);
+  assert.match(now, /<meta name="theme-color" content="#eff1f5">/);
+});

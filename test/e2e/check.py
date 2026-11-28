@@ -13,7 +13,7 @@ which the real content doesn't have yet), serves both with build.mjs's server (R
   cls       layout shift under 0.05 while fonts load (fonts delayed 800 ms), 1440 and 390 wide
   overflow  no horizontal scrolling at 360 px
   focus     every Tab stop shows an outline of at least 2 px
-  rows      timeline rows span the screen edge to edge, never scroll the page, keep long titles inside cards; arrows scroll
+  rows      timeline rows span the screen edge to edge, show no scrollbar, never scroll the page, keep long titles inside cards; arrows scroll
 
 Usage: uv run -q --with playwright==1.64.1 python test/e2e/check.py [name ...]   (no names: all but reference)
 """
@@ -284,6 +284,9 @@ def rows(r):
             sw, cw = pg.evaluate('[document.documentElement.scrollWidth, document.documentElement.clientWidth]')
             if sw > cw:
                 r.fail('rows', f'{where}: the page scrolls sideways ({sw} > {cw})')
+            bar = pg.evaluate("(() => { const c = document.querySelector('.cards'); return [getComputedStyle(c).scrollbarWidth, c.offsetHeight - c.clientHeight]; })()")
+            if bar != ['none', 0]:
+                r.fail('rows', f'{where}: the row shows a scrollbar ({bar})')
             over = pg.evaluate("[...document.querySelectorAll('.card')].filter(c => c.scrollWidth > c.clientWidth + 1).length")
             if over:
                 r.fail('rows', f'{where}: {over} card(s) wider than their box')

@@ -166,3 +166,24 @@ test('cards: a sample page says so; a wide cover, cropped to 4:3, asks for a lar
   assert.match(html, /srcset="\/wide\.800\.avif[^"]*" sizes="\(min-width: 720px\) calc\(22rem \* 2\.00\), calc\(72vw \* 2\.00\)"/);
   assert.match(html, /srcset="\/cov\.800\.avif[^"]*" sizes="\(min-width: 720px\) 22rem, 72vw"/);
 });
+
+// A page with a world (docs/DESIGN.md section 10): hooks for its stylesheet.
+const rw = (md) => renderBlocks(parse(md).blocks, ctx, { world: true });
+
+test('world pages: the intro is a header, each ## opens a section named by its id', () => {
+  const html = rw('# T\n\n> d\n\n![Cap](p.jpg)\n\n## The app\n\nText.\n\n### Small\n\n## Lives\n\n==One.==\n');
+  assert.match(html, /^<header class="s" data-s="intro"><h1 id="t">.*?<\/figure><\/header><section class="s" data-s="the-app"><h2 id="the-app">.*?<p>Text\.<\/p><h3 id="small">.*?<\/h3><\/section><section class="s" data-s="lives"><h2 id="lives">.*?<\/p><\/section>$/);
+});
+
+test('world pages: figures carry their file name', () => {
+  const html = rw('# T\n\n> d\n\n![C](p.jpg)\n\n![C](tall.jpg)\n\n![C](cut.png)\n\n![C](l.mp4)\n\n![C](https://vimeo.com/1)\n');
+  for (const [n, cls] of [['p', ''], ['tall', ' class="narrow"'], ['cut', ' class="cutout"'], ['l', ''], ['vimeo-1', '']]) assert.match(html, new RegExp(`<figure data-m="${n}"${cls}><figcaption`), n);
+});
+
+test('world pages: a timeline entry closes before its section', () => {
+  assert.match(rw('# T\n\n> d\n\n## Timeline\n\n### 2017: IBM.\n\nText.\n\n## Next\n'), /<p>Text\.<\/p><\/section><\/section><section class="s" data-s="next">/);
+});
+
+test('other pages keep the flat markup', () => {
+  assert.doesNotMatch(r('# T\n\n> d\n\n![C](p.jpg)\n\n## A\n\nText.\n'), /<section|<header|data-m=/);
+});

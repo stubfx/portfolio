@@ -10,6 +10,7 @@ import { loadSite, pageLinks, resolveHref } from './lib/site.mjs';
 import { validate, formatProblems, mediaWarnings } from './lib/validate.mjs';
 import { renderPage } from './lib/page.mjs';
 import { llmsFull, sitemap, robots } from './lib/outputs.mjs';
+import { worldStylesheet, worldFiles } from './lib/world.mjs';
 
 function write(file, data) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -59,6 +60,11 @@ export async function build({ contentDir = 'content', siteDir = 'site', staticDi
       const r = resolveHref(site, page, href);
       if (r.file) write(path.join(outDir, r.file), fs.readFileSync(path.join(contentDir, r.file)));
     }
+  }
+  for (const { world } of site.pages) {
+    if (!world) continue;
+    write(path.join(outDir, world.dir, 'world.css'), worldStylesheet(world));
+    for (const f of worldFiles(contentDir, world)) write(path.join(outDir, f), fs.readFileSync(path.join(contentDir, f)));
   }
   copyDir(staticDir, outDir);
   return { ok: true, problems: [], warnings, pages: site.pages.length };
