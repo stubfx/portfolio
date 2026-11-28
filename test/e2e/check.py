@@ -13,6 +13,7 @@ which the real content doesn't have yet), serves both with build.mjs's server (R
   cls       layout shift under 0.05 while fonts load (fonts delayed 800 ms), 1440 and 390 wide
   overflow  no horizontal scrolling at 360 px
   focus     every Tab stop shows an outline of at least 2 px
+  rows      timeline rows span the screen edge to edge, never scroll the page, keep long titles inside cards; arrows scroll
 
 Usage: uv run -q --with playwright==1.64.1 python test/e2e/check.py [name ...]   (no names: all but reference)
 """
@@ -264,6 +265,40 @@ def focus(r):
         ctx.close()
         if len(seen) < 5:
             r.fail('focus', f'{url}: only {len(seen)} tab stops')
+
+
+@check
+def rows(r):
+    for base in (r.dist, r.fix):
+        for w, h in ((1440, 900), (390, 844), (360, 740)):
+            ctx, pg = r.page(w, h)
+            pg.goto(base + '/', wait_until='networkidle')
+            where = f'{base}/ at {w}'
+            box = pg.evaluate("(() => { const e = document.querySelector('.row'); if (!e) return null; const b = e.getBoundingClientRect(); return [b.left, b.right]; })()")
+            if box is None:
+                r.fail('rows', f'{where}: no row')
+                ctx.close()
+                continue
+            if abs(box[0]) > 1 or abs(box[1] - w) > 1:
+                r.fail('rows', f'{where}: the row spans {box}, not 0 to {w}')
+            sw, cw = pg.evaluate('[document.documentElement.scrollWidth, document.documentElement.clientWidth]')
+            if sw > cw:
+                r.fail('rows', f'{where}: the page scrolls sideways ({sw} > {cw})')
+            over = pg.evaluate("[...document.querySelectorAll('.card')].filter(c => c.scrollWidth > c.clientWidth + 1).length")
+            if over:
+                r.fail('rows', f'{where}: {over} card(s) wider than their box')
+            if w == 1440:
+                pg.locator('.row').first.scroll_into_view_if_needed()
+                pg.wait_for_timeout(200)
+                state = pg.evaluate("(() => { const r = document.querySelector('.row'); return { prev: r.querySelector('.row-btn.prev').disabled, at: r.querySelector('.cards').scrollLeft }; })()")
+                pg.locator('.row .row-btn.next').first.click()
+                pg.wait_for_timeout(900)
+                after = pg.evaluate("document.querySelector('.row .cards').scrollLeft")
+                if not state['prev']:
+                    r.fail('rows', f'{where}: the back arrow is enabled at the start')
+                if after <= state['at']:
+                    r.fail('rows', f'{where}: the next arrow did not scroll ({state["at"]} -> {after})')
+            ctx.close()
 
 
 def main(names):

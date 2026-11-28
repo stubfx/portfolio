@@ -18,6 +18,21 @@ A link that never breaks: [https://example.com/a/very/long/path/that/never/break
 - [Averyveryverylongcasetitlewithoutanyspaces](more.md): A note that is long enough to wrap onto a second line on a phone. (2026)
 - Planned: Later. (2027)
 
+## Timeline
+
+### 2022–2025: An entry title long enough to wrap onto a second line on a phone screen.
+
+Entry text, in the text column beside the year.
+
+- [Averyveryverylongcasetitlewithoutanyspaces](more.md): A note long enough to wrap inside its card on a phone, and then some.
+- [A loop](clip.md): Its cover is the loop's poster.
+- Planned one: Later.
+- Planned two: Later.
+- Planned three: Later.
+- Planned four: Later.
+
+## More
+
 Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. 
 
 Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. Text between the media, so the page scrolls and a loop can leave the screen. 
